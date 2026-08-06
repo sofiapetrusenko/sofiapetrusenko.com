@@ -8,6 +8,7 @@ export { projects } from "./projects";
 export { roles } from "./roles";
 export { labels } from "./labels";
 export { pipelineStages } from "./pipeline";
+export { stackCategory, type StackCategory } from "./stack";
 
 /** Undefined for an unknown slug — callers decide whether that is a 404. */
 export function getProject(slug: string): Project | undefined {
