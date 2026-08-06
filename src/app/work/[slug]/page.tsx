@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
-import { getProject, labels, projects } from "@/content";
+import { getProject, labels, pipelineStages, projects } from "@/content";
 import { LinkList } from "@/components/LinkList";
+import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
 import { SectionLabel } from "@/components/Section";
 import { StackList } from "@/components/StackList";
+
+/** Only this project has a pipeline to show. */
+const PIPELINE_SLUG = "media-automation-platform";
 
 type Params = { slug: string };
 
@@ -65,6 +69,18 @@ export default async function ProjectPage({
         <Reveal>
           <Field label={labels.approach} body={project.approach} />
         </Reveal>
+
+        {project.slug === PIPELINE_SLUG && (
+          <Reveal>
+            <section>
+              <SectionLabel>{labels.pipeline}</SectionLabel>
+              <p className="text-muted mb-6 max-w-[68ch] text-sm">
+                {labels.pipelineHint}
+              </p>
+              <PipelineDiagram stages={pipelineStages} />
+            </section>
+          </Reveal>
+        )}
 
         <Reveal>
           <section>

@@ -35,6 +35,22 @@ export type Role = {
   summary: string;
 };
 
+export type PipelineStage = {
+  /** url-safe id, matching the platform's own stage name where it has one */
+  id: string;
+  name: string;
+  /** compact label for the horizontal diagram, where space is tight */
+  short: string;
+  /** the human gate is the one stage with no automatic path */
+  kind: "automated" | "gate";
+  /** what the stage does */
+  does: string;
+  /** the artifact it writes for the next stage to read */
+  artifact: string;
+  /** how it fails, and what that failure costs */
+  failure: string;
+};
+
 export type Profile = {
   name: string;
   headline: string;
