@@ -1,23 +1,19 @@
 import type { Profile } from "./types";
 
-/**
- * Structural values (name, email, links) are taken verbatim from the legacy
- * index.html at the repo root. Prose fields are "TODO" pending real copy.
- *
- * `location` is "TODO" because index.html never states one.
- */
 export const profile = {
   name: "Sofia Petrusenko",
-  headline: "TODO",
-  summary: "TODO",
-  location: "TODO",
+  headline:
+    "I build and operate LLM systems end-to-end — pipelines, memory, deployment.",
+  summary:
+    "Biomedical scientist turned engineer. I design and run production systems: LLM orchestration pipelines, retrieval-based memory, async task processing and cloud deployment. Research background in ageing biology across the UK, Portugal, Germany and Ukraine.",
+  location: "Cascais, Portugal",
   email: "sofia.petrusenko988@gmail.com",
   links: [
-    { label: "Email", href: "mailto:sofia.petrusenko988@gmail.com" },
+    { label: "GitHub", href: "https://github.com/sofiapetrusenko" },
     {
       label: "LinkedIn",
-      href: "https://linkedin.com/in/sofia-petrusenko-187810256",
+      href: "https://www.linkedin.com/in/sofia-petrusenko-187810256",
     },
-    { label: "Instagram", href: "https://instagram.com/s0fiichka" },
+    { label: "Email", href: "mailto:sofia.petrusenko988@gmail.com" },
   ],
 } satisfies Profile;

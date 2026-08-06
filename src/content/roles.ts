@@ -1,47 +1,45 @@
 import type { Role } from "./types";
 
-/**
- * Five roles, in the order they appear in the legacy index.html #experience
- * section. `org`, `title` and `location` are taken verbatim from that markup.
- *
- * `period` is "TODO" for every role: index.html states no dates anywhere, so
- * there is nothing to derive and nothing may be invented.
- * `location` is "TODO" for the independent role for the same reason.
- */
+/** Most recent first. Values taken from the CV. */
 export const roles = [
   {
-    org: "MRC PPU — University of Dundee",
+    org: "Independent",
+    title: "Founder & Engineer — AI Content Automation",
+    location: "Cascais, Portugal (remote)",
+    period: "2025 – present",
+    summary:
+      "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers. Alongside this, plan and optimise paid acquisition campaigns on Google Ads and Meta against defined cost-per-acquisition targets.",
+  },
+  {
+    org: "MRC PPU, School of Life Sciences",
     title: "Research Intern",
-    location: "Scotland",
-    period: "TODO",
-    summary: "TODO",
+    location: "Dundee, Scotland, UK",
+    period: "09/2024 – 01/2025",
+    summary:
+      "Investigated stress-induced protein phosphorylation in Saccharomyces cerevisiae and its relationship to longevity. Analysed experimental datasets in R and Python; contributed to a manuscript on the implications for ageing mechanisms.",
   },
   {
     org: "NOVA Medical School",
     title: "Research Intern",
-    location: "Portugal",
-    period: "TODO",
-    summary: "TODO",
+    location: "Lisbon, Portugal",
+    period: "06/2023 – 08/2023",
+    summary:
+      "Studied proteostasis and molecular mechanisms of ageing relevant to neurodegeneration and retinal disease, working with cellular models from yeast to human cells and brain and retinal organoids.",
   },
   {
-    org: "Institute of Life Science",
+    org: "Institute of Life Sciences",
     title: "Research Technician",
     location: "UK",
-    period: "TODO",
-    summary: "TODO",
+    period: "05/2022 – 09/2022",
+    summary:
+      "Investigated autophagy signalling and its alteration during ageing, in cancer, neurodegeneration and diabetes, including work on autophagy in immunity and pathogenic infection.",
   },
   {
-    org: "Max Planck Institute",
+    org: "Max Planck Institute of Animal Behaviour",
     title: "Research Intern",
-    location: "Germany",
-    period: "TODO",
-    summary: "TODO",
-  },
-  {
-    org: "Independent",
-    title: "Founder & Builder — AI & Longevity Ventures",
-    location: "TODO",
-    period: "TODO",
-    summary: "TODO",
+    location: "Konstanz, Germany",
+    period: "03/2022 – 05/2022",
+    summary:
+      "Researched collective animal behaviour and social influence across biological systems, working across experimental and theoretical approaches.",
   },
 ] satisfies readonly Role[];
