@@ -5,7 +5,7 @@ import { Section } from "./Section";
 export function SelectedWork() {
   return (
     <Section title={labels.selectedWork}>
-      <ul className="flex flex-col gap-6">
+      <ul className="flex flex-col gap-5">
         {projects.map((project) => (
           <ProjectCard key={project.slug} project={project} />
         ))}

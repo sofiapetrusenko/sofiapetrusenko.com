@@ -8,11 +8,15 @@ import { Section } from "./Section";
 export function Background() {
   return (
     <Section title={labels.background}>
-      <ol className="border-hairline flex flex-col gap-10 border-l pl-6">
+      <ol className="border-hairline flex flex-col gap-11 border-l pl-6 sm:pl-8">
         {roles.map((role) => (
           <li key={`${role.org}-${role.period}`}>
-            <p className="text-muted font-mono text-xs">{role.period}</p>
-            <h3 className="mt-2 font-medium">{role.title}</h3>
+            <p className="text-muted font-mono text-xs tracking-wider">
+              {role.period}
+            </p>
+            <h3 className="mt-2 text-lg font-medium tracking-tight">
+              {role.title}
+            </h3>
             <p className="text-muted mt-1 text-sm">
               {role.org} · {role.location}
             </p>

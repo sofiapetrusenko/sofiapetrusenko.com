@@ -1,9 +1,17 @@
 import type { ReactNode } from "react";
 
 /**
- * A titled section. The heading is a mono label rather than large display type:
- * the content is the signal, the section name is only a waypoint.
+ * Small, wide-tracked, muted — reads as a waypoint, not as content. Shared so
+ * every label on the site sits at exactly the same step in the hierarchy.
  */
+export function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="text-muted mb-10 font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+      {children}
+    </h2>
+  );
+}
+
 export function Section({
   title,
   children,
@@ -12,10 +20,8 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="border-hairline border-t pt-8">
-      <h2 className="text-muted mb-8 font-mono text-xs tracking-widest uppercase">
-        {title}
-      </h2>
+    <section className="border-hairline border-t pt-10">
+      <SectionLabel>{title}</SectionLabel>
       {children}
     </section>
   );
