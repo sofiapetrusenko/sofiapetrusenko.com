@@ -5,17 +5,11 @@ export function Hero() {
   return (
     <header className="relative">
       {/*
-        One soft radial glow in the accent hue behind the name. Static, and
-        width-capped to the container so it can never widen the page.
+        Two slow radial glows behind the name — the one deliberately decorative
+        element on the site. Geometry, clipping and contrast are all handled in
+        globals.css; see `.hero-aurora` there.
       */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-56 left-1/2 -z-10 h-[36rem] w-[36rem] max-w-full -translate-x-1/2 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "radial-gradient(closest-side, var(--color-accent), transparent)",
-        }}
-      />
+      <div aria-hidden="true" className="hero-aurora" />
 
       <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] leading-[0.92] font-semibold tracking-[-0.03em] text-balance">
         {profile.name}
@@ -30,7 +24,7 @@ export function Hero() {
         {profile.location}
       </p>
       <div className="mt-10">
-        <LinkList links={profile.links} />
+        <LinkList links={profile.links} variant="pill" />
       </div>
     </header>
   );

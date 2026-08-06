@@ -83,6 +83,80 @@ body {
 }
 
 /*
+ * Hero aurora: two slow radial glows behind the name. The one deliberately
+ * decorative element on the site.
+ *
+ * Contrast: each glow peaks at 10% opacity. The brightest frame the animation
+ * can physically produce is both glows exactly coincident, which composites to
+ * rgb(23, 50, 47) — body text 11.2:1, muted 5.4:1, accent 6.4:1 against it.
+ * That bound holds for every frame, so no frame can fall under 4.5:1. 12%
+ * opacity would drop muted to 4.9:1, which is why it stays at 10%.
+ *
+ * `overflow: clip` is a safety net: the glows are sized to stay inside the
+ * wrapper across the whole drift, so the page can never gain scroll width.
+ */
+.hero-aurora {
+  position: absolute;
+  inset-inline: 0;
+  top: -8rem;
+  height: 30rem;
+  z-index: -10;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.hero-aurora::before,
+.hero-aurora::after {
+  content: "";
+  position: absolute;
+  width: min(26rem, 72%);
+  aspect-ratio: 1;
+  opacity: 0.1;
+  will-change: transform;
+}
+
+.hero-aurora::before {
+  left: 2%;
+  top: 6%;
+  background: radial-gradient(closest-side, var(--color-accent), transparent);
+}
+
+.hero-aurora::after {
+  right: 4%;
+  top: 26%;
+  background: radial-gradient(closest-side, var(--color-ok), transparent);
+}
+
+/* Drift is ~10% of the viewport over a half-minute — breathing, not shimmer. */
+@keyframes aurora-drift-a {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(7vw, 2.5vh, 0);
+  }
+}
+
+@keyframes aurora-drift-b {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-6vw, -3vh, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-aurora::before {
+    animation: aurora-drift-a 28s ease-in-out infinite alternate;
+  }
+
+  .hero-aurora::after {
+    animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  }
+}
+
+/*
  * Pipeline diagram. The SVG is presentation only — the hit targets are real
  * HTML buttons laid over it, so focus, keyboard activation and the global
  * :focus-visible ring all behave natively.
