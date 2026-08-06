@@ -6,7 +6,8 @@ import type { ReactNode } from "react";
  */
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <h2 className="text-muted mb-10 font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+    <h2 className="text-muted mb-10 flex items-center gap-3 font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+      <span aria-hidden="true" className="bg-accent block h-px w-4" />
       {children}
     </h2>
   );

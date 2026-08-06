@@ -10,6 +10,7 @@ export const labels = {
   problem: "Problem",
   approach: "Approach",
   links: "Links",
+  viewCaseStudy: "View case study",
   pipeline: "Pipeline",
   pipelineHint:
     "Select a stage for what it does, the artifact it writes and how it fails.",

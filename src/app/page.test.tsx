@@ -38,6 +38,16 @@ describe("Home", () => {
     }
   });
 
+  it("gives every project card an explicit call to action", () => {
+    render(<Home />);
+
+    // The card is one link in the a11y tree, so the CTA is decorative text —
+    // its job is to make the card look clickable before the pointer arrives.
+    expect(screen.getAllByText(/view case study/i)).toHaveLength(
+      projects.length,
+    );
+  });
+
   it("exposes the email and gives external links safe rel attributes", () => {
     render(<Home />);
 
