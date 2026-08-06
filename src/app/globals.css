@@ -171,6 +171,31 @@ body {
     fill-opacity 150ms ease-out;
 }
 
+/*
+ * Timeline node for the ongoing role. Opacity only — nothing reflows, and the
+ * base opacity lives outside the query so reduced motion keeps a static ring
+ * rather than losing it.
+ */
+.timeline-pulse {
+  opacity: 0.35;
+}
+
+@keyframes timeline-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.05;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .timeline-pulse {
+    animation: timeline-pulse 2s ease-in-out infinite;
+  }
+}
+
 /* Detail panel content swap. Keyed remount replays this on every selection. */
 @keyframes panel-fade {
   from {
