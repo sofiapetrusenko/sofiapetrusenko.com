@@ -2,24 +2,26 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PipelineStage } from "@/content";
+import { labels } from "@/content";
 import { DEMO_FAILURE_INDEX } from "@/content/pipeline";
 import { resumePlan, type StageStatus } from "./pipeline-status";
 
 const PULSE_MS = 600;
 
 /**
- * Horizontal geometry, sized so the viewBox renders ~1:1 in the text column.
- * `nodeH` is 48 rather than 44 because the SVG scales down slightly inside the
- * bordered container — 44 units lands at ~41 CSS px, under the 44px touch
- * target minimum.
+ * Horizontal geometry. `nodeH` is 48 rather than 44 because the SVG scales
+ * down slightly inside the bordered card — 44 units lands under the 44px touch
+ * target minimum. `vbH` leaves room for the gate caption below the row; it does
+ * not affect touch target size, which depends only on nodeH/vbW.
  */
 const H = {
   nodeW: 70,
-  nodeH: 48,
-  pitch: 78,
+  nodeH: 50,
+  /* 12 units of gap, not 8: the snapped-connector break needs room to read. */
+  pitch: 82,
   top: 36,
   glyphY: 16,
-  vbH: 104,
+  vbH: 128,
 } as const;
 /** Vertical geometry for narrow viewports. Same touch-target reasoning. */
 const V = {
@@ -32,80 +34,147 @@ const V = {
 } as const;
 
 type Orientation = "horizontal" | "vertical";
-
 type Box = { x: number; y: number; width: number; height: number };
 
-/** How a node should be painted, independent of orientation. */
+const TOKEN = {
+  accent: "var(--color-accent)",
+  ok: "var(--color-ok)",
+  danger: "var(--color-danger)",
+  gate: "var(--color-gate)",
+  fg: "var(--color-fg)",
+  muted: "var(--color-muted)",
+  hairline: "var(--color-hairline)",
+  hairlineBright: "var(--color-hairline-bright)",
+  surface: "var(--color-surface)",
+} as const;
+
+/**
+ * How a node is painted. Every colour here encodes state or type — selection,
+ * run status, or the gate's difference in kind. Nothing is decorative.
+ */
 type Visual = {
   stroke: string;
   strokeOpacity: number;
+  strokeWidth: number;
+  dashed: boolean;
   fill: string;
+  fillOpacity: number;
   text: string;
-  glyph: StageStatus | null;
+  /** struck-through label, for stages a failed run never reached */
+  struck: boolean;
 };
 
 function visualFor(
+  stage: PipelineStage,
   status: StageStatus | null,
   isSelected: boolean,
   isPulsing: boolean,
+  isHovered: boolean,
 ): Visual {
-  // Failure simulation takes over the palette entirely; selection still shows
-  // through as a brighter fill so the detail panel's subject stays findable.
-  if (status !== null) {
-    const base = {
-      fill: isSelected ? "var(--color-surface)" : "transparent",
-      glyph: status,
-    };
-    if (status === "failed")
-      return {
-        ...base,
-        stroke: "var(--color-danger)",
-        strokeOpacity: 1,
-        text: "var(--color-danger)",
-      };
-    if (status === "complete")
-      return {
-        ...base,
-        stroke: "var(--color-ok)",
-        strokeOpacity: 0.8,
-        text: "var(--color-fg)",
-      };
+  const isGate = stage.kind === "gate";
+
+  // Failure simulation owns the palette: the run's story outranks selection.
+  if (status === "failed")
     return {
-      ...base,
-      stroke: "var(--color-hairline)",
+      stroke: TOKEN.danger,
       strokeOpacity: 1,
-      text: "var(--color-muted)",
+      strokeWidth: 2,
+      dashed: false,
+      fill: TOKEN.danger,
+      fillOpacity: 0.15,
+      text: TOKEN.danger,
+      struck: false,
     };
-  }
+
+  if (status === "complete")
+    return {
+      stroke: TOKEN.ok,
+      strokeOpacity: 0.85,
+      strokeWidth: isSelected ? 1.5 : 1,
+      dashed: false,
+      fill: TOKEN.ok,
+      fillOpacity: isSelected ? 0.16 : 0.1,
+      text: TOKEN.fg,
+      struck: false,
+    };
+
+  if (status === "pending")
+    return {
+      stroke: TOKEN.hairline,
+      strokeOpacity: 0.6,
+      strokeWidth: 1,
+      dashed: false,
+      fill: TOKEN.surface,
+      fillOpacity: isSelected ? 1 : 0,
+      text: TOKEN.muted,
+      struck: true,
+    };
+
+  // The gate keeps its own hue even when selected — it is a different kind of
+  // thing, and the panel rule picks up the same colour.
+  if (isGate)
+    return {
+      stroke: TOKEN.gate,
+      strokeOpacity: isSelected ? 1 : 0.75,
+      strokeWidth: isSelected ? 2 : 1,
+      dashed: true,
+      fill: TOKEN.gate,
+      fillOpacity: isSelected ? 0.1 : isHovered ? 0.07 : 0.05,
+      text: TOKEN.gate,
+      struck: false,
+    };
 
   if (isSelected)
     return {
-      stroke: "var(--color-accent)",
+      stroke: TOKEN.accent,
       strokeOpacity: 1,
-      fill: "var(--color-surface)",
-      text: "var(--color-accent)",
-      glyph: null,
+      strokeWidth: 2,
+      dashed: false,
+      fill: TOKEN.accent,
+      fillOpacity: 0.12,
+      text: TOKEN.accent,
+      struck: false,
     };
 
   if (isPulsing)
     return {
-      stroke: "var(--color-accent)",
-      strokeOpacity: 0.45,
-      fill: "var(--color-surface)",
-      text: "var(--color-fg)",
-      glyph: null,
+      stroke: TOKEN.accent,
+      strokeOpacity: 0.7,
+      strokeWidth: 1.5,
+      dashed: false,
+      fill: TOKEN.accent,
+      fillOpacity: 0.08,
+      text: TOKEN.fg,
+      struck: false,
+    };
+
+  // Hover matches the home page's card language: hairline brightens, surface
+  // lifts one step.
+  if (isHovered)
+    return {
+      stroke: TOKEN.hairlineBright,
+      strokeOpacity: 1,
+      strokeWidth: 1,
+      dashed: false,
+      fill: TOKEN.surface,
+      fillOpacity: 1,
+      text: TOKEN.fg,
+      struck: false,
     };
 
   return {
-    stroke: "var(--color-hairline)",
+    stroke: TOKEN.hairline,
     strokeOpacity: 1,
-    fill: "transparent",
-    text: "var(--color-fg)",
-    glyph: null,
+    strokeWidth: 1,
+    dashed: false,
+    fill: TOKEN.surface,
+    fillOpacity: 0,
+    text: TOKEN.fg,
+    struck: false,
   };
 }
 
-/** Status marks, so failure state is never carried by colour alone. */
+/** Status marks, so run state is never carried by colour alone. */
 function Glyph({
   status,
   x,
@@ -117,10 +186,10 @@ function Glyph({
 }) {
   const stroke =
     status === "failed"
-      ? "var(--color-danger)"
+      ? TOKEN.danger
       : status === "complete"
-        ? "var(--color-ok)"
-        : "var(--color-muted)";
+        ? TOKEN.ok
+        : TOKEN.muted;
 
   const d =
     status === "complete"
@@ -141,12 +210,23 @@ function Glyph({
   );
 }
 
+/** The rule colour tying the detail panel to the node it describes. */
+function accentForStage(
+  stage: PipelineStage | undefined,
+  status: StageStatus | null,
+): string {
+  if (status === "failed") return TOKEN.danger;
+  if (stage?.kind === "gate") return TOKEN.gate;
+  return TOKEN.accent;
+}
+
 function Diagram({
   orientation,
   stages,
   statuses,
   selectedIndex,
   pulseIndex,
+  visited,
   onSelect,
 }: {
   orientation: Orientation;
@@ -154,9 +234,11 @@ function Diagram({
   statuses: StageStatus[] | null;
   selectedIndex: number;
   pulseIndex: number | null;
+  visited: ReadonlySet<number>;
   onSelect: (index: number) => void;
 }) {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const isHorizontal = orientation === "horizontal";
 
   const vbW = isHorizontal ? (stages.length - 1) * H.pitch + H.nodeW : V.vbW;
@@ -206,6 +288,25 @@ function Diagram({
     }
   }
 
+  /** Edge geometry, plus the break that marks where the run stopped. */
+  function edge(index: number) {
+    const from = boxAt(index);
+    const to = boxAt(index + 1);
+    return isHorizontal
+      ? {
+          a: from.x + from.width,
+          b: to.x,
+          cross: from.y + from.height / 2,
+          horizontal: true,
+        }
+      : {
+          a: from.y + from.height,
+          b: to.y,
+          cross: V.nodeX + V.nodeW / 2,
+          horizontal: false,
+        };
+  }
+
   return (
     <div className="relative">
       {/*
@@ -215,39 +316,75 @@ function Diagram({
         focus ring on it impossible to render reliably.
       */}
       <svg viewBox={`0 0 ${vbW} ${vbH}`} className="block w-full" aria-hidden>
-        {/* Connectors first, so node boxes paint over their ends. */}
         {stages.slice(0, -1).map((stage, index) => {
-          const dimmed = statuses !== null && statuses[index + 1] === "pending";
-          const line = isHorizontal
-            ? {
-                x1: index * H.pitch + H.nodeW,
-                y1: H.top + H.nodeH / 2,
-                x2: (index + 1) * H.pitch,
-                y2: H.top + H.nodeH / 2,
-              }
-            : {
-                x1: V.nodeX + V.nodeW / 2,
-                y1: index * V.pitch + V.nodeH,
-                x2: V.nodeX + V.nodeW / 2,
-                y2: (index + 1) * V.pitch,
-              };
-          return (
+          const { a, b, cross, horizontal } = edge(index);
+          const isBreak = statuses?.[index] === "failed";
+          const downstream = statuses?.[index + 1] === "pending";
+
+          const stroke = isBreak
+            ? TOKEN.danger
+            : statuses?.[index] === "complete"
+              ? TOKEN.ok
+              : TOKEN.hairline;
+          const opacity = isBreak ? 1 : downstream ? 0.35 : statuses ? 0.5 : 1;
+
+          const line = (x1: number, x2: number, key: string) => (
             <line
-              key={`edge-${stage.id}`}
-              {...line}
-              stroke="var(--color-hairline)"
-              strokeWidth={1}
-              strokeOpacity={dimmed ? 0.5 : 1}
+              key={key}
+              x1={horizontal ? x1 : cross}
+              y1={horizontal ? cross : x1}
+              x2={horizontal ? x2 : cross}
+              y2={horizontal ? cross : x2}
+              stroke={stroke}
+              strokeWidth={isBreak ? 1.5 : 1}
+              strokeOpacity={opacity}
             />
           );
+
+          // A snapped connector where the run stopped: two stubs, a gap, and a
+          // pair of slashes across the break. The slashes run perpendicular to
+          // the flow because that axis has room even when the gap is narrow.
+          if (isBreak) {
+            const gap = (b - a) * 0.28;
+            const mid = (a + b) / 2;
+            const slash = (offset: number, key: string) => (
+              <line
+                key={key}
+                x1={horizontal ? mid + offset - 1.5 : cross - 6}
+                y1={horizontal ? cross + 6 : mid + offset - 1.5}
+                x2={horizontal ? mid + offset + 1.5 : cross + 6}
+                y2={horizontal ? cross - 6 : mid + offset + 1.5}
+                stroke={TOKEN.danger}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            );
+            return (
+              <g key={`edge-${stage.id}`}>
+                {line(a, mid - gap, `${stage.id}-a`)}
+                {line(mid + gap, b, `${stage.id}-b`)}
+                {slash(-2, `${stage.id}-s1`)}
+                {slash(2, `${stage.id}-s2`)}
+              </g>
+            );
+          }
+
+          return line(a, b, `edge-${stage.id}`);
         })}
 
         {stages.map((stage, index) => {
           const status = statuses?.[index] ?? null;
           const isSelected = index === selectedIndex;
-          const visual = visualFor(status, isSelected, index === pulseIndex);
+          const visual = visualFor(
+            stage,
+            status,
+            isSelected,
+            index === pulseIndex,
+            index === hoveredIndex,
+          );
           const box = boxAt(index);
           const labelY = box.y + box.height / 2;
+          const isGate = stage.kind === "gate";
 
           return (
             <g key={stage.id}>
@@ -255,13 +392,27 @@ function Diagram({
                 {...box}
                 rx={3}
                 fill={visual.fill}
+                fillOpacity={visual.fillOpacity}
                 stroke={visual.stroke}
                 strokeOpacity={visual.strokeOpacity}
-                /* The gate is dashed — the one stage that does not run itself. */
-                strokeDasharray={stage.kind === "gate" ? "4 3" : undefined}
-                strokeWidth={isSelected || status === "failed" ? 1.5 : 1}
+                strokeDasharray={visual.dashed ? "5 3" : undefined}
+                strokeWidth={visual.strokeWidth}
                 className="pipe-box"
               />
+              {/* Second, inset rule: the gate reads as a checkpoint, not a box. */}
+              {isGate && (
+                <rect
+                  x={box.x + 3}
+                  y={box.y + 3}
+                  width={box.width - 6}
+                  height={box.height - 6}
+                  rx={2}
+                  fill="none"
+                  stroke={TOKEN.gate}
+                  strokeOpacity={0.35}
+                  strokeWidth={1}
+                />
+              )}
               <text
                 x={isHorizontal ? box.x + H.nodeW / 2 : V.nodeX + 14}
                 y={labelY}
@@ -269,15 +420,55 @@ function Diagram({
                 dominantBaseline="middle"
                 fill={visual.text}
                 fontSize={isHorizontal ? 11 : 13}
+                textDecoration={visual.struck ? "line-through" : undefined}
                 className="pipe-label"
               >
                 {isHorizontal ? stage.short : stage.name}
               </text>
-              {visual.glyph !== null && (
+
+              {/* Gate caption: says in words what the hue and dashes imply. */}
+              {isGate &&
+                (isHorizontal ? (
+                  <text
+                    x={box.x + H.nodeW / 2}
+                    y={box.y + box.height + 13}
+                    textAnchor="middle"
+                    fill={TOKEN.gate}
+                    fontSize={10}
+                  >
+                    <tspan x={box.x + H.nodeW / 2}>human</tspan>
+                    <tspan x={box.x + H.nodeW / 2} dy={11}>
+                      approval
+                    </tspan>
+                  </text>
+                ) : (
+                  <text
+                    x={V.nodeX + V.nodeW - 12}
+                    y={labelY}
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                    fill={TOKEN.gate}
+                    fontSize={10}
+                  >
+                    {labels.humanApproval}
+                  </text>
+                ))}
+
+              {status !== null && (
                 <Glyph
-                  status={visual.glyph}
+                  status={status}
                   x={isHorizontal ? box.x + H.nodeW / 2 : V.glyphX}
                   y={isHorizontal ? H.glyphY : labelY}
+                />
+              )}
+
+              {/* Exploration progress: filled dot once a stage has been opened. */}
+              {visited.has(index) && (
+                <circle
+                  cx={box.x + box.width - 7}
+                  cy={box.y + 7}
+                  r={2.5}
+                  fill={TOKEN.muted}
                 />
               )}
             </g>
@@ -294,11 +485,20 @@ function Diagram({
         className="absolute inset-0"
         role="group"
         aria-label="Pipeline stages"
+        onMouseLeave={() => setHoveredIndex(null)}
       >
         {stages.map((stage, index) => {
           const box = boxAt(index);
           const isSelected = index === selectedIndex;
           const status = statuses?.[index] ?? null;
+          const statusWord =
+            status === "complete"
+              ? labels.statusComplete
+              : status === "failed"
+                ? labels.statusFailed
+                : status === "pending"
+                  ? labels.statusNotRun
+                  : null;
 
           return (
             <button
@@ -309,6 +509,7 @@ function Diagram({
               }}
               onClick={() => onSelect(index)}
               onKeyDown={(event) => onKeyDown(event, index)}
+              onMouseEnter={() => setHoveredIndex(index)}
               tabIndex={isSelected ? 0 : -1}
               aria-pressed={isSelected}
               className="absolute cursor-pointer rounded-[3px] border-0 bg-transparent p-0"
@@ -321,14 +522,55 @@ function Diagram({
             >
               <span className="sr-only">
                 {stage.name}
-                {stage.kind === "gate" ? ", human review gate" : ""}
-                {status !== null ? `, ${status}` : ""}
+                {stage.kind === "gate" ? `, ${labels.humanApproval}` : ""}
+                {statusWord !== null ? `, ${statusWord}` : ""}
+                {visited.has(index) ? `, ${labels.visited}` : ""}
               </span>
             </button>
           );
         })}
       </div>
     </div>
+  );
+}
+
+/** Labelled switch. State rides on the thumb position as well as the colour. */
+function FailureSwitch({
+  checked,
+  onToggle,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onToggle}
+      className="flex cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0 font-mono text-xs"
+    >
+      <span
+        className="relative block h-4 w-7 rounded-full border transition-colors duration-150 ease-out"
+        style={{
+          borderColor: checked ? TOKEN.danger : TOKEN.hairlineBright,
+          backgroundColor: checked
+            ? "color-mix(in srgb, var(--color-danger) 22%, transparent)"
+            : "transparent",
+        }}
+      >
+        <span
+          className="absolute top-1/2 block h-2.5 w-2.5 -translate-y-1/2 rounded-full transition-all duration-150 ease-out"
+          style={{
+            left: checked ? "calc(100% - 0.75rem)" : "0.125rem",
+            backgroundColor: checked ? TOKEN.danger : TOKEN.muted,
+          }}
+        />
+      </span>
+      <span style={{ color: checked ? TOKEN.danger : TOKEN.muted }}>
+        {labels.simulateFailure}
+      </span>
+    </button>
   );
 }
 
@@ -341,6 +583,7 @@ export function PipelineDiagram({
   const [pulseIndex, setPulseIndex] = useState<number | null>(null);
   const [interacted, setInteracted] = useState(false);
   const [failing, setFailing] = useState(false);
+  const [visited, setVisited] = useState<ReadonlySet<number>>(new Set());
 
   // Idle loop: suggests a run in progress until the user takes over, then stops
   // permanently. Never starts at all under reduced motion.
@@ -363,94 +606,105 @@ export function PipelineDiagram({
     setInteracted(true);
     setPulseIndex(null);
     setSelectedIndex(index);
+    setVisited((current) => new Set(current).add(index));
   }, []);
 
   const plan = resumePlan(stages.length, failing ? DEMO_FAILURE_INDEX : null);
   const statuses = failing ? plan.statuses : null;
   const selected = stages[selectedIndex];
   const failedStage = stages[DEMO_FAILURE_INDEX];
+  const panelColor = accentForStage(
+    selected,
+    statuses?.[selectedIndex] ?? null,
+  );
+
+  const diagramProps = {
+    stages,
+    statuses,
+    selectedIndex,
+    pulseIndex,
+    visited,
+    onSelect: select,
+  };
 
   return (
     <div>
-      <div className="border-hairline border p-4 sm:p-6">
-        <div className="hidden sm:block">
-          <Diagram
-            orientation="horizontal"
-            stages={stages}
-            statuses={statuses}
-            selectedIndex={selectedIndex}
-            pulseIndex={pulseIndex}
-            onSelect={select}
+      <div className="border-hairline border">
+        <header className="border-hairline flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b px-4 py-3 sm:px-6">
+          <span className="text-muted font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+            {labels.pipelineRun}
+          </span>
+          <FailureSwitch
+            checked={failing}
+            onToggle={() => {
+              setInteracted(true);
+              setPulseIndex(null);
+              setFailing((current) => !current);
+            }}
           />
-        </div>
-        <div className="sm:hidden">
-          <Diagram
-            orientation="vertical"
-            stages={stages}
-            statuses={statuses}
-            selectedIndex={selectedIndex}
-            pulseIndex={pulseIndex}
-            onSelect={select}
-          />
-        </div>
-      </div>
+        </header>
 
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <button
-          type="button"
-          onClick={() => {
-            setInteracted(true);
-            setPulseIndex(null);
-            setFailing((current) => !current);
-          }}
-          aria-pressed={failing}
-          className="border-hairline hover:border-hairline-bright text-muted hover:text-fg cursor-pointer border px-3 py-2 font-mono text-xs transition-colors duration-150 ease-out aria-pressed:border-[var(--color-danger)] aria-pressed:text-[var(--color-danger)]"
-        >
-          Simulate failure
-        </button>
-        {failing && failedStage && (
-          <p className="text-muted max-w-[68ch] text-sm">
-            <span className="text-fg">{failedStage.name}</span> failed. The five
-            stages before it already wrote their artifacts, so a resumed run
-            skips them and re-runs only this one — the stages after it never
-            ran.
-          </p>
-        )}
+        <div className="p-4 sm:p-6">
+          <div className="hidden sm:block">
+            <Diagram orientation="horizontal" {...diagramProps} />
+          </div>
+          <div className="sm:hidden">
+            <Diagram orientation="vertical" {...diagramProps} />
+          </div>
+
+          {failing && failedStage && (
+            <p
+              className="text-muted mt-5 max-w-[68ch] border-l-2 pl-4 text-sm"
+              style={{ borderColor: TOKEN.danger }}
+            >
+              <span style={{ color: TOKEN.danger }}>{failedStage.name}</span>{" "}
+              failed. The five stages before it already wrote their artifacts,
+              so a resumed run skips them and re-runs only this one — the struck
+              stages after it never ran at all.
+            </p>
+          )}
+        </div>
       </div>
 
       {selected && (
         <div
           aria-live="polite"
-          className="border-hairline mt-5 border-t pt-6 sm:pt-8"
+          className="mt-6 border-l-2 pl-5 sm:pl-6"
+          style={{ borderColor: panelColor }}
         >
-          <h3 className="text-xl font-medium tracking-tight">
-            {selected.name}
-            {selected.kind === "gate" && (
-              <span className="text-muted ml-3 font-mono text-xs tracking-wider">
-                human gate
-              </span>
-            )}
-          </h3>
-          <p className="mt-3 max-w-[68ch] leading-relaxed">{selected.does}</p>
+          <div key={selectedIndex} className="panel-swap">
+            <h3 className="text-xl font-medium tracking-tight">
+              {selected.name}
+              {selected.kind === "gate" && (
+                <span
+                  className="ml-3 font-mono text-xs tracking-wider"
+                  style={{ color: TOKEN.gate }}
+                >
+                  {labels.humanApproval}
+                </span>
+              )}
+            </h3>
+            <p className="mt-3 max-w-[68ch] leading-relaxed">{selected.does}</p>
 
-          <dl className="mt-6 flex flex-col gap-5">
-            <div>
-              <dt className="text-muted font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
-                Writes
-              </dt>
-              <dd className="mt-2 max-w-[68ch] font-mono text-sm break-words">
-                {selected.artifact}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
-                Failure mode
-              </dt>
-              <dd className="text-muted mt-2 max-w-[68ch] text-sm leading-relaxed">
-                {selected.failure}
-              </dd>
-            </div>
-          </dl>
+            <dl className="mt-6 flex flex-col gap-5">
+              <div>
+                <dt className="text-muted font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+                  Writes
+                </dt>
+                <dd className="mt-2 max-w-[68ch] font-mono text-sm break-words">
+                  {selected.artifact}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted font-mono text-[0.6875rem] tracking-[0.22em] uppercase">
+                  Failure mode
+                </dt>
+                <dd className="text-muted mt-2 max-w-[68ch] text-sm leading-relaxed">
+                  {selected.failure}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
       )}
     </div>
