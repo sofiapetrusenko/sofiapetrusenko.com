@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+/*
+ * Contrast against --color-bg (#0d0d0f), WCAG 2.1:
+ *   fg      #e8e8ea  15.9:1  body text
+ *   muted   #a1a1aa   7.6:1  secondary text, still passes AA at any size
+ *   accent  #38bdf8   9.1:1  links and focus rings only
+ * Separation is spacing plus a 1px hairline — no shadows, gradients or blur.
+ */
+@theme {
+  --color-bg: #0d0d0f;
+  --color-fg: #e8e8ea;
+  --color-muted: #a1a1aa;
+  --color-accent: #38bdf8;
+  --color-hairline: #26262b;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* One visible focus treatment for every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
