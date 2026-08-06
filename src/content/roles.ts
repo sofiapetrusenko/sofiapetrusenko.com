@@ -6,6 +6,8 @@ export const roles = [
     org: "Independent",
     title: "Founder & Engineer — AI Content Automation",
     location: "Cascais, Portugal (remote)",
+    country: "Portugal",
+    kind: "engineering",
     period: "2025 – present",
     summary:
       "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers. Alongside this, plan and optimise paid acquisition campaigns on Google Ads and Meta against defined cost-per-acquisition targets.",
@@ -14,6 +16,8 @@ export const roles = [
     org: "MRC PPU, School of Life Sciences",
     title: "Research Intern",
     location: "Dundee, Scotland, UK",
+    country: "UK",
+    kind: "research",
     period: "09/2024 – 01/2025",
     summary:
       "Investigated stress-induced protein phosphorylation in Saccharomyces cerevisiae and its relationship to longevity. Analysed experimental datasets in R and Python; contributed to a manuscript on the implications for ageing mechanisms.",
@@ -22,6 +26,8 @@ export const roles = [
     org: "NOVA Medical School",
     title: "Research Intern",
     location: "Lisbon, Portugal",
+    country: "Portugal",
+    kind: "research",
     period: "06/2023 – 08/2023",
     summary:
       "Studied proteostasis and molecular mechanisms of ageing relevant to neurodegeneration and retinal disease, working with cellular models from yeast to human cells and brain and retinal organoids.",
@@ -30,6 +36,8 @@ export const roles = [
     org: "Institute of Life Sciences",
     title: "Research Technician",
     location: "UK",
+    country: "UK",
+    kind: "research",
     period: "05/2022 – 09/2022",
     summary:
       "Investigated autophagy signalling and its alteration during ageing, in cancer, neurodegeneration and diabetes, including work on autophagy in immunity and pathogenic infection.",
@@ -38,8 +46,18 @@ export const roles = [
     org: "Max Planck Institute of Animal Behaviour",
     title: "Research Intern",
     location: "Konstanz, Germany",
+    country: "Germany",
+    kind: "research",
     period: "03/2022 – 05/2022",
     summary:
       "Researched collective animal behaviour and social influence across biological systems, working across experimental and theoretical approaches.",
   },
 ] satisfies readonly Role[];
+
+/**
+ * The ongoing role, derived from the period rather than a separate flag so the
+ * two can never drift apart.
+ */
+export function isCurrentRole(role: Role): boolean {
+  return /present/i.test(role.period);
+}

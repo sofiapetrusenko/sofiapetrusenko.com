@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { profile, projects, roles } from "./index";
+import { education, isCurrentRole, profile, projects, roles } from "./index";
 
 /** A labelled string, so a failure names the exact field that broke. */
 type Field = { path: string; value: string };
@@ -46,8 +46,18 @@ function textFields(): Field[] {
       { path: `${at}.org`, value: role.org },
       { path: `${at}.title`, value: role.title },
       { path: `${at}.location`, value: role.location },
+      { path: `${at}.country`, value: role.country },
       { path: `${at}.period`, value: role.period },
       { path: `${at}.summary`, value: role.summary },
+    );
+  }
+
+  for (const entry of education) {
+    const at = `education[${entry.id}]`;
+    fields.push(
+      { path: `${at}.degree`, value: entry.degree },
+      { path: `${at}.institution`, value: entry.institution },
+      { path: `${at}.country`, value: entry.country },
     );
   }
 
@@ -106,5 +116,40 @@ describe("content", () => {
   it("has no empty text fields", () => {
     const empty = textFields().filter((field) => field.value.trim() === "");
     expect(empty).toStrictEqual([]);
+  });
+
+  it("marks exactly one role as current, and it is the most recent", () => {
+    const current = roles.filter(isCurrentRole);
+    expect(current).toHaveLength(1);
+    expect(current[0]).toBe(roles[0]);
+  });
+
+  it("does not treat a closed period as current", () => {
+    for (const role of roles.slice(1)) {
+      expect(isCurrentRole(role), role.period).toBe(false);
+    }
+  });
+
+  it("gives every timeline entry a country", () => {
+    const countries = [
+      ...roles.map((r) => r.country),
+      ...education.map((e) => e.country),
+    ];
+    expect(countries.every((c) => c.trim() !== "")).toBe(true);
+    // The four the site claims in the profile summary.
+    expect(new Set(countries)).toStrictEqual(
+      new Set(["Portugal", "UK", "Germany", "Ukraine"]),
+    );
+  });
+
+  it("uses only known role kinds", () => {
+    for (const role of roles) {
+      expect(["engineering", "research"]).toContain(role.kind);
+    }
+  });
+
+  it("gives education entries unique ids", () => {
+    const ids = education.map((entry) => entry.id);
+    expect(ids).toStrictEqual([...new Set(ids)]);
   });
 });
