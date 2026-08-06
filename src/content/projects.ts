@@ -42,9 +42,7 @@ export const projects = [
     approach:
       "Memory layer built end-to-end on a structured Markdown knowledge base: a defined note schema, automated extraction and writing of salient information, and retrieval of relevant prior context at inference time. Conversation-state handling keeps continuity and tone coherent across extended multi-session use.",
     stack: ["Python", "LLM APIs", "retrieval / RAG", "Markdown knowledge base"],
-    links: [
-      { label: "Repository", href: "https://github.com/sofiapetrusenko" },
-    ],
+    links: [],
     year: "2025",
   },
 ] satisfies readonly Project[];
