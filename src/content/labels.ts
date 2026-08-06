@@ -13,5 +13,14 @@ export const labels = {
   pipeline: "Pipeline",
   pipelineHint:
     "Select a stage for what it does, the artifact it writes and how it fails.",
+  pipelineRun: "Pipeline run",
+  simulateFailure: "Simulate failure",
+  humanApproval: "human approval",
+  /* Status wording. "not run" rather than "skipped": on a resume it is the
+     upstream stages that get skipped, while these never executed at all. */
+  statusComplete: "complete",
+  statusFailed: "failed",
+  statusNotRun: "not run",
+  visited: "visited",
   backToHome: "Back to home",
 } as const;
