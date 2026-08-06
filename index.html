@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sofia Petrusenko — Longevity Scientist & Entrepreneur</title>
+  <meta name="description" content="Longevity Scientist & Entrepreneur building the future of human healthspan." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #060608;
+      --bg2:      #0b0b0e;
+      --surface:  #0f0f13;
+      --surface2: #141418;
+      --surface3: #1a1a20;
+      --border:   rgba(255,255,255,0.06);
+      --border2:  rgba(255,255,255,0.10);
+      --gold:     #4f8ef7;
+      --gold-dim: rgba(79,142,247,0.15);
+      --gold-glow:rgba(79,142,247,0.25);
+      --blue:     #8b5cf6;
+      --blue-dim: rgba(139,92,246,0.12);
+      --teal:     #06b6d4;
+      --text:     #eceef2;
+      --text2:    #8b90a0;
+      --text3:    #4a4f60;
+      --radius:   14px;
+      --radius-lg:20px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 5vw;
+      background: transparent;
+      border-bottom: none;
+    }
+
+    .nav-logo {
+      font-family: 'Bodoni Moda', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo em {
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text3);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    @keyframes auroraShift {
+      0%   { background-position: 0% 0%; }
+      25%  { background-position: 100% 0%; }
+      50%  { background-position: 100% 100%; }
+      75%  { background-position: 0% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 9rem 10vw 6rem;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a1a, #0d0a2e, #0a1628, #051a2e, #0a0a1a);
+      background-size: 400% 400%;
+      animation: auroraShift 20s ease infinite;
+    }
+
+    /* Ambient orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      top: -15%; right: -5%;
+      background: radial-gradient(circle, rgba(79,142,247,0.1) 0%, transparent 70%);
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      bottom: -10%; left: -8%;
+      background: radial-gradient(circle, rgba(139,92,246,0.09) 0%, transparent 70%);
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      top: 40%; left: 40%;
+      background: radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%);
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 740px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(79,142,247,0.08);
+      border: 1px solid rgba(79,142,247,0.22);
+      color: var(--gold);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    .badge-dot {
+      width: 5px; height: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(3.4rem, 6.5vw, 6.5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+
+    h1 .name-first {
+      display: block;
+      color: var(--text);
+    }
+    h1 .name-last {
+      display: block;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .hero-tagline {
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      color: var(--text2);
+      font-weight: 300;
+      line-height: 1.85;
+      max-width: 520px;
+      margin: 0 auto 3rem;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    .hero-tagline strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .hero-cta {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.9s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2.2rem;
+      border-radius: var(--radius);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f8ef7, #8b5cf6);
+      color: #fff;
+      box-shadow: 0 0 32px rgba(79,142,247,0.35), 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 48px rgba(79,142,247,0.5), 0 8px 24px rgba(0,0,0,0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.04);
+      color: var(--text2);
+      border: 1px solid var(--border2);
+      backdrop-filter: blur(8px);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.07);
+      transform: translateY(-2px);
+    }
+
+    /* Hero scroll indicator */
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text3);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      animation: fadeUp 1s 0.7s ease both;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--teal), transparent);
+      animation: scrollDrop 2s infinite;
+    }
+
+    @keyframes scrollDrop {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      45%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      55%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+      100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ── Section base ── */
+    section {
+      padding: 8rem 10vw;
+      position: relative;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.6;
+    }
+
+    .section-title {
+      font-family: 'Bodoni Moda', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.12;
+      margin-bottom: 3.5rem;
+      color: var(--text);
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* ── About ── */
+    #about {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--text2);
+      margin-bottom: 1.4rem;
+      font-size: 1.02rem;
+      line-height: 1.85;
+      font-weight: 300;
+    }
+    .about-text p strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 2.5rem;
+    }
+
+    .skill-tag {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      font-size: 0.74rem;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .skill-tag:hover {
+      border-color: rgba(79,142,247,0.35);
+      color: var(--gold);
+      background: rgba(79,142,247,0.06);
+    }
+
+    /* Stat cards */
+    .about-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.6rem 1.8rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .stat-card:hover {
+      border-color: rgba(79,142,247,0.22);
+      transform: translateX(6px);
+      background: var(--surface2);
+    }
+    .stat-card:hover::before { opacity: 1; }
+
+    .stat-value {
+      font-family: 'Bodoni Moda', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--text3);
+      letter-spacing: 0.03em;
+      font-weight: 400;
+    }
+
+    /* ── Vision / Bento Grid ── */
+    #vision {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .vision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .vision-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .vision-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .vision-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(79,142,247,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .vision-card:hover {
+      border-color: rgba(79,142,247,0.2);
+      transform: translateY(-6px);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.5),
+        0 0 40px rgba(79,142,247,0.07);
+      background: var(--surface2);
+    }
+    .vision-card:hover::before { opacity: 1; }
+    .vision-card:hover::after  { opacity: 1; }
+
+    .vision-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(79,142,247,0.08);
+      border: 1px solid rgba(79,142,247,0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      color: var(--gold);
+      transition: all 0.35s;
+      position: relative;
+      z-index: 1;
+    }
+    .vision-card:hover .vision-icon {
+      background: rgba(79,142,247,0.13);
+      box-shadow: 0 0 20px rgba(79,142,247,0.18);
+    }
+
+    .vision-card h3 {
+      font-family: 'Bodoni Moda', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+    }
+
+    .vision-card p {
+      font-size: 0.875rem;
+      color: var(--text2);
+      line-height: 1.75;
+      font-weight: 300;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Experience ── */
+    #experience {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+
+    .exp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .exp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      transition: all 0.28s;
+      display: flex;
+      gap: 1.4rem;
+      align-items: flex-start;
+    }
+    .exp-card:hover {
+      border-color: rgba(79,142,247,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      background: var(--surface2);
+    }
+
+    .exp-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+      margin-top: 0.65rem;
+      box-shadow: 0 0 10px rgba(201,168,76,0.5);
+    }
+
+    .exp-content { flex: 1; }
+
+    .exp-role {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+      font-family: 'Bodoni Moda', serif;
+    }
+
+    .exp-org {
+      font-size: 0.78rem;
+      color: var(--gold);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .exp-desc {
+      font-size: 0.845rem;
+      color: var(--text2);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* AI founder card — span full width */
+    .ai-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(79,142,247,0.04), rgba(139,92,246,0.03));
+      border-color: rgba(79,142,247,0.15);
+    }
+    .ai-card .exp-dot {
+      background: var(--blue);
+      box-shadow: 0 0 10px rgba(139,92,246,0.5);
+    }
+    .ai-card .exp-org { color: var(--blue); }
+    .ai-card:hover { border-color: rgba(139,92,246,0.3); }
+
+    /* Education */
+    .edu-section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-top: 4rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .edu-section-label::before {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 1px;
+      background: var(--text3);
+      opacity: 0.5;
+    }
+
+    .edu-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .edu-item {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.6rem;
+      transition: all 0.25s;
+    }
+    .edu-item:hover {
+      border-color: var(--border2);
+      background: var(--surface2);
+    }
+
+    .edu-icon-wrap {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--text2);
+    }
+
+    .edu-degree {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'Bodoni Moda', serif;
+    }
+    .edu-school {
+      font-size: 0.78rem;
+      color: var(--text3);
+      margin-top: 0.15rem;
+      font-weight: 300;
+    }
+
+    /* ── Contact ── */
+    #contact {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .contact-inner {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .contact-inner .section-label {
+      justify-content: center;
+    }
+    .contact-inner .section-label::before { display: none; }
+
+    .contact-inner p {
+      color: var(--text2);
+      margin-bottom: 3rem;
+      font-size: 1.02rem;
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.6rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      transition: all 0.25s;
+      background: var(--surface);
+    }
+    .contact-link:hover {
+      color: var(--text);
+      border-color: var(--border2);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    }
+    .contact-link.email:hover  { border-color: rgba(79,142,247,0.4); color: var(--gold); }
+    .contact-link.linkedin:hover { border-color: rgba(139,92,246,0.4); color: var(--blue); }
+    .contact-link.instagram:hover { border-color: rgba(6,182,212,0.4); color: var(--teal); }
+
+    /* Languages */
+    .lang-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .lang-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .lang-name {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .lang-level {
+      color: var(--text3);
+      font-size: 0.72rem;
+      font-weight: 400;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text3);
+      letter-spacing: 0.06em;
+    }
+    footer span { color: var(--gold); opacity: 0.6; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 1024px) {
+      .about-grid { grid-template-columns: 1fr; gap: 3.5rem; }
+      .vision-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5vw; }
+      section { padding: 5.5rem 6vw; }
+      .vision-grid { grid-template-columns: 1fr; }
+      .exp-grid { grid-template-columns: 1fr; }
+      .ai-card { grid-column: auto; }
+      .edu-row { grid-template-columns: 1fr; }
+      .nav-links { gap: 1.5rem; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links { display: none; }
+      h1 { font-size: 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a class="nav-logo" href="#hero">S<em>P</em></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#experience">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Longevity Scientist &amp; Entrepreneur
+    </div>
+
+    <h1>
+      <span class="name-first">Sofia</span>
+      <span class="name-last">Petrusenko</span>
+    </h1>
+
+    <p class="hero-tagline">
+      <strong>Scientist.</strong> &nbsp;<strong>Builder.</strong> &nbsp;<strong>Longevity Entrepreneur.</strong><br>
+      Building the future of human healthspan — where molecular biology meets the tools to act on it.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#vision" class="btn btn-primary">See the Vision</a>
+      <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="section-label">About</div>
+  <div class="section-title">Scientist. Entrepreneur.<br><em>Builder.</em></div>
+
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>I'm a <strong>biomedical researcher and entrepreneur</strong> — trained in the molecular biology of aging across leading European research institutions, now building ventures that move the needle on human healthspan. For me, science and entrepreneurship aren't two different paths. They're the same mission.</p>
+      <p>My path took me from studying <strong>protein phosphorylation and yeast longevity</strong> in Scotland to neurodegeneration research in Portugal, autophagy and aging in the UK, and collective behaviour at the <strong>Max Planck Institute</strong> in Germany.</p>
+      <p>Along the way I built AI agents, launched an AI wellness bot called <strong>Mira</strong>, and developed deep fluency in the tools — from n8n automation to Python and bioinformatics — that let a small team move fast.</p>
+      <p>Today I'm building a <strong>longevity-focused space</strong> that combines the diagnostics, therapies, and AI infrastructure to help people genuinely extend their healthspan — not as a side project, but as the main event.</p>
+
+      <div class="skills-row">
+        <span class="skill-tag">Molecular Biology</span>
+        <span class="skill-tag">Bioinformatics</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">AI Agents</span>
+        <span class="skill-tag">n8n Automation</span>
+        <span class="skill-tag">Aging Biology</span>
+        <span class="skill-tag">Autophagy</span>
+        <span class="skill-tag">Proteostasis</span>
+        <span class="skill-tag">Traffic Arbitrage</span>
+      </div>
+    </div>
+
+    <div class="about-stats reveal">
+      <div class="stat-card">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Leading European research institutions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">3+</div>
+        <div class="stat-label">Languages spoken fluently</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">2</div>
+        <div class="stat-label">University degrees in life sciences</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Curiosity about what's possible for the human body</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Vision -->
+<section id="vision">
+  <div class="section-label">Vision</div>
+  <div class="section-title">The longevity stack<br><em>we're building.</em></div>
+
+  <div class="vision-grid">
+
+    <div class="vision-card reveal">
+      <div class="vision-icon">
+        <!-- DNA / Diagnostics -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 15c6.667-6 13.333 0 20-6"/>
+          <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/>
+          <path d="M13 2C11.202 4 10.482 6 10.193 7.998"/>
+          <path d="m5 8 1 1"/>
+          <path d="m19 16 1 1"/>
+          <path d="m9 12 1 1"/>
+          <path d="m15 12 1 1"/>
+          <path d="m5 16 1 1"/>
+          <path d="m19 8 1 1"/>
+          <path d="M2 9c6.667 6 13.333 0 20 6"/>
+        </svg>
+      </div>
+      <h3>Advanced Diagnostics</h3>
+      <p>Body composition analysis with InBody technology and biomarker tracking — giving people data on their biological age, not just their calendar age.</p>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-icon">
+        <!-- Evidence-based therapies -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 3-2 2v11l2 2h6l2-2V5l-2-2z"/>
+          <path d="M10 11h4M12 9v4"/>
+          <path d="M7 21h10"/>
+        </svg>
+      </div>
+      <h3>Evidence-Based Therapies</h3>
+      <p>Peptide protocols, IV drip therapy, and infrared sauna — longevity interventions grounded in research, not wellness hype.</p>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-icon" style="background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.16); color: var(--blue);">
+        <!-- AI / brain circuit -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+          <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+          <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+          <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
+          <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+          <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+          <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
+          <path d="M6 18a4 4 0 0 1-1.967-.516"/>
+          <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
+        </svg>
+      </div>
+      <h3>AI-Powered Health Tracking</h3>
+      <p>AI tools that synthesise your data into personalised insights — starting with Mira, a wellness AI designed to keep you ahead of your biology.</p>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-icon">
+        <!-- Microscope / Science -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 18h8"/>
+          <path d="M3 21h18"/>
+          <path d="M14 21v-4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v4"/>
+          <path d="M14 7l-2.5 9.5"/>
+          <path d="M8.5 7H13a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H8"/>
+          <path d="m10.5 3 1.5 4"/>
+          <path d="M8 3h5"/>
+        </svg>
+      </div>
+      <h3>Science at the Core</h3>
+      <p>Every protocol traces back to peer-reviewed research. Years studying autophagy, proteostasis, and the hallmarks of aging inform every product decision.</p>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-icon" style="background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.16); color: var(--teal);">
+        <!-- Biohacking / Zap -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <h3>Biohacking Infrastructure</h3>
+      <p>A physical and digital space where optimisation tools converge — making cutting-edge longevity interventions accessible and measurable.</p>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-icon">
+        <!-- Globe / Movement -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+          <path d="M2 12h20"/>
+        </svg>
+      </div>
+      <h3>Global Healthspan Movement</h3>
+      <p>The goal isn't just longer lives — it's more years lived in full health. Building the infrastructure for a world where that's the default.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+  <div class="section-label">Experience</div>
+  <div class="section-title">Research background<br><em>&amp; what I've built.</em></div>
+
+  <div class="exp-grid">
+
+    <div class="exp-card reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-role">Research Intern</div>
+        <div class="exp-org">MRC PPU — University of Dundee, Scotland</div>
+        <div class="exp-desc">Protein phosphorylation signalling and yeast longevity models. Hands-on molecular biology at one of Europe's premier kinase research units.</div>
+      </div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-role">Research Intern</div>
+        <div class="exp-org">NOVA Medical School, Portugal</div>
+        <div class="exp-desc">Neurodegeneration and proteostasis research — investigating how protein quality control breaks down in aging brain tissue.</div>
+      </div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-role">Research Technician</div>
+        <div class="exp-org">Institute of Life Science, UK</div>
+        <div class="exp-desc">Autophagy mechanisms and their role in cellular aging. Developed laboratory techniques and contributed to ongoing aging biology research programmes.</div>
+      </div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-role">Research Intern</div>
+        <div class="exp-org">Max Planck Institute, Germany</div>
+        <div class="exp-desc">Collective behaviour research — studying emergent patterns in complex biological systems. Broadened analytical and systems-thinking toolkit.</div>
+      </div>
+    </div>
+
+    <div class="exp-card ai-card reveal">
+      <div class="exp-dot"></div>
+      <div class="exp-content">
+        <div class="exp-role">Founder &amp; Builder — AI &amp; Longevity Ventures</div>
+        <div class="exp-org">Independent</div>
+        <div class="exp-desc">
+          Built AI agents for business automation using Python and n8n. Created <strong style="color: var(--text)">Mira</strong> — an AI wellness bot for personalised health tracking. Affiliate marketing and content creation at scale. Now building the longevity space combining diagnostics, therapies, and AI tools.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="edu-section-label reveal">Education</div>
+
+  <div class="edu-row reveal">
+    <div class="edu-item">
+      <div class="edu-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="edu-degree">BSc Hons Biomedical Sciences</div>
+        <div class="edu-school">University of Dundee, Scotland</div>
+      </div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="edu-degree">BSc Biology</div>
+        <div class="edu-school">Taras Shevchenko National University of Kyiv, Ukraine</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label">Contact</div>
+    <div class="section-title" style="margin-bottom:1.5rem;">Let's build something<br><em>that lasts longer.</em></div>
+
+    <p class="reveal">
+      Whether you're a researcher, investor, potential collaborator, or someone obsessed with longevity science — I'd love to connect. I'm always open to conversations that push the field forward.
+    </p>
+
+    <div class="contact-links reveal">
+      <a href="mailto:sofia.petrusenko988@gmail.com" class="contact-link email">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+        sofia.petrusenko988@gmail.com
+      </a>
+      <a href="https://linkedin.com/in/sofia-petrusenko-187810256" target="_blank" rel="noopener" class="contact-link linkedin">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+          <rect x="2" y="9" width="4" height="12"/>
+          <circle cx="4" cy="4" r="2"/>
+        </svg>
+        LinkedIn
+      </a>
+      <a href="https://instagram.com/s0fiichka" target="_blank" rel="noopener" class="contact-link instagram">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        @s0fiichka
+      </a>
+    </div>
+
+    <div class="lang-row reveal">
+      <div class="lang-pill">
+        <span class="lang-name">English</span>
+        <span class="lang-level">Fluent</span>
+      </div>
+      <div class="lang-pill">
+        <span class="lang-name">Ukrainian</span>
+        <span class="lang-level">Native</span>
+      </div>
+      <div class="lang-pill">
+        <span class="lang-name">Russian</span>
+        <span class="lang-level">Native</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Sofia Petrusenko &nbsp;<span>·</span>&nbsp; Longevity Scientist &amp; Entrepreneur
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        const siblings = Array.from(e.target.parentElement.querySelectorAll('.reveal'));
+        const idx = siblings.indexOf(e.target);
+        setTimeout(() => e.target.classList.add('visible'), idx * 90);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
