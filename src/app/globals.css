@@ -16,6 +16,11 @@
   --color-hairline: #26262b;
   --color-hairline-bright: #3f3f46;
 
+  /* Status colours, used only by the pipeline diagram. Both are paired with a
+     glyph so state is never carried by colour alone. 11.1:1 and 7.0:1. */
+  --color-ok: #4ade80;
+  --color-danger: #f87171;
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
@@ -69,6 +74,19 @@ body {
 .link-underline:hover::after,
 .link-underline:focus-visible::after {
   transform: scaleX(1);
+}
+
+/*
+ * Pipeline diagram. The SVG is presentation only — the hit targets are real
+ * HTML buttons laid over it, so focus, keyboard activation and the global
+ * :focus-visible ring all behave natively.
+ */
+.pipe-box,
+.pipe-label {
+  transition:
+    stroke 175ms ease-out,
+    stroke-opacity 175ms ease-out,
+    fill 175ms ease-out;
 }
 
 /*
