@@ -3,6 +3,8 @@ import NextLink from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, labels, projects } from "@/content";
 import { LinkList } from "@/components/LinkList";
+import { Reveal } from "@/components/Reveal";
+import { SectionLabel } from "@/components/Section";
 import { StackList } from "@/components/StackList";
 
 type Params = { slug: string };
@@ -27,10 +29,8 @@ export async function generateMetadata({
 function Field({ label, body }: { label: string; body: string }) {
   return (
     <section>
-      <h2 className="text-muted mb-3 font-mono text-xs tracking-widest uppercase">
-        {label}
-      </h2>
-      <p className="max-w-[68ch] leading-relaxed">{body}</p>
+      <SectionLabel>{label}</SectionLabel>
+      <p className="max-w-[68ch] text-lg leading-relaxed">{body}</p>
     </section>
   );
 }
@@ -45,42 +45,48 @@ export default async function ProjectPage({
   if (!project) notFound();
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 sm:px-8 sm:py-24">
-      <main className="flex flex-col gap-16">
+    <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8 sm:py-32">
+      <main className="flex flex-col gap-24 sm:gap-28">
         <header>
-          <p className="text-muted font-mono text-xs">{project.year}</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+          <p className="text-muted font-mono text-xs tracking-wider">
+            {project.year}
+          </p>
+          <h1 className="mt-4 text-[clamp(2.25rem,7vw,3.5rem)] leading-[0.98] font-semibold tracking-[-0.02em] text-balance">
             {project.name}
           </h1>
-          <p className="mt-4 max-w-[68ch] text-lg text-balance">
+          <p className="text-muted mt-6 max-w-[68ch] text-[clamp(1.125rem,2.5vw,1.375rem)] leading-snug text-balance">
             {project.tagline}
           </p>
         </header>
 
-        <Field label={labels.problem} body={project.problem} />
-        <Field label={labels.approach} body={project.approach} />
+        <Reveal>
+          <Field label={labels.problem} body={project.problem} />
+        </Reveal>
+        <Reveal>
+          <Field label={labels.approach} body={project.approach} />
+        </Reveal>
 
-        <section>
-          <h2 className="text-muted mb-3 font-mono text-xs tracking-widest uppercase">
-            {labels.stack}
-          </h2>
-          <StackList stack={project.stack} />
-        </section>
+        <Reveal>
+          <section>
+            <SectionLabel>{labels.stack}</SectionLabel>
+            <StackList stack={project.stack} />
+          </section>
+        </Reveal>
 
         {project.links.length > 0 && (
-          <section>
-            <h2 className="text-muted mb-3 font-mono text-xs tracking-widest uppercase">
-              {labels.links}
-            </h2>
-            <LinkList links={project.links} />
-          </section>
+          <Reveal>
+            <section>
+              <SectionLabel>{labels.links}</SectionLabel>
+              <LinkList links={project.links} />
+            </section>
+          </Reveal>
         )}
       </main>
 
-      <footer className="border-hairline mt-20 border-t pt-8">
+      <footer className="border-hairline mt-32 border-t pt-10 sm:mt-40">
         <NextLink
           href="/"
-          className="text-accent decoration-accent/40 hover:decoration-accent font-mono text-sm underline underline-offset-4"
+          className="link-underline text-accent font-mono text-sm"
         >
           {labels.backToHome}
         </NextLink>

@@ -5,7 +5,7 @@ export function StackList({ stack }: { stack: readonly string[] }) {
       {stack.map((entry) => (
         <li
           key={entry}
-          className="border-hairline text-muted rounded-sm border px-2 py-1 font-mono text-xs"
+          className="border-hairline hover:border-hairline-bright text-muted rounded-sm border px-2.5 py-1 font-mono text-xs transition-colors duration-150 ease-out"
         >
           {entry}
         </li>

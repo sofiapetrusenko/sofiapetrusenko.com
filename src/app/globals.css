@@ -3,29 +3,37 @@
 /*
  * Contrast against --color-bg (#0d0d0f), WCAG 2.1:
  *   fg      #e8e8ea  15.9:1  body text
- *   muted   #a1a1aa   7.6:1  secondary text, still passes AA at any size
- *   accent  #38bdf8   9.1:1  links and focus rings only
- * Separation is spacing plus a 1px hairline — no shadows, gradients or blur.
+ *   muted   #a1a1aa   7.6:1  secondary text, 7.2:1 on --color-surface
+ *   accent  #38bdf8   9.1:1  links, focus rings, hero glow
+ * Depth comes from one surface step and a 1px hairline — no shadows or blur.
  */
 @theme {
   --color-bg: #0d0d0f;
+  --color-surface: #141418;
   --color-fg: #e8e8ea;
   --color-muted: #a1a1aa;
   --color-accent: #38bdf8;
   --color-hairline: #26262b;
+  --color-hairline-bright: #3f3f46;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-body {
+/*
+ * Background lives on <html> so the fixed dot-grid layer inside <body> paints
+ * above the canvas rather than being covered by the body's own background.
+ */
+html {
   background-color: var(--color-bg);
+}
+
+body {
   color: var(--color-fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* One visible focus treatment for every interactive element. */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
@@ -34,4 +42,60 @@ body {
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-bg);
+}
+
+/*
+ * Text links: an underline that wipes in from the left. currentColor keeps it
+ * matched to the link, and :focus-visible triggers it so keyboard users get the
+ * same affordance as pointer users.
+ */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -3px;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease-out;
+}
+
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/*
+ * Scroll reveal. The hidden state only exists under `no-preference`, so with
+ * reduced motion requested the content is simply visible and no observer work
+ * has any effect.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 400ms ease-out,
+      transform 400ms ease-out;
+  }
+
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
