@@ -16,10 +16,16 @@
   --color-hairline: #26262b;
   --color-hairline-bright: #3f3f46;
 
-  /* Status colours, used only by the pipeline diagram. Both are paired with a
-     glyph so state is never carried by colour alone. 11.1:1 and 7.0:1. */
+  /* Status colours, used only by the pipeline diagram. Each is paired with a
+     glyph or caption so state is never carried by colour alone.
+     Against --color-bg: ok 11.1:1, danger 7.0:1, gate 11.6:1. Every text
+     colour also clears 4.5:1 over its own tinted fill — worst case is danger
+     text on the 15% danger fill at 5.8:1. */
   --color-ok: #4ade80;
   --color-danger: #f87171;
+  /* Warm amber: reserved for the human gate, the one node that is a
+     checkpoint rather than a stage. Never used decoratively. */
+  --color-gate: #fbbf24;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -84,9 +90,27 @@ body {
 .pipe-box,
 .pipe-label {
   transition:
-    stroke 175ms ease-out,
-    stroke-opacity 175ms ease-out,
-    fill 175ms ease-out;
+    stroke 150ms ease-out,
+    stroke-opacity 150ms ease-out,
+    stroke-width 150ms ease-out,
+    fill 150ms ease-out,
+    fill-opacity 150ms ease-out;
+}
+
+/* Detail panel content swap. Keyed remount replays this on every selection. */
+@keyframes panel-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel-swap {
+    animation: panel-fade 120ms ease-out;
+  }
 }
 
 /*

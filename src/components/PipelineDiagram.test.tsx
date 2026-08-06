@@ -20,6 +20,10 @@ function nodeFor(name: string) {
   });
 }
 
+function failureSwitch() {
+  return screen.getByRole("switch", { name: /simulate failure/i });
+}
+
 const [firstStage, , , fourthStage] = pipelineStages;
 
 describe("PipelineDiagram", () => {
@@ -110,7 +114,7 @@ describe("PipelineDiagram", () => {
   it("marks upstream, failed and downstream stages when failure is simulated", () => {
     render(<PipelineDiagram stages={pipelineStages} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /simulate failure/i }));
+    fireEvent.click(failureSwitch());
 
     // Status rides in the accessible name, so it is never colour-only.
     const diagram = firstDiagram();
@@ -121,15 +125,72 @@ describe("PipelineDiagram", () => {
       diagram.getByRole("button", { name: /script, complete/i }),
     ).toBeInTheDocument();
     expect(
-      diagram.getByRole("button", { name: /upload, pending/i }),
+      diagram.getByRole("button", { name: /upload, not run/i }),
     ).toBeInTheDocument();
   });
 
   it("explains that only the failed stage re-runs", () => {
     render(<PipelineDiagram stages={pipelineStages} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /simulate failure/i }));
+    fireEvent.click(failureSwitch());
 
     expect(screen.getByText(/re-runs only this one/i)).toBeInTheDocument();
+  });
+
+  it("exposes the failure toggle as a switch that reports its state", () => {
+    render(<PipelineDiagram stages={pipelineStages} />);
+
+    expect(failureSwitch()).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(failureSwitch());
+    expect(failureSwitch()).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("strikes through only the stages the run never reached", () => {
+    const { container } = render(<PipelineDiagram stages={pipelineStages} />);
+    fireEvent.click(failureSwitch());
+
+    const svg = container.querySelector("svg");
+    if (!svg) throw new Error("no svg rendered");
+    const labelFor = (name: string) =>
+      [...svg.querySelectorAll(".pipe-label")].find(
+        (el) => el.textContent === name,
+      );
+
+    // Downstream of the failure: struck. Upstream: not struck.
+    expect(labelFor("Thumbnail")).toHaveAttribute(
+      "text-decoration",
+      "line-through",
+    );
+    expect(labelFor("Script")).not.toHaveAttribute("text-decoration");
+  });
+
+  it("marks stages as visited once opened, and not before", () => {
+    render(<PipelineDiagram stages={pipelineStages} />);
+    const target = pipelineStages[4];
+    if (!target) throw new Error("missing stage");
+
+    expect(
+      firstDiagram().queryByRole("button", {
+        name: new RegExp(`${target.name}.*visited`, "i"),
+      }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(nodeFor(target.name));
+
+    expect(
+      firstDiagram().getByRole("button", {
+        name: new RegExp(`${target.name}.*visited`, "i"),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("names the human gate as a checkpoint, not just a coloured node", () => {
+    render(<PipelineDiagram stages={pipelineStages} />);
+
+    expect(
+      firstDiagram().getByRole("button", {
+        name: /human review, human approval/i,
+      }),
+    ).toBeInTheDocument();
   });
 });
