@@ -1,7 +1,15 @@
 import type { Role } from "./types";
 
-/** Research roles, most recent first. Values taken from the CV. */
+/** Most recent first. Values taken from the CV. */
 export const roles = [
+  {
+    org: "Independent",
+    title: "Founder & Engineer — AI Content Automation",
+    location: "Cascais, Portugal (remote)",
+    period: "2025 – present",
+    summary:
+      "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers. Alongside this, plan and optimise paid acquisition campaigns on Google Ads and Meta against defined cost-per-acquisition targets.",
+  },
   {
     org: "MRC PPU, School of Life Sciences",
     title: "Research Intern",
