@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { profile, projects, roles } from "@/content";
+import { education, profile, projects, roles } from "@/content";
 import Home from "./page";
 
 describe("Home", () => {
@@ -36,6 +36,44 @@ describe("Home", () => {
       expect(screen.getByText(role.summary)).toBeInTheDocument();
       expect(screen.getByText(role.period)).toBeInTheDocument();
     }
+  });
+
+  it("appends both degrees to the timeline, without summaries", () => {
+    render(<Home />);
+
+    for (const entry of education) {
+      expect(screen.getByText(entry.degree)).toBeInTheDocument();
+      expect(screen.getByText(entry.institution)).toBeInTheDocument();
+    }
+  });
+
+  it("tags every timeline entry with its country", () => {
+    render(<Home />);
+
+    // Countries repeat, so assert each appears at least as often as it is used.
+    const expected = new Map<string, number>();
+    for (const country of [
+      ...roles.map((r) => r.country),
+      ...education.map((e) => e.country),
+    ]) {
+      expected.set(country, (expected.get(country) ?? 0) + 1);
+    }
+
+    for (const [country, count] of expected) {
+      expect(
+        screen.getAllByText(country).length,
+        `country tag: ${country}`,
+      ).toBeGreaterThanOrEqual(count);
+    }
+  });
+
+  it("renders the current-focus line from content", () => {
+    render(<Home />);
+
+    expect(screen.getByText(/currently:/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(profile.now.slice(0, 30), "i")),
+    ).toBeInTheDocument();
   });
 
   it("gives every project card an explicit call to action", () => {
