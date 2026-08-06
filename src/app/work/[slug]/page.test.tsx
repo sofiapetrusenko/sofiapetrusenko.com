@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { projects } from "@/content";
+import { pipelineStages, projects } from "@/content";
 import ProjectPage, { generateMetadata, generateStaticParams } from "./page";
 
 const [first] = projects;
@@ -53,6 +53,25 @@ describe("ProjectPage", () => {
 
     expect(
       screen.queryByRole("heading", { name: /^links$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders every pipeline stage name on the platform page", async () => {
+    await renderProject("media-automation-platform");
+
+    for (const stage of pipelineStages) {
+      expect(
+        screen.getAllByText(stage.name).length,
+        `missing stage: ${stage.name}`,
+      ).toBeGreaterThan(0);
+    }
+  });
+
+  it("shows the pipeline only on the project that has one", async () => {
+    await renderProject("mira");
+
+    expect(
+      screen.queryByRole("group", { name: /pipeline stages/i }),
     ).not.toBeInTheDocument();
   });
 
