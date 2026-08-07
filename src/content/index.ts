@@ -2,13 +2,19 @@ import { projects } from "./projects";
 import type { Project } from "./types";
 
 export type {
+  Colophon,
   Education,
   Link,
+  Note,
   PipelineStage,
+  ProcessStep,
   Profile,
   Project,
   Role,
 } from "./types";
+
+export { notes, getNote } from "./notes";
+export { colophon } from "./colophon";
 
 export { profile } from "./profile";
 export { projects } from "./projects";
