@@ -10,9 +10,13 @@ export const labels = {
   problem: "Problem",
   approach: "Approach",
   links: "Links",
+  viewCaseStudy: "View case study",
   pipeline: "Pipeline",
   pipelineHint:
     "Select a stage for what it does, the artifact it writes and how it fails.",
+  /* Shell-prompt chrome for the hero's "currently" line. */
+  promptSymbol: "$",
+  promptCurrently: "currently:",
   pipelineRun: "Pipeline run",
   simulateFailure: "Simulate failure",
   humanApproval: "human approval",

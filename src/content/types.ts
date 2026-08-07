@@ -31,8 +31,24 @@ export type Role = {
   org: string;
   title: string;
   location: string;
+  /** country alone, so the geography scans down the timeline */
+  country: string;
+  /** drives the timeline node colour */
+  kind: "engineering" | "research";
   period: string;
   summary: string;
+};
+
+/**
+ * Degrees, shown as compact timeline entries after the roles. No `period`:
+ * the legacy index.html this is taken from carries no dates for either degree,
+ * and inventing them is not an option.
+ */
+export type Education = {
+  id: string;
+  degree: string;
+  institution: string;
+  country: string;
 };
 
 export type PipelineStage = {
@@ -57,6 +73,8 @@ export type Profile = {
   /** 2-3 sentences */
   summary: string;
   location: string;
+  /** current focus, one line, rendered after a shell-style prompt */
+  now: string;
   email: string;
   links: readonly Link[];
 };

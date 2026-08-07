@@ -2,11 +2,12 @@ import type { Profile } from "./types";
 
 export const profile = {
   name: "Sofia Petrusenko",
-  headline:
-    "I build and operate LLM systems end-to-end — pipelines, memory, deployment.",
+  headline: "Scientist studying ageing. Engineer building LLM systems.",
   summary:
-    "Biomedical scientist turned engineer. I design and run production systems: LLM orchestration pipelines, retrieval-based memory, async task processing and cloud deployment. Research background in ageing biology across the UK, Portugal, Germany and Ukraine.",
+    "I work at the intersection of ageing biology and applied AI. Research training in autophagy, proteostasis and longevity across the UK, Portugal, Germany and Ukraine — now building production LLM systems end-to-end: orchestration pipelines, retrieval-based memory, deployment.",
   location: "Cascais, Portugal",
+  /** What's in flight now, rendered as a shell-prompt line under the location. */
+  now: "building media-automation-platform · studying ageing biology · learning português",
   email: "sofia.petrusenko988@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/sofiapetrusenko" },
