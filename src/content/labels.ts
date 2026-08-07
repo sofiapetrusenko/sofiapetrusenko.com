@@ -11,6 +11,13 @@ export const labels = {
   approach: "Approach",
   links: "Links",
   viewCaseStudy: "View case study",
+  notes: "Notes",
+  readingTimeSuffix: "min read",
+  colophon: "colophon",
+  colophonTitle: "Colophon",
+  process: "Process",
+  numbers: "Numbers",
+  principles: "Principles",
   pipeline: "Pipeline",
   pipelineHint:
     "Select a stage for what it does, the artifact it writes and how it fails.",

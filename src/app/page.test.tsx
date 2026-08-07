@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { education, profile, projects, roles } from "@/content";
+import { education, notes, profile, projects, roles } from "@/content";
 import Home from "./page";
 
 describe("Home", () => {
@@ -74,6 +74,25 @@ describe("Home", () => {
     expect(
       screen.getByText(new RegExp(profile.now.slice(0, 30), "i")),
     ).toBeInTheDocument();
+  });
+
+  it("lists every note, linking to its page", () => {
+    render(<Home />);
+
+    for (const note of notes) {
+      const link = screen.getByRole("link", { name: note.title });
+      expect(link).toHaveAttribute("href", `/notes/${note.slug}`);
+      expect(screen.getByText(note.teaser)).toBeInTheDocument();
+    }
+  });
+
+  it("links the colophon from the footer", () => {
+    render(<Home />);
+
+    expect(screen.getByRole("link", { name: /^colophon$/i })).toHaveAttribute(
+      "href",
+      "/colophon",
+    );
   });
 
   it("gives every project card an explicit call to action", () => {

@@ -67,6 +67,34 @@ export type PipelineStage = {
   failure: string;
 };
 
+export type Note = {
+  /** url-safe id */
+  slug: string;
+  title: string;
+  /** one line, shown on the home page card */
+  teaser: string;
+  /** ISO yyyy-mm-dd, rendered verbatim in mono */
+  date: string;
+  readingMinutes: number;
+  /** markdown; see `parseMarkdown` for the supported subset */
+  body: string;
+};
+
+/** One node in the colophon's process strip. */
+export type ProcessStep = {
+  id: string;
+  label: string;
+  /** optional second line, e.g. what the CI step actually runs */
+  detail?: string;
+};
+
+export type Colophon = {
+  intro: string;
+  steps: readonly ProcessStep[];
+  numbers: readonly { value: string; label: string }[];
+  principles: readonly string[];
+};
+
 export type Profile = {
   name: string;
   headline: string;

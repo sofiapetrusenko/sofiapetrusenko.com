@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { profile } from "@/content";
+import { notes, profile } from "@/content";
 import { Background } from "@/components/Background";
 import { Contact } from "@/components/Contact";
 import { Hero } from "@/components/Hero";
+import { NotesList } from "@/components/NotesList";
 import { Reveal } from "@/components/Reveal";
 import { SelectedWork } from "@/components/SelectedWork";
 
@@ -24,6 +25,12 @@ export default function Home() {
         <Reveal>
           <SelectedWork />
         </Reveal>
+        {/* Guarded here too, so an empty notes array leaves no stray gap. */}
+        {notes.length > 0 && (
+          <Reveal>
+            <NotesList />
+          </Reveal>
+        )}
         <Reveal>
           <Background />
         </Reveal>
