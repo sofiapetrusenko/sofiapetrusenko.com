@@ -14,10 +14,10 @@ export const notes = [
     title: "Treating LLM output as untrusted input",
     teaser:
       "A JSON repair heuristic, born from one unescaped Spanish quote in production.",
-    // Placeholder alongside the placeholder body — replace both when the real
-    // note lands.
     date: "2026-08-07",
-    readingMinutes: 1,
+    // Placeholder alongside the placeholder body — set this from the real text
+    // when it lands.
+    readingMinutes: 4,
     body: "Draft in progress.",
   },
 ] satisfies readonly Note[];
