@@ -17,11 +17,23 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sofiapetrusenko.dev"),
   title: {
     default: profile.name,
     template: `%s — ${profile.name}`,
   },
   description: profile.headline,
+  openGraph: {
+    title: "Sofia Petrusenko — AI & Longevity",
+    description:
+      "Production LLM systems, longevity research tooling, end-to-end engineering.",
+    url: "https://sofiapetrusenko.dev",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
