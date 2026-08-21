@@ -37,7 +37,6 @@ export type Sweep = {
 
 export type BlotquantMetrics = {
   source_commit: string;
-  generated_at: string;
   header: {
     split: string;
     iou_threshold: number;
@@ -110,7 +109,6 @@ export type GoldRecord = {
 
 export type LifespanMetrics = {
   source_commit: string;
-  generated_at: string;
   gold: {
     papers: number;
     records: number;

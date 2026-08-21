@@ -384,7 +384,6 @@ function buildBlotquant() {
 
   return {
     source_commit: gitHead(repo),
-    generated_at: new Date().toISOString(),
     header: {
       split: sweepRecord.split,
       iou_threshold: sweepRecord.iou_threshold,
@@ -601,7 +600,6 @@ function buildLifespan() {
 
   return {
     source_commit: gitHead(repo),
-    generated_at: new Date().toISOString(),
     gold: {
       papers: documents.length,
       records,

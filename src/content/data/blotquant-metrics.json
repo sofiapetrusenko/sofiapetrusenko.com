@@ -1,6 +1,5 @@
 {
   "source_commit": "c77fae3f96951c360bc8463c5bb5a9643242cd1a",
-  "generated_at": "2026-08-21T14:25:23.303Z",
   "header": {
     "split": "dev",
     "iou_threshold": 0.5,
