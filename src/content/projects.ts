@@ -11,6 +11,53 @@ import type { Project } from "./types";
  */
 export const projects = [
   {
+    slug: "lifespan-extract",
+    name: "lifespan-extract — LLM extraction pipeline for longevity research",
+    tagline:
+      "Papers go in; structured, provenance-tracked lifespan intervention records come out — with a human-labeled gold set and evals to prove it.",
+    problem:
+      "Quantitative lifespan-intervention results are locked inside thousands of papers in inconsistent formats, and the curated databases that collect them lag the literature by years. Extracting them with an LLM is easy; extracting them so that every record is auditable — and the system knows when to refuse — is the actual problem.",
+    approach:
+      "The measurement comes before the pipeline. A hand-labeled gold set of 10 papers and 26 intervention records defines what correct extraction means, and every field in it carries a verbatim source quote, a confidence and whether it was read from the abstract or the full text. Ingestion is built: PubMed and bioRxiv clients, DOI dedup across preprint and publication, raw abstracts stored in Postgres. Classification and extraction are next, behind that standard rather than ahead of it.",
+    sections: [
+      {
+        id: "verification",
+        label: "Verification",
+        body: "The gold set is labeled by me, never by the model, because a model grading its own extractions measures nothing. A deterministic checker verifies that every source quote appears character-for-character in the text it claims to come from — PubMed abstracts, or PMC open-access full text resolved PMID to PMCID — collapsing whitespace and nothing else, so a changed word or a changed case is a failure. A quote in a paper outside PMC open access is reported as unverifiable rather than as passing: a quote nobody can check is not a quote known to be wrong, and it is not one known to be right. Absent data is `not_reported` or null, never inferred, including where the likely answer is obvious. A 15-paper set of hard negatives across five categories — aging-without-lifespan, lifespan-without-intervention, reviews, wrong organism, lifespan-adjacent outcomes — is the other half of the classifier eval.",
+      },
+      {
+        id: "integrity",
+        label: "Keeping the standard fixed",
+        body: "If an agent can edit the gold set, then a disagreement between the pipeline and the gold set can be resolved by changing the gold set, and the eval stops measuring extraction accuracy and starts measuring how readily the standard bends. So a PreToolUse hook blocks agent writes to `data/gold/` at the filesystem level while still allowing reads, and blocks agent invocation of the two flags that write there. Protection is layered because each layer fails differently: the hook catches the write itself, a reviewer subagent catches code paths that would write there, and CI catches schema and structure on every push. The hook is the only one of the three that cannot be talked out of its position.",
+      },
+      {
+        id: "process",
+        label: "How it's built",
+        body: "Autonomous implementation is only worth trusting if the review of it is independent of it, so the loop separates the two roles. An implementer subagent writes; the orchestrator runs ruff and pytest itself; a reviewer subagent then runs in a fresh context and sees the complete diff, never a summary and never the implementer's reasoning — a review that inherits the argument for a change tends to inherit its blind spots. The loop repeats until the reviewer returns zero required findings, capped at five iterations, and on hitting the cap it stops and reports rather than continuing. Each iteration appends one line to a loop log: the ingestion phase ran four, going 4 → 2 → 0 required findings before a human-requested follow-up pass. Gold-set labeling, eval design and PR review between phases are reserved to the human and cannot be reached from inside the loop.",
+      },
+      {
+        id: "status",
+        label: "Status",
+        body: "Phase 0 (foundation and gold set) and Phase 1 (ingestion) are complete; 485 tests pass in CI. Phase 2 is classification and extraction, and Phase 3 is the eval harness the gold set was built for. Nothing has been extracted by the model yet — the standard exists first, on purpose.",
+      },
+    ],
+    stack: [
+      "Python",
+      "Claude API",
+      "PostgreSQL",
+      "agentic loops",
+      "evals + gold set",
+      "Claude Code subagents",
+    ],
+    links: [
+      {
+        label: "Repository",
+        href: "https://github.com/sofiapetrusenko/lifespan-extract",
+      },
+    ],
+    year: "2026–present",
+  },
+  {
     slug: "blotquant",
     name: "blotquant — QC-first western blot densitometry",
     tagline:
