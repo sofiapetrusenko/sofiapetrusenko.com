@@ -23,8 +23,12 @@
      text on the 15% danger fill at 5.8:1. */
   --color-ok: #4ade80;
   --color-danger: #f87171;
-  /* Warm amber: reserved for the human gate, the one node that is a
-     checkpoint rather than a stage. Never used decoratively. */
+  /* Warm amber: the "a human has to look at this" hue. The pipeline diagram's
+     human gate, the one node that is a checkpoint rather than a stage, and the
+     blotquant inspector's QC-flagged bands and excluded ratios, which are
+     reported rather than dropped precisely so someone reads them. Always
+     carries a word beside it — "human approval", "flagged", the flag's own
+     name — and is never used decoratively. */
   --color-gate: #fbbf24;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
