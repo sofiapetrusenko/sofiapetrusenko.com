@@ -7,7 +7,7 @@ export const profile = {
     "I work at the intersection of ageing biology and applied AI. Research training in autophagy, proteostasis and longevity across the UK, Portugal, Germany and Ukraine — now building production LLM systems end-to-end: orchestration pipelines, retrieval-based memory, deployment.",
   location: "Cascais, Portugal",
   /** What's in flight now, rendered as a shell-prompt line under the location. */
-  now: "building media-automation-platform · studying ageing biology · learning português",
+  now: "building lifespan-extract & blotquant · shipping longevity × LLM tooling · learning português",
   email: "sofia.petrusenko988@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/sofiapetrusenko" },
