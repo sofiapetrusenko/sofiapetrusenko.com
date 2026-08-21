@@ -123,9 +123,7 @@ function Field({
     <section>
       <SectionLabel>{label}</SectionLabel>
       {summary === undefined ? (
-        <p className="prose-hover max-w-[68ch] text-lg leading-relaxed">
-          {body}
-        </p>
+        <p className="max-w-[68ch] text-lg leading-relaxed">{body}</p>
       ) : (
         <Disclosure key={id} summary={summary} defaultOpen={defaultOpen}>
           <p>{body}</p>
@@ -278,7 +276,7 @@ export default async function ProjectPage({
           <Reveal>
             <section>
               <SectionLabel>{labels.pipeline}</SectionLabel>
-              <p className="text-muted mb-6 max-w-[68ch] text-sm">
+              <p className="prose-hover mb-6 max-w-[68ch] text-sm">
                 {labels.pipelineHint}
               </p>
               <PipelineDiagram stages={pipelineStages} />

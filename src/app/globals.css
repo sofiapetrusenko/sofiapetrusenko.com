@@ -176,17 +176,22 @@ body {
 }
 
 /*
- * Body prose: quiet at rest, full contrast under the pointer, so the paragraph
- * being read comes forward and the rest stays back. Colour only — nothing here
- * can move a glyph or change a metric, because a hover that reflows text is a
- * hover that fights the reader.
+ * Secondary prose: lead-ins, captions and the detail text inside an interactive
+ * panel. Muted at rest — which is what these already were — lifting to the
+ * foreground colour under the pointer, so the one being read comes forward.
  *
- * The resting muted is 7.6:1 on the page background and 7.2:1 on a surface, so
- * it reads on its own; the hover is an enhancement, never the way in. Gated on
- * a real pointer so a touch device cannot leave a paragraph stuck bright, which
- * also means those devices keep the resting colour and lose nothing they need.
- * The transition is dropped by the global reduced-motion rule below, which
- * leaves the colour change intact.
+ * Deliberately NOT on the case studies' primary copy. Making that text hover
+ * meant demoting it to muted at rest, and a touch visitor never gets the hover
+ * back: they would simply read the main content dimmer than before. So the body
+ * of a Field and both halves of a Disclosure stay at full contrast with no
+ * hover rule, and this class is limited to text that was already muted, where
+ * the lift is a gain with nothing given up.
+ *
+ * Colour only, on a 150ms ease — nothing here can change a metric, so no glyph
+ * moves and nothing reflows. Gated on a real pointer so a touch device cannot
+ * strand a paragraph bright; those devices keep the resting muted, which is
+ * 7.6:1 on the page background and 7.2:1 on a surface. The global
+ * reduced-motion rule below drops the transition and leaves the colour change.
  */
 .prose-hover {
   color: var(--color-muted);
