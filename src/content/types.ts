@@ -39,6 +39,17 @@ export type Project = {
   approach: string;
   /** extra case-study sections, in render order; `[]` for a short entry */
   sections: readonly ProjectSection[];
+  /**
+   * Scannable lead for a prose block, keyed by block id — `problem`,
+   * `approach`, or a section's own id. Where one exists the page shows it
+   * first and puts the long-form prose behind a toggle; where it does not, the
+   * prose renders directly. `{}` for a project short enough to read whole.
+   *
+   * The value is `string | undefined` because most ids have no summary: the
+   * lookup is by block id, and a missing one is the ordinary case rather than
+   * an error.
+   */
+  summaries: Readonly<Record<string, string | undefined>>;
   stack: readonly string[];
   /** repo, live demo, writeup */
   links: readonly Link[];

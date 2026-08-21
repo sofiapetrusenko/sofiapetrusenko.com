@@ -12,9 +12,9 @@ import type { Project } from "./types";
 export const projects = [
   {
     slug: "lifespan-extract",
-    name: "lifespan-extract — LLM extraction pipeline for longevity research",
+    name: "lifespan-extract — the gold set an extraction pipeline gets measured against",
     tagline:
-      "Papers go in; structured, provenance-tracked lifespan intervention records come out — with a human-labeled gold set and evals to prove it.",
+      "Papers go in; deduplicated sources and hand-labeled, quote-verified records come out — the standard the extraction pass will be held to, built before it.",
     problem:
       "Quantitative lifespan-intervention results are locked inside thousands of papers in inconsistent formats, and the curated databases that collect them lag the literature by years. Extracting them with an LLM is easy; extracting them so that every record is auditable — and the system knows when to refuse — is the actual problem.",
     approach:
@@ -41,12 +41,26 @@ export const projects = [
         body: "Phase 0 (foundation and gold set) and Phase 1 (ingestion) are complete; 485 tests pass in CI. Phase 2 is classification and extraction, and Phase 3 is the eval harness the gold set was built for. Nothing has been extracted by the model yet — the standard exists first, on purpose.",
       },
     ],
+    summaries: {
+      problem:
+        "Lifespan results are locked in prose across thousands of papers. Getting them out with an LLM is easy; getting them out auditably, and knowing when to refuse, is the problem.",
+      approach:
+        "The measurement comes before the pipeline: a hand-labeled gold set defines correct extraction, and ingestion is built behind it. Classification and extraction are next.",
+      verification:
+        "Quotes are checked character-for-character against the source, and a quote nobody can check is reported unverifiable rather than passing.",
+      integrity:
+        "A PreToolUse hook stops an agent editing the gold set, so a disagreement between the pipeline and the standard cannot be settled by moving the standard.",
+      process:
+        "An implementer subagent writes, a reviewer subagent audits the full diff in a fresh context, and the loop runs until the reviewer returns nothing required.",
+      status:
+        "Phases 0 and 1 are complete and 485 tests pass. Nothing has been extracted by the model yet — the standard exists first, on purpose.",
+    },
     stack: [
       "Python",
-      "Claude API",
+      "PubMed / bioRxiv APIs",
       "PostgreSQL",
+      "gold set + quote checker",
       "agentic loops",
-      "evals + gold set",
       "Claude Code subagents",
     ],
     links: [
@@ -88,6 +102,20 @@ export const projects = [
         body: "In active development. The CLI pipeline, QC, normalization and provenance are merged, as is the HTTP API with caller-supplied lane ROIs. Next: getting a real blot through the loader, then the ImageJ agreement run, and a three-state result status (pass, flagged, blocked) so an image the tool cannot honestly measure is refused with an explanation rather than quantified anyway.",
       },
     ],
+    summaries: {
+      problem:
+        "Western blot quantification is among the most common measurements in biology and among the least reproducible. Most tools give you a number; almost none tell you whether to trust it.",
+      approach:
+        "Lanes and bands are detected, background subtracted, signal normalized — and quality control is a first-class output rather than a footnote. Every result carries its provenance.",
+      verification:
+        "Development is gated on a synthetic gold set with per-band ground truth. The held-out split has never been scored, and nothing has been measured on a real blot.",
+      "external-validation":
+        "The Fiji/ImageJ comparison is pre-registered with its thresholds fixed in advance. Its first run measured nothing, and that refusal is the recorded result.",
+      process:
+        "Each phase runs as an implementer/reviewer agent loop to zero required findings, with a mechanical checker that fails CI when two documents state the same figure differently.",
+      status:
+        "CLI, QC, normalization, provenance and the HTTP API are merged. Next is getting a real blot through the loader, then the agreement run.",
+    },
     stack: [
       "Python",
       "OpenCV / scikit-image",
@@ -114,6 +142,7 @@ export const projects = [
     approach:
       "Eight-stage pipeline where each stage writes a typed artifact the next one reads, so a failure at stage six costs one stage rather than the whole run. Stages are idempotent and resumable; model output is treated as untrusted input, with a JSON repair heuristic added after a real failure in Spanish narration. Nothing publishes without a human approving it.",
     sections: [],
+    summaries: {},
     stack: [
       "Python",
       "FastAPI",
@@ -141,6 +170,7 @@ export const projects = [
     approach:
       "Memory layer built end-to-end on a structured Markdown knowledge base: a defined note schema, automated extraction and writing of salient information, and retrieval of relevant prior context at inference time. Conversation-state handling keeps continuity and tone coherent across extended multi-session use.",
     sections: [],
+    summaries: {},
     stack: ["Python", "LLM APIs", "retrieval / RAG", "Markdown knowledge base"],
     links: [],
     year: "2025",
