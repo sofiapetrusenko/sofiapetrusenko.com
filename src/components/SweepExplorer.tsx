@@ -70,6 +70,31 @@ export function SweepExplorer() {
     [sweep],
   );
 
+  /**
+   * The y-domain is computed per sweep, never fixed. Anchoring at 0 pushed
+   * every series into a flat band at the top and hid the variation these charts
+   * exist to show — the sweeps differ by hundredths of an F1, not by units.
+   *
+   * Both plotted series set the bounds together, so lane and band stay
+   * comparable on one scale. The 5% padding keeps the extreme points off the
+   * frame; the ceiling clamps at 1.0 because an F1 cannot exceed it, and the
+   * floor at 0 for the same reason. A flat series would give a zero range, so
+   * it falls back to a small window rather than collapsing to a single line.
+   */
+  const domain = useMemo<[number, number]>(() => {
+    const points = data
+      .flatMap((row) => [row.laneF1, row.bandF1])
+      .filter((value): value is number => typeof value === "number");
+
+    if (points.length === 0) return [0, 1];
+
+    const low = Math.min(...points);
+    const high = Math.max(...points);
+    const pad = (high - low) * 0.05 || 0.005;
+
+    return [Math.max(0, low - pad), Math.min(1, high + pad)];
+  }, [data]);
+
   if (!sweep) return null;
 
   const shipped = sweep.shipped_value;
@@ -147,8 +172,9 @@ export function SweepExplorer() {
                 minTickGap={14}
               />
               <YAxis
-                domain={[0, 1]}
-                ticks={[0, 0.25, 0.5, 0.75, 1]}
+                domain={domain}
+                tickCount={5}
+                tickFormatter={(value: number) => value.toFixed(2)}
                 tick={{ fill: CHART.axis, fontSize: 10 }}
                 tickLine={false}
                 axisLine={{ stroke: CHART.grid }}
