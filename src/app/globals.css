@@ -87,19 +87,21 @@ body {
 }
 
 /*
- * Hero aurora: two slow radial glows behind the name. The one deliberately
- * decorative element on the site.
+ * Page glow: two faint radial tints anchored near the top of a page, behind the
+ * title. The one deliberately decorative element on the site, and shared by the
+ * home page and the case studies so the three read as one place.
  *
- * Contrast: each glow peaks at 10% opacity. The brightest frame the animation
- * can physically produce is both glows exactly coincident, which composites to
- * rgb(23, 50, 47) — body text 11.2:1, muted 5.4:1, accent 6.4:1 against it.
- * That bound holds for every frame, so no frame can fall under 4.5:1. 12%
+ * Contrast: each glow peaks at 10% opacity. The brightest colour the pair can
+ * composite to is both glows exactly coincident, rgb(23, 50, 47) — against
+ * which body text is 11.2:1, muted 5.4:1, accent 6.4:1 and the amber used by
+ * the stat strip 8.2:1. They are positioned apart and no longer move, so that
+ * bound is never actually reached; it holds as a worst case regardless. 12%
  * opacity would drop muted to 4.9:1, which is why it stays at 10%.
  *
  * `overflow: clip` is a safety net: the glows are sized to stay inside the
- * wrapper across the whole drift, so the page can never gain scroll width.
+ * wrapper, so the page can never gain scroll width.
  */
-.hero-aurora {
+.page-glow {
   position: absolute;
   inset-inline: 0;
   top: -8rem;
@@ -109,54 +111,51 @@ body {
   pointer-events: none;
 }
 
-.hero-aurora::before,
-.hero-aurora::after {
+.page-glow::before,
+.page-glow::after {
   content: "";
   position: absolute;
   width: min(26rem, 72%);
   aspect-ratio: 1;
   opacity: 0.1;
-  will-change: transform;
 }
 
-.hero-aurora::before {
+.page-glow::before {
   left: 2%;
   top: 6%;
   background: radial-gradient(closest-side, var(--color-accent), transparent);
 }
 
-.hero-aurora::after {
+.page-glow::after {
   right: 4%;
   top: 26%;
   background: radial-gradient(closest-side, var(--color-ok), transparent);
 }
 
-/* Drift is ~10% of the viewport over a half-minute — breathing, not shimmer. */
-@keyframes aurora-drift-a {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(7vw, 2.5vh, 0);
-  }
+/*
+ * Body prose: quiet at rest, full contrast under the pointer, so the paragraph
+ * being read comes forward and the rest stays back. Colour only — nothing here
+ * can move a glyph or change a metric, because a hover that reflows text is a
+ * hover that fights the reader.
+ *
+ * The resting muted is 7.6:1 on the page background and 7.2:1 on a surface, so
+ * it reads on its own; the hover is an enhancement, never the way in. Gated on
+ * a real pointer so a touch device cannot leave a paragraph stuck bright, which
+ * also means those devices keep the resting colour and lose nothing they need.
+ * The transition is dropped by the global reduced-motion rule below, which
+ * leaves the colour change intact.
+ */
+.prose-hover {
+  color: var(--color-muted);
 }
 
-@keyframes aurora-drift-b {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-6vw, -3vh, 0);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero-aurora::before {
-    animation: aurora-drift-a 28s ease-in-out infinite alternate;
+@media (hover: hover) and (pointer: fine) {
+  .prose-hover {
+    transition: color 150ms ease;
   }
 
-  .hero-aurora::after {
-    animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  .prose-hover:hover {
+    color: var(--color-fg);
   }
 }
 

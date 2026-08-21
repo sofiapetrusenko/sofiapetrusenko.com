@@ -17,6 +17,7 @@ import { Disclosure } from "@/components/Disclosure";
 import { GoldRecordInspector } from "@/components/GoldRecordInspector";
 import { LifespanFunnel } from "@/components/LifespanFunnel";
 import { LinkList } from "@/components/LinkList";
+import { PageGlow } from "@/components/PageGlow";
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { QcEffectChart } from "@/components/QcEffectChart";
 import { RefusalGrid } from "@/components/RefusalGrid";
@@ -183,7 +184,9 @@ export default async function ProjectPage({
   return (
     <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8 sm:py-32">
       <main className="flex flex-col gap-24 sm:gap-28">
-        <header>
+        <header className="relative">
+          <PageGlow />
+
           <p className="text-muted font-mono text-xs tracking-wider">
             {project.year}
           </p>

@@ -1,15 +1,11 @@
 import { labels, profile } from "@/content";
 import { LinkList } from "./LinkList";
+import { PageGlow } from "./PageGlow";
 
 export function Hero() {
   return (
     <header className="relative">
-      {/*
-        Two slow radial glows behind the name — the one deliberately decorative
-        element on the site. Geometry, clipping and contrast are all handled in
-        globals.css; see `.hero-aurora` there.
-      */}
-      <div aria-hidden="true" className="hero-aurora" />
+      <PageGlow />
 
       <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] leading-[0.92] font-bold tracking-[-0.02em] text-balance">
         {profile.name}
