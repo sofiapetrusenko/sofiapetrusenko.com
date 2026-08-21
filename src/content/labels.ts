@@ -34,4 +34,14 @@ export const labels = {
   statusNotRun: "not run",
   visited: "visited",
   backToHome: "Back to home",
+
+  /* Embedded case-study demos. */
+  inspector: "Analysis",
+  inspectorHint:
+    "Explore an analysis — hover a lane, click for densitometry, open the provenance record.",
+  funnel: "Pipeline",
+  funnelHint:
+    "Select a stage for what it does and the artifact it reads or writes. Counts are the committed gold set, not a model run.",
+  /* Shown only when the demo's committed artifacts could not be loaded. */
+  placeholderBanner: "Placeholder data",
 } as const;

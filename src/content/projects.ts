@@ -4,6 +4,10 @@ import type { Project } from "./types";
  * Ordered most recent first. To add a project: copy an entry below and give it
  * a unique slug — `content.test.ts` fails on duplicates, empty text and any
  * href that is not absolute http(s) or mailto:.
+ *
+ * Every figure in these entries is quoted from a repository artifact, not from
+ * memory. Where a repo records something as designed but not yet run, this copy
+ * says so in those words.
  */
 export const projects = [
   {
@@ -15,6 +19,7 @@ export const projects = [
       "Producing video consistently is a pipeline problem, not a creative one. The same stages repeat for every video, each fails differently, and the expensive parts — inference, image generation, speech synthesis — must never re-run without reason.",
     approach:
       "Eight-stage pipeline where each stage writes a typed artifact the next one reads, so a failure at stage six costs one stage rather than the whole run. Stages are idempotent and resumable; model output is treated as untrusted input, with a JSON repair heuristic added after a real failure in Spanish narration. Nothing publishes without a human approving it.",
+    sections: [],
     stack: [
       "Python",
       "FastAPI",
@@ -41,6 +46,7 @@ export const projects = [
       "Conversational agents forget everything between sessions. Anything worth remembering has to be re-supplied by the user, which caps how useful the agent can be over time.",
     approach:
       "Memory layer built end-to-end on a structured Markdown knowledge base: a defined note schema, automated extraction and writing of salient information, and retrieval of relevant prior context at inference time. Conversation-state handling keeps continuity and tone coherent across extended multi-session use.",
+    sections: [],
     stack: ["Python", "LLM APIs", "retrieval / RAG", "Markdown knowledge base"],
     links: [],
     year: "2025",

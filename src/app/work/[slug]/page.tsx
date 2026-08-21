@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, labels, pipelineStages, projects } from "@/content";
+import { BlotquantInspector } from "@/components/BlotquantInspector";
+import { LifespanFunnel } from "@/components/LifespanFunnel";
 import { LinkList } from "@/components/LinkList";
 import { PipelineDiagram } from "@/components/PipelineDiagram";
 import { Reveal } from "@/components/Reveal";
@@ -10,6 +12,16 @@ import { StackList } from "@/components/StackList";
 
 /** Only this project has a pipeline to show. */
 const PIPELINE_SLUG = "media-automation-platform";
+
+/**
+ * Projects with an interactive embed, and where it goes: each renders directly
+ * after `approach`, so the reader has been told what the thing does before
+ * being handed something to poke at.
+ */
+const EMBED_SLUGS = {
+  blotquant: "blotquant",
+  lifespanExtract: "lifespan-extract",
+} as const;
 
 type Params = { slug: string };
 
@@ -69,6 +81,36 @@ export default async function ProjectPage({
         <Reveal>
           <Field label={labels.approach} body={project.approach} />
         </Reveal>
+
+        {project.slug === EMBED_SLUGS.blotquant && (
+          <Reveal>
+            <section>
+              <SectionLabel>{labels.inspector}</SectionLabel>
+              <p className="text-muted mb-6 max-w-[68ch] text-sm">
+                {labels.inspectorHint}
+              </p>
+              <BlotquantInspector />
+            </section>
+          </Reveal>
+        )}
+
+        {project.slug === EMBED_SLUGS.lifespanExtract && (
+          <Reveal>
+            <section>
+              <SectionLabel>{labels.funnel}</SectionLabel>
+              <p className="text-muted mb-6 max-w-[68ch] text-sm">
+                {labels.funnelHint}
+              </p>
+              <LifespanFunnel />
+            </section>
+          </Reveal>
+        )}
+
+        {project.sections.map((section) => (
+          <Reveal key={section.id}>
+            <Field label={section.label} body={section.body} />
+          </Reveal>
+        ))}
 
         {project.slug === PIPELINE_SLUG && (
           <Reveal>
