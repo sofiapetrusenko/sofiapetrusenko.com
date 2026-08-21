@@ -123,7 +123,9 @@ function Field({
     <section>
       <SectionLabel>{label}</SectionLabel>
       {summary === undefined ? (
-        <p className="max-w-[68ch] text-lg leading-relaxed">{body}</p>
+        <p className="prose-hover max-w-[68ch] text-lg leading-relaxed">
+          {body}
+        </p>
       ) : (
         <Disclosure key={id} summary={summary} defaultOpen={defaultOpen}>
           <p>{body}</p>
@@ -146,7 +148,7 @@ function Embed({
   return (
     <section>
       <SectionLabel>{label}</SectionLabel>
-      <p className="text-muted mb-6 max-w-[68ch] text-sm">{hint}</p>
+      <p className="prose-hover mb-6 max-w-[68ch] text-sm">{hint}</p>
       {children}
     </section>
   );

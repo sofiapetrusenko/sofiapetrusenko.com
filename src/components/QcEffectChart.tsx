@@ -63,7 +63,7 @@ export function QcEffectChart() {
         </ul>
       </div>
 
-      <p className="text-muted mt-3 text-sm leading-relaxed">
+      <p className="prose-hover mt-3 text-sm leading-relaxed">
         {cleanest.mean_absolute_percent}% is the accuracy claim;{" "}
         {headline.mean_absolute_percent}% is what you get if you quantify
         everything and flag nothing. {labels.qcChartCaption}{" "}

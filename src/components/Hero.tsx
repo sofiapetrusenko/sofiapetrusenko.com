@@ -13,7 +13,7 @@ export function Hero() {
       <p className="mt-8 max-w-[24ch] text-[clamp(1.375rem,3.5vw,1.75rem)] leading-snug font-medium text-balance">
         {profile.headline}
       </p>
-      <p className="text-muted mt-8 max-w-[68ch] leading-relaxed">
+      <p className="prose-hover mt-8 max-w-[68ch] leading-relaxed">
         {profile.summary}
       </p>
       <p className="text-muted mt-8 font-mono text-xs tracking-wider">

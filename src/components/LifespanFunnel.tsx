@@ -371,7 +371,9 @@ export function LifespanFunnel() {
                 {stage.state}
               </span>
             </h3>
-            <p className="mt-3 max-w-[68ch] leading-relaxed">{stage.does}</p>
+            <p className="prose-hover mt-3 max-w-[68ch] leading-relaxed">
+              {stage.does}
+            </p>
 
             {stage.excerpt && (
               <figure className="mt-5">

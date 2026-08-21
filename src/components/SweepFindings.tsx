@@ -52,7 +52,9 @@ function Finding({
       <p className="font-mono text-xs" style={{ color: "var(--color-accent)" }}>
         {title}
       </p>
-      <p className="text-muted mt-2 max-w-[68ch] leading-relaxed">{children}</p>
+      <p className="prose-hover mt-2 max-w-[68ch] leading-relaxed">
+        {children}
+      </p>
     </div>
   );
 }

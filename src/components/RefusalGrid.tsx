@@ -25,7 +25,7 @@ export function RefusalGrid() {
 
   return (
     <div>
-      <p className="max-w-[68ch] text-lg leading-relaxed">
+      <p className="prose-hover max-w-[68ch] text-lg leading-relaxed">
         The run measured nothing: {run.produced} of {run.crops} crops produced a
         result document and {run.failed} were refused. That is the recorded
         result, not a run still pending.
@@ -93,7 +93,7 @@ export function RefusalGrid() {
         ))}
       </ul>
 
-      <p className="text-muted mt-5 max-w-[68ch] text-sm leading-relaxed">
+      <p className="prose-hover mt-5 max-w-[68ch] text-sm leading-relaxed">
         The fix is a documented loader decision about channel handling — the
         ruling puts {run.measurable} of {run.crops} crops within reach — and it
         has to be specified before any measurement is taken, not after. It is

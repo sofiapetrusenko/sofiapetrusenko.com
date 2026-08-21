@@ -28,7 +28,9 @@ export function Disclosure({
 
   return (
     <div>
-      <div className="max-w-[68ch] text-lg leading-relaxed">{summary}</div>
+      <div className="prose-hover max-w-[68ch] text-lg leading-relaxed">
+        {summary}
+      </div>
 
       <button
         type="button"
@@ -48,7 +50,7 @@ export function Disclosure({
       </button>
 
       <div id={bodyId} hidden={!open} className="mt-5">
-        <div className="border-hairline max-w-[68ch] border-l pl-5 text-lg leading-relaxed sm:pl-6">
+        <div className="prose-hover border-hairline max-w-[68ch] border-l pl-5 text-lg leading-relaxed sm:pl-6">
           {children}
         </div>
       </div>

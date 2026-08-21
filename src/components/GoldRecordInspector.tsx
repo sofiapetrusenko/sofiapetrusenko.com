@@ -244,7 +244,7 @@ function Records() {
         </p>
       </div>
 
-      <p className="text-muted mt-3 text-sm leading-relaxed">
+      <p className="prose-hover mt-3 text-sm leading-relaxed">
         {labels.noWindowNote}
       </p>
     </div>

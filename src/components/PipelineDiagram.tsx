@@ -684,7 +684,9 @@ export function PipelineDiagram({
                 </span>
               )}
             </h3>
-            <p className="mt-3 max-w-[68ch] leading-relaxed">{selected.does}</p>
+            <p className="prose-hover mt-3 max-w-[68ch] leading-relaxed">
+              {selected.does}
+            </p>
 
             <dl className="mt-6 flex flex-col gap-5">
               <div>
