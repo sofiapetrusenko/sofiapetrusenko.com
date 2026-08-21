@@ -6,10 +6,10 @@ import { blotquantMetrics, labels, shortCommit } from "@/content";
 /**
  * The first real-data run: one cell per CC-BY crop, every one of them refused.
  *
- * The refusal reason is uniform across all 19 — they are three-channel PNGs and
- * the loader quantifies single-channel images only — so it is stated once above
- * the grid rather than repeated in nineteen tooltips. Each cell carries its
- * crop id, which is the part that differs.
+ * The refusal reason is uniform across every crop — they are three-channel PNGs
+ * and the loader quantifies single-channel images only — so it is stated once
+ * above the grid rather than repeated per cell. Each cell carries its crop id,
+ * which is the part that differs.
  *
  * The per-crop channel-divergence table is not committed (`runs/` is ignored in
  * that repo), so the cells are not colour-coded by group. The group counts are

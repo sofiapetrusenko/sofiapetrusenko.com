@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { lifespanMetrics } from "@/content";
 
 /**
  * The lifespan-extract pipeline as it stands, with the committed gold set
@@ -15,6 +16,8 @@ import { useCallback, useRef, useState } from "react";
  *
  * Static by design — a case study, not a dashboard — so the data is hardcoded.
  */
+
+const metrics = lifespanMetrics;
 
 const TOKEN = {
   accent: "var(--color-accent)",
@@ -56,7 +59,7 @@ const STAGES: readonly Stage[] = [
     short: "screen",
     name: "screen",
     state: "planned",
-    does: "A cheap-model gate answers one question — does this paper report lifespan-intervention data? — so the expensive extraction call only sees papers worth extracting. A paper screened out is a correct answer, not a miss, which is why the negative set is built to be hard: 15 papers across five categories that all look like lifespan studies to a keyword classifier and are not.",
+    does: `A cheap-model gate answers one question — does this paper report lifespan-intervention data? — so the expensive extraction call only sees papers worth extracting. A paper screened out is a correct answer, not a miss, which is why the negative set is built to be hard: ${metrics.negatives.total} papers across ${metrics.negatives.categories.length} categories that all look like lifespan studies to a keyword classifier and are not.`,
     excerpt: {
       text: "Lifespan or survival is measured, but nothing is administered - observational, GWAS/QTL, natural variation.",
       caption:
@@ -98,21 +101,26 @@ const STAGES: readonly Stage[] = [
   },
 ];
 
-/** Counted out of the committed files, not reported by a run. */
+/**
+ * Counted out of the committed files by `scripts/extract-case-study-data.mjs`,
+ * not reported by a run and not typed here. The direction colours are the only
+ * thing this component adds: green for a lifespan increase, amber for the one
+ * decrease, neutral for no effect.
+ */
+const DIRECTION_COLOR: Readonly<Record<string, string>> = {
+  increase: TOKEN.ok,
+  no_effect: TOKEN.muted,
+  decrease: TOKEN.gate,
+};
+
 const GOLD = {
-  papers: 10,
-  records: 26,
-  directions: [
-    { label: "increase", count: 18, color: TOKEN.ok },
-    { label: "no_effect", count: 7, color: TOKEN.muted },
-    { label: "decrease", count: 1, color: TOKEN.gate },
-  ],
-  organisms: [
-    { label: "M. musculus", count: 19 },
-    { label: "C. elegans", count: 3 },
-    { label: "M. mulatta", count: 2 },
-    { label: "other", count: 2 },
-  ],
+  papers: metrics.gold.papers,
+  records: metrics.gold.records,
+  directions: metrics.gold.directions.map((row) => ({
+    ...row,
+    color: DIRECTION_COLOR[row.label] ?? TOKEN.accent,
+  })),
+  organisms: metrics.gold.organisms,
 } as const;
 
 const GEOMETRY = { nodeW: 74, nodeH: 34, pitch: 86, top: 8, vbH: 62 } as const;
