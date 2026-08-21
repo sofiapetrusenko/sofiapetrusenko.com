@@ -680,7 +680,7 @@ export function BlotquantInspector() {
                 {result.normalization.warnings.map((warning) => (
                   <li
                     key={warning}
-                    className="font-mono text-[0.6875rem]"
+                    className="font-mono text-[0.6875rem] break-all"
                     style={{ color: TOKEN.gate }}
                   >
                     warning: {warning}
