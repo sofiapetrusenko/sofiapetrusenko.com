@@ -133,6 +133,49 @@ body {
 }
 
 /*
+ * Drift, opt-in and used by the home page hero alone. The case studies take the
+ * static glow: movement suits a landing page and is a distraction beside a
+ * chart someone is reading numbers off.
+ *
+ * ~10% of the viewport over a half-minute — breathing, not shimmer. The two
+ * glows never coincide during the drift, so the contrast bound above still
+ * holds at every frame. `will-change` is scoped to this variant so the static
+ * pages do not promote a layer they never animate.
+ */
+@keyframes aurora-drift-a {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(7vw, 2.5vh, 0);
+  }
+}
+
+@keyframes aurora-drift-b {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-6vw, -3vh, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-glow--drift::before,
+  .page-glow--drift::after {
+    will-change: transform;
+  }
+
+  .page-glow--drift::before {
+    animation: aurora-drift-a 28s ease-in-out infinite alternate;
+  }
+
+  .page-glow--drift::after {
+    animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  }
+}
+
+/*
  * Body prose: quiet at rest, full contrast under the pointer, so the paragraph
  * being read comes forward and the rest stays back. Colour only — nothing here
  * can move a glyph or change a metric, because a hover that reflows text is a

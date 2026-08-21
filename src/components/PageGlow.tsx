@@ -7,6 +7,22 @@
  * page has always used; nothing here is brighter than that, and it paints
  * behind everything with no pointer target of its own.
  */
-export function PageGlow() {
-  return <div aria-hidden="true" className="page-glow" />;
+export function PageGlow({
+  /**
+   * Slowly drift the two glows. Off everywhere but the home page hero: movement
+   * suits a landing page and competes with a chart someone is reading numbers
+   * off. The animation is declared under `prefers-reduced-motion:
+   * no-preference`, so asking for less motion leaves the glow static rather
+   * than removing it.
+   */
+  drift = false,
+}: {
+  drift?: boolean;
+} = {}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={drift ? "page-glow page-glow--drift" : "page-glow"}
+    />
+  );
 }

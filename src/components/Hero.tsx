@@ -5,7 +5,8 @@ import { PageGlow } from "./PageGlow";
 export function Hero() {
   return (
     <header className="relative">
-      <PageGlow />
+      {/* The one animated element on the site, and only here. */}
+      <PageGlow drift />
 
       <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] leading-[0.92] font-bold tracking-[-0.02em] text-balance">
         {profile.name}
