@@ -1,0 +1,482 @@
+{
+  "source_commit": "b15e783569a8a4972afd60198a0c451194172d6c",
+  "generated_at": "2026-08-21T14:25:26.120Z",
+  "gold": {
+    "papers": 10,
+    "records": 26,
+    "directions": [
+      {
+        "label": "increase",
+        "count": 18
+      },
+      {
+        "label": "no_effect",
+        "count": 7
+      },
+      {
+        "label": "decrease",
+        "count": 1
+      }
+    ],
+    "organisms": [
+      {
+        "label": "M. musculus",
+        "count": 19
+      },
+      {
+        "label": "C. elegans",
+        "count": 3
+      },
+      {
+        "label": "M. mulatta",
+        "count": 2
+      },
+      {
+        "label": "other",
+        "count": 2
+      }
+    ],
+    "schema_version": "0.4.0"
+  },
+  "negatives": {
+    "total": 15,
+    "set_version": "0.1.0",
+    "categories": [
+      {
+        "name": "aging-no-lifespan",
+        "description": "Aging-related, but no lifespan is measured - biomarkers, biological-age clocks, healthspan endpoints only.",
+        "count": 3
+      },
+      {
+        "name": "lifespan-no-intervention",
+        "description": "Lifespan or survival is measured, but nothing is administered - observational, GWAS/QTL, natural variation.",
+        "count": 3
+      },
+      {
+        "name": "lifespan-adjacent-outcome",
+        "description": "An intervention on something lifespan-shaped but not organismal lifespan - cellular senescence, replicative lifespan of cells, organoids.",
+        "count": 3
+      },
+      {
+        "name": "review-or-meta-analysis",
+        "description": "Reviews and meta-analyses of lifespan interventions: the right words in the right order, no experiment of their own.",
+        "count": 3
+      },
+      {
+        "name": "wrong-organism",
+        "description": "Heavy lifespan vocabulary in an organism the project does not cover, or where 'lifespan' denotes something else entirely.",
+        "count": 3
+      }
+    ]
+  },
+  "sample_records": [
+    {
+      "id": "martinmontalvo2013-mmusculus-metformin-high-dose",
+      "file": "data/gold/martinmontalvo2013.json",
+      "index": 1,
+      "direction": "decrease",
+      "paper": {
+        "title": "Metformin improves healthspan and lifespan in mice",
+        "year": 2013,
+        "pmid": "23900241",
+        "doi": "10.1038/ncomms3192"
+      },
+      "claims": [
+        {
+          "field": "organism",
+          "value": "M. musculus",
+          "state": "populated",
+          "source_quote": "Here we show that long-term treatment with metformin (0.1% w/w in diet) starting at middle age extends healthspan and lifespan in male mice, while a higher dose (1% w/w) was toxic.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "strain",
+          "value": "C57BL/6",
+          "state": "populated",
+          "source_quote": "We determined the long-term effects of two doses of metformin in male C57BL/6 mice.",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "sex",
+          "value": "male",
+          "state": "populated",
+          "source_quote": "We determined the long-term effects of two doses of metformin in male C57BL/6 mice.",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "sample_size",
+          "value": 90,
+          "state": "populated",
+          "source_quote": "n = 90 for metformin 1% group and n = 88 for their untreated counterparts",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.type",
+          "value": "pharmacological",
+          "state": "populated",
+          "source_quote": "Metformin is a drug commonly prescribed to treat patients with type 2 diabetes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.agent",
+          "value": "metformin",
+          "state": "populated",
+          "source_quote": "a higher dose (1% w/w) was toxic",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.dose",
+          "value": "1% (w/w) in diet",
+          "state": "populated",
+          "source_quote": "The second dose (1% w/w) yielded a concentration of 5.03 ± 0.87 mM in serum and 3.67 ± 0.32 nmoles.mg−1 protein in the liver",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.age_at_start",
+          "value": "54 weeks",
+          "state": "populated",
+          "source_quote": "The arrows at 54 weeks indicate the age at which metformin treatment was initiated.",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "mechanism",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.direction",
+          "value": "decrease",
+          "state": "populated",
+          "source_quote": "a higher concentration of the drug (1% w/w) was toxic and significantly shortened mean lifespan of C57BL/6 mice by 14.4% (Fig. 1b), likely due to renal failure",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.median_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.mean_change_pct",
+          "value": -14.4,
+          "state": "populated",
+          "source_quote": "a higher concentration of the drug (1% w/w) was toxic and significantly shortened mean lifespan of C57BL/6 mice by 14.4%",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.max_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "full_text",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.p_value",
+          "value": "< 0.001",
+          "state": "populated",
+          "source_quote": "χ2 = 51,70 and P< 0.001 in Gehan-Breslow survival test",
+          "extracted_from": "full_text",
+          "confidence": "high"
+        }
+      ],
+      "counts": {
+        "total": 14,
+        "populated": 11,
+        "not_reported": 0,
+        "null": 3,
+        "quoted": 11
+      }
+    },
+    {
+      "id": "colman2009-mmulatta-caloric-restriction",
+      "file": "data/gold/colman2009.json",
+      "index": 0,
+      "direction": "increase",
+      "paper": {
+        "title": "Caloric restriction delays disease onset and mortality in rhesus monkeys.",
+        "year": 2009,
+        "pmid": "19590001",
+        "doi": "10.1126/science.1173635"
+      },
+      "claims": [
+        {
+          "field": "organism",
+          "value": "M. mulatta",
+          "state": "populated",
+          "source_quote": "In a population of rhesus macaques maintained at the Wisconsin National Primate Research Center, moderate CR lowered the incidence of aging-related deaths.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "strain",
+          "value": "not_reported",
+          "state": "not_reported",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "sex",
+          "value": "not_reported",
+          "state": "not_reported",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "sample_size",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.type",
+          "value": "dietary",
+          "state": "populated",
+          "source_quote": "In a population of rhesus macaques maintained at the Wisconsin National Primate Research Center, moderate CR lowered the incidence of aging-related deaths.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.agent",
+          "value": "caloric restriction",
+          "state": "populated",
+          "source_quote": "In a population of rhesus macaques maintained at the Wisconsin National Primate Research Center, moderate CR lowered the incidence of aging-related deaths.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.dose",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.age_at_start",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "mechanism",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.direction",
+          "value": "increase",
+          "state": "populated",
+          "source_quote": "In a population of rhesus macaques maintained at the Wisconsin National Primate Research Center, moderate CR lowered the incidence of aging-related deaths.",
+          "extracted_from": "abstract",
+          "confidence": "medium"
+        },
+        {
+          "field": "lifespan_effect.median_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.mean_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.max_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.p_value",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        }
+      ],
+      "counts": {
+        "total": 14,
+        "populated": 4,
+        "not_reported": 2,
+        "null": 8,
+        "quoted": 4
+      }
+    },
+    {
+      "id": "mattison2012-mmulatta-caloric-restriction",
+      "file": "data/gold/mattison2012.json",
+      "index": 0,
+      "direction": "no_effect",
+      "paper": {
+        "title": "Impact of caloric restriction on health and survival in rhesus monkeys from the NIA study.",
+        "year": 2012,
+        "pmid": "22932268",
+        "doi": "10.1038/nature11432"
+      },
+      "claims": [
+        {
+          "field": "organism",
+          "value": "M. mulatta",
+          "state": "populated",
+          "source_quote": "We report here that a CR regimen implemented in young and older age rhesus monkeys at the National Institute on Aging (NIA) has not improved survival outcomes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "strain",
+          "value": "not_reported",
+          "state": "not_reported",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "sex",
+          "value": "not_reported",
+          "state": "not_reported",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "sample_size",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.type",
+          "value": "dietary",
+          "state": "populated",
+          "source_quote": "We report here that a CR regimen implemented in young and older age rhesus monkeys at the National Institute on Aging (NIA) has not improved survival outcomes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.agent",
+          "value": "caloric restriction",
+          "state": "populated",
+          "source_quote": "We report here that a CR regimen implemented in young and older age rhesus monkeys at the National Institute on Aging (NIA) has not improved survival outcomes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.dose",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "intervention.age_at_start",
+          "value": "young and older age",
+          "state": "populated",
+          "source_quote": "We report here that a CR regimen implemented in young and older age rhesus monkeys at the National Institute on Aging (NIA) has not improved survival outcomes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "mechanism",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.direction",
+          "value": "no_effect",
+          "state": "populated",
+          "source_quote": "We report here that a CR regimen implemented in young and older age rhesus monkeys at the National Institute on Aging (NIA) has not improved survival outcomes.",
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.median_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.mean_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.max_change_pct",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        },
+        {
+          "field": "lifespan_effect.p_value",
+          "value": null,
+          "state": "null",
+          "source_quote": null,
+          "extracted_from": "abstract",
+          "confidence": "high"
+        }
+      ],
+      "counts": {
+        "total": 14,
+        "populated": 5,
+        "not_reported": 2,
+        "null": 7,
+        "quoted": 5
+      }
+    }
+  ],
+  "checker_fixtures": {
+    "source": "tests/test_check_gold.py",
+    "abstract": "Inhibition of the TOR signalling pathway extends lifespan. Here we report that rapamycin, an inhibitor of the mTOR pathway, extends median and maximal lifespan of both male and female mice when fed beginning at 600 days of age.",
+    "full_text": "Genetically heterogeneous mice were produced by mating\nCB6F1 females to C3D2F1 males.\n\nRapamycin was\nmicroencapsulated and fed at 14 ppm in the diet.\n\nMedian survival increased by 14% in\nmales and 9% in females."
+  },
+  "tests": {
+    "collected": 485,
+    "command": "pytest --collect-only -q"
+  }
+}
