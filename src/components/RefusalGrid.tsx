@@ -25,7 +25,7 @@ export function RefusalGrid() {
 
   return (
     <div>
-      <p className="prose-hover max-w-[68ch] text-lg leading-relaxed">
+      <p className="max-w-[68ch] text-lg leading-relaxed">
         The run measured nothing: {run.produced} of {run.crops} crops produced a
         result document and {run.failed} were refused. That is the recorded
         result, not a run still pending.
