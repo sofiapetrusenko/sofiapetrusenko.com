@@ -23,8 +23,12 @@
      text on the 15% danger fill at 5.8:1. */
   --color-ok: #4ade80;
   --color-danger: #f87171;
-  /* Warm amber: reserved for the human gate, the one node that is a
-     checkpoint rather than a stage. Never used decoratively. */
+  /* Warm amber: the "a human has to look at this" hue. The pipeline diagram's
+     human gate, the one node that is a checkpoint rather than a stage, and the
+     blotquant inspector's QC-flagged bands and excluded ratios, which are
+     reported rather than dropped precisely so someone reads them. Always
+     carries a word beside it — "human approval", "flagged", the flag's own
+     name — and is never used decoratively. */
   --color-gate: #fbbf24;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -83,19 +87,21 @@ body {
 }
 
 /*
- * Hero aurora: two slow radial glows behind the name. The one deliberately
- * decorative element on the site.
+ * Page glow: two faint radial tints anchored near the top of a page, behind the
+ * title. The one deliberately decorative element on the site, and shared by the
+ * home page and the case studies so the three read as one place.
  *
- * Contrast: each glow peaks at 10% opacity. The brightest frame the animation
- * can physically produce is both glows exactly coincident, which composites to
- * rgb(23, 50, 47) — body text 11.2:1, muted 5.4:1, accent 6.4:1 against it.
- * That bound holds for every frame, so no frame can fall under 4.5:1. 12%
+ * Contrast: each glow peaks at 10% opacity. The brightest colour the pair can
+ * composite to is both glows exactly coincident, rgb(23, 50, 47) — against
+ * which body text is 11.2:1, muted 5.4:1, accent 6.4:1 and the amber used by
+ * the stat strip 8.2:1. They are positioned apart and no longer move, so that
+ * bound is never actually reached; it holds as a worst case regardless. 12%
  * opacity would drop muted to 4.9:1, which is why it stays at 10%.
  *
  * `overflow: clip` is a safety net: the glows are sized to stay inside the
- * wrapper across the whole drift, so the page can never gain scroll width.
+ * wrapper, so the page can never gain scroll width.
  */
-.hero-aurora {
+.page-glow {
   position: absolute;
   inset-inline: 0;
   top: -8rem;
@@ -105,29 +111,37 @@ body {
   pointer-events: none;
 }
 
-.hero-aurora::before,
-.hero-aurora::after {
+.page-glow::before,
+.page-glow::after {
   content: "";
   position: absolute;
   width: min(26rem, 72%);
   aspect-ratio: 1;
   opacity: 0.1;
-  will-change: transform;
 }
 
-.hero-aurora::before {
+.page-glow::before {
   left: 2%;
   top: 6%;
   background: radial-gradient(closest-side, var(--color-accent), transparent);
 }
 
-.hero-aurora::after {
+.page-glow::after {
   right: 4%;
   top: 26%;
   background: radial-gradient(closest-side, var(--color-ok), transparent);
 }
 
-/* Drift is ~10% of the viewport over a half-minute — breathing, not shimmer. */
+/*
+ * Drift, opt-in and used by the home page hero alone. The case studies take the
+ * static glow: movement suits a landing page and is a distraction beside a
+ * chart someone is reading numbers off.
+ *
+ * ~10% of the viewport over a half-minute — breathing, not shimmer. The two
+ * glows never coincide during the drift, so the contrast bound above still
+ * holds at every frame. `will-change` is scoped to this variant so the static
+ * pages do not promote a layer they never animate.
+ */
 @keyframes aurora-drift-a {
   from {
     transform: translate3d(0, 0, 0);
@@ -147,12 +161,51 @@ body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hero-aurora::before {
+  .page-glow--drift::before,
+  .page-glow--drift::after {
+    will-change: transform;
+  }
+
+  .page-glow--drift::before {
     animation: aurora-drift-a 28s ease-in-out infinite alternate;
   }
 
-  .hero-aurora::after {
+  .page-glow--drift::after {
     animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  }
+}
+
+/*
+ * Secondary prose — section lead-ins and chart captions. Muted at rest, which
+ * is what every one of them already was, lifting to the foreground colour under
+ * the pointer so the one being read comes forward.
+ *
+ * The rule for what may take this class is exactly: the text was already muted.
+ * Nothing that rendered at full contrast gets it, because making such text
+ * hover means demoting it to muted at rest, and a touch visitor never gets the
+ * hover back — they would pay a permanent cost for an effect they cannot
+ * trigger. So the body of a Field, both halves of a Disclosure, the refusal
+ * grid's opening paragraph and both stage-detail panels stay at full contrast
+ * with no hover rule at all. Applied only where it was already muted, the lift
+ * is a gain with nothing given up.
+ *
+ * Colour only, on a 150ms ease — nothing here can change a metric, so no glyph
+ * moves and nothing reflows. Gated on a real pointer so a touch device cannot
+ * strand a paragraph bright; those devices keep the resting muted, which is
+ * 7.6:1 on the page background and 7.2:1 on a surface. The global
+ * reduced-motion rule below drops the transition and leaves the colour change.
+ */
+.prose-hover {
+  color: var(--color-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prose-hover {
+    transition: color 150ms ease;
+  }
+
+  .prose-hover:hover {
+    color: var(--color-fg);
   }
 }
 

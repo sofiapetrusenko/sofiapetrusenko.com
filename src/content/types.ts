@@ -11,6 +11,22 @@ export type Link = {
   href: string;
 };
 
+/**
+ * One extra prose block on a case-study page, rendered in order after
+ * `approach`. Projects documented in depth carry a few of these — verification,
+ * process, status; the ones that need only problem and approach carry none.
+ *
+ * `label` is the heading, so it lives here rather than in `labels`: these
+ * headings vary per project, while everything in `labels` is site chrome that
+ * does not.
+ */
+export type ProjectSection = {
+  /** url-safe id, unique within the project */
+  id: string;
+  label: string;
+  body: string;
+};
+
 export type Project = {
   /** url-safe id */
   slug: string;
@@ -21,6 +37,19 @@ export type Project = {
   problem: string;
   /** 2-3 sentences: how it's architected */
   approach: string;
+  /** extra case-study sections, in render order; `[]` for a short entry */
+  sections: readonly ProjectSection[];
+  /**
+   * Scannable lead for a prose block, keyed by block id — `problem`,
+   * `approach`, or a section's own id. Where one exists the page shows it
+   * first and puts the long-form prose behind a toggle; where it does not, the
+   * prose renders directly. `{}` for a project short enough to read whole.
+   *
+   * The value is `string | undefined` because most ids have no summary: the
+   * lookup is by block id, and a missing one is the ordinary case rather than
+   * an error.
+   */
+  summaries: Readonly<Record<string, string | undefined>>;
   stack: readonly string[];
   /** repo, live demo, writeup */
   links: readonly Link[];

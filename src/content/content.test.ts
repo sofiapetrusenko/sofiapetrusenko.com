@@ -6,7 +6,15 @@ import {
   profile,
   projects,
   roles,
+  type Project,
 } from "./index";
+
+/**
+ * The declared contract rather than the inferred literal. `satisfies` keeps the
+ * literal's narrow types, so a `sections: []` on every project would infer
+ * `never[]` and quietly drop those fields out of the checks below.
+ */
+const allProjects: readonly Project[] = projects;
 
 /** A labelled string, so a failure names the exact field that broke. */
 type Field = { path: string; value: string };
@@ -29,7 +37,7 @@ function textFields(): Field[] {
     fields.push({ path: `profile.links[${i}].label`, value: link.label });
   }
 
-  for (const project of projects) {
+  for (const project of allProjects) {
     const at = `projects[${project.slug}]`;
     fields.push(
       { path: `${at}.slug`, value: project.slug },
@@ -39,6 +47,13 @@ function textFields(): Field[] {
       { path: `${at}.approach`, value: project.approach },
       { path: `${at}.year`, value: project.year },
     );
+    for (const section of project.sections) {
+      fields.push(
+        { path: `${at}.sections[${section.id}].id`, value: section.id },
+        { path: `${at}.sections[${section.id}].label`, value: section.label },
+        { path: `${at}.sections[${section.id}].body`, value: section.body },
+      );
+    }
     for (const [i, entry] of project.stack.entries()) {
       fields.push({ path: `${at}.stack[${i}]`, value: entry });
     }
@@ -89,7 +104,7 @@ function allLinks(): { path: string; href: string }[] {
     href: link.href,
   }));
 
-  for (const project of projects) {
+  for (const project of allProjects) {
     for (const [i, link] of project.links.entries()) {
       links.push({
         path: `projects[${project.slug}].links[${i}]`,
@@ -124,6 +139,13 @@ describe("content", () => {
   it("gives every project a unique slug", () => {
     const slugs = projects.map((project) => project.slug);
     expect(slugs).toStrictEqual([...new Set(slugs)]);
+  });
+
+  it("gives every project section a slug unique within its project", () => {
+    for (const project of allProjects) {
+      const ids = project.sections.map((section) => section.id);
+      expect(ids, project.slug).toStrictEqual([...new Set(ids)]);
+    }
   });
 
   it("uses only absolute http(s) or mailto: hrefs", () => {

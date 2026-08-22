@@ -17,11 +17,18 @@ const CATEGORIES: Readonly<Record<string, StackCategory>> = {
   "Redis + RQ": "infra",
   Docker: "infra",
   "Markdown knowledge base": "infra",
+  "PubMed / bioRxiv APIs": "infra",
+  pytest: "infra",
 
   // Media handling and the model tooling around it.
   ffmpeg: "media",
   "LLM APIs": "media",
   "retrieval / RAG": "media",
+  "gold set + quote checker": "media",
+  "OpenCV / scikit-image": "media",
+  "NumPy / SciPy": "media",
+  "agentic loops": "media",
+  "Claude Code subagents": "media",
 };
 
 export function stackCategory(entry: string): StackCategory | null {
