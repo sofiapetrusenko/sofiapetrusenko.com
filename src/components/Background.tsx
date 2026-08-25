@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { education, isCurrentRole, labels, roles } from "@/content";
 import { Section } from "./Section";
 
@@ -40,12 +41,10 @@ function Node({
 }
 
 /** Period on the left, country on the right, both mono, one line. */
-function MetaRow({ period, country }: { period?: string; country: string }) {
+function MetaRow({ period, country }: { period: string; country: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <p className="text-muted font-mono text-xs tracking-wider">
-        {period ?? ""}
-      </p>
+      <p className="text-muted font-mono text-xs tracking-wider">{period}</p>
       <p className="border-hairline text-muted shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[0.625rem] tracking-wider">
         {country}
       </p>
@@ -53,14 +52,22 @@ function MetaRow({ period, country }: { period?: string; country: string }) {
   );
 }
 
-export function Background() {
+/**
+ * Padding sits on each item, not the list: the nodes are positioned from the
+ * item's left edge, so that edge has to be the rail itself.
+ */
+function Rail({ children }: { children: ReactNode }) {
   return (
-    <Section title={labels.background}>
-      {/*
-        Padding sits on each item, not the list: the nodes are positioned from
-        the item's left edge, so that edge has to be the rail itself.
-      */}
-      <ol className="border-hairline flex flex-col gap-11 border-l-2">
+    <ol className="border-hairline flex flex-col gap-11 border-l-2">
+      {children}
+    </ol>
+  );
+}
+
+export function Experience() {
+  return (
+    <Section title={labels.experience}>
+      <Rail>
         {roles.map((role) => (
           <li
             key={`${role.org}-${role.period}`}
@@ -72,24 +79,35 @@ export function Background() {
               {role.title}
             </h3>
             <p className="text-muted mt-1 text-sm">{role.org}</p>
-            <p className="text-muted mt-3 max-w-[68ch] text-sm leading-relaxed">
-              {role.summary}
-            </p>
+            {/* A short contract entry is a dated line and carries no prose. */}
+            {role.summary && (
+              <p className="text-muted mt-3 max-w-[68ch] text-sm leading-relaxed">
+                {role.summary}
+              </p>
+            )}
           </li>
         ))}
+      </Rail>
+    </Section>
+  );
+}
 
-        {/* Degrees: same rail, compact type, no summaries. */}
+/** Same rail and same meta row as the roles, compact type, no summaries. */
+export function Education() {
+  return (
+    <Section title={labels.education}>
+      <Rail>
         {education.map((entry) => (
           <li key={entry.id} className="relative pl-6 sm:pl-8">
             <Node kind="education" />
-            <MetaRow country={entry.country} />
+            <MetaRow period={entry.period} country={entry.country} />
             <h3 className="mt-2 text-sm font-medium tracking-tight">
               {entry.degree}
             </h3>
             <p className="text-muted mt-1 text-sm">{entry.institution}</p>
           </li>
         ))}
-      </ol>
+      </Rail>
     </Section>
   );
 }

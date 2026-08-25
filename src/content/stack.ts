@@ -20,15 +20,12 @@ const CATEGORIES: Readonly<Record<string, StackCategory>> = {
   "PubMed / bioRxiv APIs": "infra",
   pytest: "infra",
 
-  // Media handling and the model tooling around it.
+  // Media, numerical and imaging libraries.
   ffmpeg: "media",
   "LLM APIs": "media",
   "retrieval / RAG": "media",
-  "gold set + quote checker": "media",
   "OpenCV / scikit-image": "media",
   "NumPy / SciPy": "media",
-  "agentic loops": "media",
-  "Claude Code subagents": "media",
 };
 
 export function stackCategory(entry: string): StackCategory | null {

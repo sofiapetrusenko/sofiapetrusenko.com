@@ -31,7 +31,7 @@ export function Hero() {
         {profile.now}
       </p>
       <div className="mt-10">
-        <LinkList links={profile.links} variant="pill" />
+        <LinkList links={[...profile.links, profile.cv]} variant="pill" />
       </div>
     </header>
   );

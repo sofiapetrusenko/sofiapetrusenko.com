@@ -65,19 +65,23 @@ export type Role = {
   /** drives the timeline node colour */
   kind: "engineering" | "research";
   period: string;
-  summary: string;
+  /**
+   * Optional: a short contract entry is a dated line and nothing more, so the
+   * timeline renders it without a prose block rather than padding one out.
+   */
+  summary?: string;
 };
 
 /**
- * Degrees, shown as compact timeline entries after the roles. No `period`:
- * the legacy index.html this is taken from carries no dates for either degree,
- * and inventing them is not an option.
+ * Degrees, shown as compact timeline entries in their own Education section.
  */
 export type Education = {
   id: string;
   degree: string;
   institution: string;
   country: string;
+  /** years attended, same mono treatment as a role's period */
+  period: string;
 };
 
 export type PipelineStage = {
@@ -132,6 +136,13 @@ export type Profile = {
   location: string;
   /** current focus, one line, rendered after a shell-style prompt */
   now: string;
+  /** what kind of work is being looked for, one line, shown above the contact links */
+  availability: string;
   email: string;
   links: readonly Link[];
+  /**
+   * Same-origin path to a file in `public/`, so it is kept out of `links` —
+   * everything in there is asserted absolute http(s) or mailto:.
+   */
+  cv: Link;
 };

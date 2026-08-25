@@ -1,22 +1,19 @@
 import type { Education } from "./types";
 
-/**
- * Both degrees are taken verbatim from the legacy index.html at the repo root,
- * which is the only source here that records them. It carries no dates, so the
- * `Education` type has no `period` field — the timeline renders these without
- * one rather than showing an invented year.
- */
+/** Most recent first, dated, and shown in their own Education section. */
 export const education = [
   {
     id: "dundee-biomedical-sciences",
-    degree: "BSc Hons Biomedical Sciences",
+    degree: "BSc (Hons) Biomedical Sciences",
     institution: "University of Dundee, Scotland",
     country: "UK",
+    period: "2022–2025",
   },
   {
     id: "kyiv-biology",
     degree: "BSc Biology",
     institution: "Taras Shevchenko National University of Kyiv",
     country: "Ukraine",
+    period: "2020–2022",
   },
 ] satisfies readonly Education[];

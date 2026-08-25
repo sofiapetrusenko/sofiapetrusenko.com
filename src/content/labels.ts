@@ -4,7 +4,8 @@
  */
 export const labels = {
   selectedWork: "Selected work",
-  background: "Background",
+  experience: "Experience",
+  education: "Education",
   contact: "Contact",
   stack: "Stack",
   problem: "Problem",

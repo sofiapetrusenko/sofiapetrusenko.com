@@ -8,6 +8,8 @@ export const profile = {
   location: "Cascais, Portugal",
   /** What's in flight now, rendered as a shell-prompt line under the location. */
   now: "building lifespan-extract & blotquant · shipping longevity × LLM tooling · learning português",
+  availability:
+    "Open to remote roles (EU): research / AI engineering in longevity, healthtech and scientific tooling.",
   email: "sofia.petrusenko988@gmail.com",
   links: [
     { label: "GitHub", href: "https://github.com/sofiapetrusenko" },
@@ -17,4 +19,6 @@ export const profile = {
     },
     { label: "Email", href: "mailto:sofia.petrusenko988@gmail.com" },
   ],
+  /** Served from `public/`; the hero appends it to the link pills. */
+  cv: { label: "CV (PDF)", href: "/Sofia_Petrusenko_CV.pdf" },
 } satisfies Profile;

@@ -10,7 +10,17 @@ export const roles = [
     kind: "engineering",
     period: "2025 – present",
     summary:
-      "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers. Alongside this, plan and optimise paid acquisition campaigns on Google Ads and Meta against defined cost-per-acquisition targets.",
+      "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers.",
+  },
+  {
+    /* A dated line rather than a role write-up: adjacent contract work, kept
+       separate from the engineering entry above instead of folded into it. */
+    org: "Independent",
+    title: "Paid acquisition & performance marketing (contract)",
+    location: "Cascais, Portugal (remote)",
+    country: "Portugal",
+    kind: "engineering",
+    period: "2025",
   },
   {
     org: "MRC PPU, School of Life Sciences",
