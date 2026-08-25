@@ -13,15 +13,22 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * `id` is optional and only set where something links to the section — the
+ * scroll cue's chevron. `scroll-mt-8` costs nothing without an anchor and keeps
+ * a jump from landing flush against the top of the viewport.
+ */
 export function Section({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: ReactNode;
 }) {
   return (
-    <section className="border-hairline border-t pt-10">
+    <section id={id} className="border-hairline scroll-mt-8 border-t pt-10">
       <SectionLabel>{title}</SectionLabel>
       {children}
     </section>

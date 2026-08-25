@@ -5,6 +5,7 @@ import { Contact } from "@/components/Contact";
 import { Hero } from "@/components/Hero";
 import { NotesList } from "@/components/NotesList";
 import { Reveal } from "@/components/Reveal";
+import { ScrollCue } from "@/components/ScrollCue";
 import { SelectedWork } from "@/components/SelectedWork";
 
 export const metadata: Metadata = {
@@ -38,6 +39,11 @@ export default function Home() {
       <Reveal>
         <Contact />
       </Reveal>
+      {/*
+        Fixed to the viewport, so it takes no space and its position in the DOM
+        is arbitrary — it sits last only to keep it out of the reading order.
+      */}
+      <ScrollCue />
     </div>
   );
 }

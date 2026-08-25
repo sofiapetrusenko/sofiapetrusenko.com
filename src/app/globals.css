@@ -88,8 +88,9 @@ body {
 
 /*
  * Page glow: two faint radial tints anchored near the top of a page, behind the
- * title. The one deliberately decorative element on the site, and shared by the
- * home page and the case studies so the three read as one place.
+ * title. Purely decorative — as is the scroll cue's fade, the only other layer
+ * on the site that carries no content — and shared by the home page and the
+ * case studies so the three read as one place.
  *
  * Contrast: each glow peaks at 10% opacity. The brightest colour the pair can
  * composite to is both glows exactly coincident, rgb(23, 50, 47) — against
@@ -282,6 +283,60 @@ body {
   [data-reveal="shown"] {
     opacity: 1;
     transform: none;
+  }
+}
+
+/*
+ * Scroll cue: a fade into the page background with a chevron sitting on it,
+ * fixed to the bottom of the viewport. It exists because a tall screen shows
+ * the hero and nothing else, and the first section heading sits below the fold
+ * behind a deliberately large gap.
+ *
+ * The fade is the page background itself at full strength, so nothing is
+ * tinted and no contrast bound changes — text passing under it is on its way
+ * out of view. No blur and no shadow; depth on this site is one surface step
+ * and a hairline.
+ *
+ * `visibility` is transitioned beside opacity so the anchor leaves the tab
+ * order at the *end* of the fade rather than lingering as an invisible target.
+ * Being a discrete property it flips at the end going out and at the start
+ * coming back, which is the wanted behaviour in both directions.
+ */
+.scroll-cue {
+  transition:
+    opacity 300ms ease-out,
+    visibility 300ms;
+}
+
+.scroll-cue[data-visible="false"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.scroll-cue__fade {
+  height: 140px;
+  background: linear-gradient(to top, var(--color-bg) 0%, transparent 100%);
+}
+
+/*
+ * A 6px nudge on the chevron alone. Declared under `no-preference` exactly like
+ * `.page-glow--drift`, so asking for less motion leaves a still chevron rather
+ * than removing the cue; the opacity transition above is outside the query and
+ * applies to everyone.
+ */
+@keyframes scroll-cue-nudge {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-cue__chevron {
+    will-change: transform;
+    animation: scroll-cue-nudge 1.6s ease-in-out infinite alternate;
   }
 }
 
