@@ -13,6 +13,9 @@ export function Contact() {
       >
         {profile.email}
       </a>
+      <p className="text-muted mt-6 max-w-[68ch] text-sm leading-relaxed">
+        {profile.availability}
+      </p>
       <div className="mt-8">
         <LinkList links={profile.links} />
       </div>

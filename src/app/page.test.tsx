@@ -29,22 +29,57 @@ describe("Home", () => {
     }
   });
 
-  it("renders every role in the background timeline", () => {
+  it("renders every role in the experience timeline", () => {
     render(<Home />);
 
     for (const role of roles) {
-      expect(screen.getByText(role.summary)).toBeInTheDocument();
-      expect(screen.getByText(role.period)).toBeInTheDocument();
+      // A short contract entry is a dated line and carries no prose block.
+      if (role.summary !== undefined) {
+        expect(screen.getByText(role.summary)).toBeInTheDocument();
+      }
+      // A bare year can also be a project's year, so count rather than expect one.
+      expect(
+        screen.getAllByText(role.period).length,
+        `period: ${role.period}`,
+      ).toBeGreaterThan(0);
     }
   });
 
-  it("appends both degrees to the timeline, without summaries", () => {
+  it("renders the contract line as its own dated entry", () => {
+    render(<Home />);
+
+    const contract = roles.find((role) => role.summary === undefined);
+    if (!contract) throw new Error("expected one summary-less contract entry");
+    expect(screen.getByText(contract.title)).toBeInTheDocument();
+  });
+
+  it("splits experience and education into their own sections", () => {
+    render(<Home />);
+
+    for (const title of [/^experience$/i, /^education$/i]) {
+      expect(
+        screen.getByRole("heading", { level: 2, name: title }),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it("lists both degrees with their years, without summaries", () => {
     render(<Home />);
 
     for (const entry of education) {
       expect(screen.getByText(entry.degree)).toBeInTheDocument();
       expect(screen.getByText(entry.institution)).toBeInTheDocument();
+      expect(screen.getByText(entry.period)).toBeInTheDocument();
     }
+  });
+
+  it("offers the CV from the hero and states availability in the footer", () => {
+    render(<Home />);
+
+    expect(
+      screen.getByRole("link", { name: profile.cv.label }),
+    ).toHaveAttribute("href", profile.cv.href);
+    expect(screen.getByText(profile.availability)).toBeInTheDocument();
   });
 
   it("tags every timeline entry with its country", () => {

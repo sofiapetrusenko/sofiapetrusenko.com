@@ -30,7 +30,9 @@ function textFields(): Field[] {
     { path: "profile.headline", value: profile.headline },
     { path: "profile.summary", value: profile.summary },
     { path: "profile.location", value: profile.location },
+    { path: "profile.availability", value: profile.availability },
     { path: "profile.email", value: profile.email },
+    { path: "profile.cv.label", value: profile.cv.label },
   ];
 
   for (const [i, link] of profile.links.entries()) {
@@ -70,8 +72,11 @@ function textFields(): Field[] {
       { path: `${at}.location`, value: role.location },
       { path: `${at}.country`, value: role.country },
       { path: `${at}.period`, value: role.period },
-      { path: `${at}.summary`, value: role.summary },
     );
+    // Optional: a short contract entry is a dated line with no prose block.
+    if (role.summary !== undefined) {
+      fields.push({ path: `${at}.summary`, value: role.summary });
+    }
   }
 
   for (const note of notes) {
@@ -91,6 +96,7 @@ function textFields(): Field[] {
       { path: `${at}.degree`, value: entry.degree },
       { path: `${at}.institution`, value: entry.institution },
       { path: `${at}.country`, value: entry.country },
+      { path: `${at}.period`, value: entry.period },
     );
   }
 
@@ -204,5 +210,16 @@ describe("content", () => {
   it("gives education entries unique ids", () => {
     const ids = education.map((entry) => entry.id);
     expect(ids).toStrictEqual([...new Set(ids)]);
+  });
+
+  it("dates every education entry as a year range", () => {
+    for (const entry of education) {
+      expect(entry.period, entry.id).toMatch(/^\d{4}\u2013\d{4}$/);
+    }
+  });
+
+  it("points the CV at a same-origin file served from public/", () => {
+    // Deliberately outside `profile.links`, which is asserted absolute above.
+    expect(profile.cv.href).toMatch(/^\/[\w.-]+\.pdf$/);
   });
 });

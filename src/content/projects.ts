@@ -12,9 +12,9 @@ import type { Project } from "./types";
 export const projects = [
   {
     slug: "lifespan-extract",
-    name: "lifespan-extract — the gold set an extraction pipeline gets measured against",
+    name: "lifespan-extract",
     tagline:
-      "Papers go in; deduplicated sources and hand-labeled, quote-verified records come out — the standard the extraction pass will be held to, built before it.",
+      "Structured longevity-intervention data from papers, measured against a hand-labeled gold set built before the pipeline.",
     problem:
       "Quantitative lifespan-intervention results are locked inside thousands of papers in inconsistent formats, and the curated databases that collect them lag the literature by years. Extracting them with an LLM is easy; extracting them so that every record is auditable — and the system knows when to refuse — is the actual problem.",
     approach:
@@ -55,27 +55,20 @@ export const projects = [
       status:
         "Phases 0 and 1 are complete and 485 tests pass. Nothing has been extracted by the model yet — the standard exists first, on purpose.",
     },
-    stack: [
-      "Python",
-      "PubMed / bioRxiv APIs",
-      "PostgreSQL",
-      "gold set + quote checker",
-      "agentic loops",
-      "Claude Code subagents",
-    ],
+    stack: ["Python", "PubMed / bioRxiv APIs", "PostgreSQL"],
     links: [
       {
         label: "Repository",
         href: "https://github.com/sofiapetrusenko/lifespan-extract",
       },
     ],
-    year: "2026–present",
+    year: "2026 — in development",
   },
   {
     slug: "blotquant",
-    name: "blotquant — QC-first western blot densitometry",
+    name: "blotquant",
     tagline:
-      "A raw blot image goes in; QC-gated, provenance-stamped band quantification comes out.",
+      "QC-first western blot densitometry — a bad number is a refusal, not a warning.",
     problem:
       "Western blot quantification is one of the most common measurements in molecular biology and one of the least reproducible: hand-drawn regions, silent saturation, undocumented normalization. Most tools give you a number; almost none tell you whether you should trust it.",
     approach:
@@ -122,7 +115,6 @@ export const projects = [
       "FastAPI",
       "NumPy / SciPy",
       "pytest",
-      "Claude Code subagents",
     ],
     links: [
       {
@@ -130,11 +122,11 @@ export const projects = [
         href: "https://github.com/sofiapetrusenko/blotquant",
       },
     ],
-    year: "2026–present",
+    year: "2026 — v1.0 in progress",
   },
   {
     slug: "media-automation-platform",
-    name: "Content Automation Platform",
+    name: "media-automation-platform",
     tagline:
       "A topic goes in; a scripted, narrated, edited and published video comes out.",
     problem:
@@ -159,7 +151,7 @@ export const projects = [
         href: "https://github.com/sofiapetrusenko/media-automation-platform",
       },
     ],
-    year: "2025–present",
+    year: "2025 — operating",
   },
   {
     slug: "mira",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notes, profile } from "@/content";
-import { Background } from "@/components/Background";
+import { Education, Experience } from "@/components/Background";
 import { Contact } from "@/components/Contact";
 import { Hero } from "@/components/Hero";
 import { NotesList } from "@/components/NotesList";
@@ -33,7 +33,10 @@ export default function Home() {
           </Reveal>
         )}
         <Reveal>
-          <Background />
+          <Experience />
+        </Reveal>
+        <Reveal>
+          <Education />
         </Reveal>
       </main>
       <Reveal>
