@@ -3,9 +3,10 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
 /**
- * The only client component on the site: IntersectionObserver is a browser API,
- * so this needs a client boundary. It takes its children as a slot, which keeps
- * everything inside it a server component — only this wrapper ships JS.
+ * One of the site's two client components — ScrollCue is the other:
+ * IntersectionObserver is a browser API, so this needs a client boundary. It
+ * takes its children as a slot, which keeps everything inside it a server
+ * component — only this wrapper ships JS.
  *
  * Reveals once and disconnects. If the user prefers reduced motion the observer
  * is never created, and the CSS hidden state does not exist for them either.

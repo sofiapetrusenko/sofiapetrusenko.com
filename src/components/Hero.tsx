@@ -5,7 +5,10 @@ import { PageGlow } from "./PageGlow";
 export function Hero() {
   return (
     <header className="relative">
-      {/* The one animated element on the site, and only here. */}
+      {/*
+        Drifts, and only here. The scroll cue's chevron is the only other thing
+        on this page that moves without being asked to.
+      */}
       <PageGlow drift />
 
       <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] leading-[0.92] font-bold tracking-[-0.02em] text-balance">
