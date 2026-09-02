@@ -40,12 +40,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetBrainsMono.variable}`}>
-      <head>
-        {/* Without JS the reveal wrapper would never un-hide its contents. */}
-        <noscript>
-          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
-        </noscript>
-      </head>
       <body>
         {/*
           Dot grid: a 1px dot every 32px at 3.5% opacity. Enough to give the

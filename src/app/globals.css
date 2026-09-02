@@ -177,6 +177,191 @@ body {
 }
 
 /*
+ * Hero depth parallax, on the same `--drift` opt-in and therefore the home hero
+ * alone. Over the first 100vh of scrolling the glow's container translates 8vh
+ * *down* the document, so it climbs the screen at 92% of the rate the text
+ * does and hangs back behind it. Three planes at three rates, far to near — and
+ * the site already owned two of them:
+ *
+ *   - the dot grid, `position: fixed` in `layout.tsx` — rate 0, pinned to the
+ *     viewport whatever the scroll does. The plane at infinity;
+ *   - this glow — rate 0.92, the plane W3 adds;
+ *   - the hero content — rate 1, moved by the scroll and by nothing else.
+ *
+ * The content layer carries no transform, deliberately: the <h1> inside it is
+ * the LCP element and never starts hidden, never animates (rule 6). So the
+ * content is the stationary reference frame and the parallax is entirely the
+ * decorative layer moving against it. At scroll 0 this container holds `from`,
+ * which is the identity, so the hero's first paint is pixel-identical to what
+ * it was before W3 and the LCP element sits on exactly the composite it always
+ * did.
+ *
+ * The dot grid stays out of it (rule 2). It is one element for the whole site,
+ * so animating it would put unprompted motion on `/work/[slug]`, where the glow
+ * is deliberately static because "movement … competes with a chart someone is
+ * reading numbers off" (`PageGlow.tsx`) — a site-wide motion change bought for
+ * a hero effect. It would also be redundant: fixed to the viewport it already
+ * *is* the slowest plane, and nothing done to it can make it slower. Riding the
+ * existing `--drift` class instead scopes this to the one element the charter
+ * already names, on the one page it already names.
+ *
+ * On the container, not on the two tints. Those already run `aurora-drift-a` /
+ * `aurora-drift-b`, and `animation-timeline` is a list matched per
+ * `animation-name`: a second name on those elements means two parallel lists
+ * (name, timeline, range, fill) held aligned by position, where a later edit to
+ * one silently re-pairs the other. Nested transforms compose with none of that
+ * — the container translates, the tints drift inside it, and the transform
+ * hierarchy adds them. It is also what keeps the contrast bound intact, below.
+ *
+ * `scroll(root block)`, spelled out. `scroll()` defaults to `nearest`, which
+ * resolves to the nearest ancestor *scroll container*: from here the chain is
+ * `header.relative` → `main` → the page container → `<body>` → `<html>`, and
+ * not one of them sets `overflow`, so `nearest` already resolves to the root
+ * scroller. `overflow: clip` on this element does not make it a scroll
+ * container of its own — `clip` is exactly the value that clips without
+ * becoming one, which is why the safety net above uses it rather than `hidden`.
+ * `root` is written anyway so a later `overflow` anywhere up that chain cannot
+ * silently re-anchor the timeline to a different scrollport, and `block`
+ * because the travel is vertical and should not follow an inline scroller if
+ * one ever appears.
+ *
+ * Range `0px 100vh`: on a scroll timeline these offsets are distances into the
+ * scroll range, not fractions of it. `100%` would spread the 8vh over the whole
+ * document — more than 4000px on `/` — which is a 0.2% rate difference and no
+ * effect at all. The glow's box ends 480px into the document (`top: -8rem`
+ * inside a header that starts at the container's 128px `py-32`; 448px below the
+ * `sm` breakpoint, where the padding is 96px), so it has left the screen by
+ * roughly 0.6 of the range on any ordinary viewport. The animation running on
+ * past that is the point: there is no on-screen moment at which the lag stops
+ * growing.
+ *
+ * 8% is the register (rules 0 and 16). The drift beside it is "~10% of the
+ * viewport over a half-minute — breathing, not shimmer"; this is 8% of the
+ * viewport over a viewport of scrolling. The hero is the signature effect of
+ * its own viewport and this supports it: depth, not a ride. `linear` for W1's
+ * reason — the timeline is the reader's own hand, and easing a scroll position
+ * drags the effect against the gesture producing it.
+ *
+ * Contrast (rule 7). The bound above — both glows coincident at rgb(23, 50,
+ * 47), body text 11.2:1, muted 5.4:1, accent 6.4:1 — is a statement about where
+ * the two tints are *relative to each other*, and the parallax does not touch
+ * that: both are pseudo-elements of the box being translated, so it moves them
+ * by the same vector at every scroll offset, and their separation stays
+ * whatever the drift makes it. The drift is unchanged, so "the two glows never
+ * coincide during the drift" still holds at every frame of the composition.
+ * Worked through rather than asserted, on a 704px-wide header at 1440×900:
+ * centres rest 246px apart in x and 96px in y; the worst convergence the drift
+ * can reach is A's +7vw against B's −6vw and A's +2.5vh against B's −3vh, which
+ * closes them to 59px and 47px — 75px between centres against a 208px gradient
+ * radius. On a 390×844 phone the same worst case is 25px and 50px, 55px against
+ * a 123px radius: closer in proportion, still not zero. The pair never
+ * composites to more than the coincident colour, which is why that colour
+ * remains the worst case at every scroll offset.
+ *
+ * What the parallax does change is which text the pair can sit over: the box
+ * reaches 8vh — 64px at an 800px viewport — further down the document than it
+ * did. That is already covered, because the ratios above are quoted against the
+ * brightest composite the pair can produce *anywhere*; text is measured as if
+ * it were sitting on that point. Everything the extra 64px can newly reach on
+ * `/` is body copy or `--color-muted`, 11.2:1 and 5.4:1, both over 4.5:1. The
+ * stat-strip amber quoted at 8.2:1 is a `/work/[slug]` element and no page with
+ * a stat strip takes the `--drift` variant, so it is not in this composite at
+ * all.
+ *
+ * The dot grid composites too, and does not move. It is a uniform 32px tiling
+ * of `--color-fg` at 3.5%, so every point under the glow either already had a
+ * dot or already did not, and sliding the glow across it changes nothing. For
+ * the record, since it is the third layer in the stack: where a dot falls under
+ * the coincident worst case the composite is rgb(29, 56, 53), against which
+ * body text is 10.3:1 and muted 4.9:1 — still over 4.5:1, and a bound W3
+ * neither creates nor widens.
+ *
+ * Overflow (T3/T4, CLS 0.0000 on both form factors). A translate on the
+ * container is *outside* the `overflow: clip` safety net above, so that net
+ * does not cover this and the case has to be made:
+ *
+ *   - Inline axis: there is no x term. `translate3d(0, 8vh, 0)`, on a box that
+ *     is `inset-inline: 0` and so can never be wider than the header. Scroll
+ *     width is untouched by construction, at every offset and every width.
+ *   - Block axis: the travel is downward, which is the direction that *can*
+ *     extend scrollable overflow. It cannot here. The box's bottom edge sits
+ *     480px into the document and the translate puts it at most 8vh lower;
+ *     overflow grows only if 480 + 0.08·V exceeds the document height S + V,
+ *     and 480 + 0.08·V < V for any viewport taller than 522px, so the
+ *     inequality has no solution for any scroll range S ≥ 0. Under 522px it
+ *     would additionally need a document shorter than ~520px, which is less
+ *     than this page's header alone.
+ *   - And if the page cannot scroll at all, a scroll timeline is *inactive*: it
+ *     applies no effect, the container holds no transform, and the glow sits
+ *     exactly where it sits today. There is no configuration in which this rule
+ *     manufactures the scroll range that drives it.
+ *
+ * Measured as well as argued, in Chrome 152 over CDP, sampling `scrollWidth`
+ * and `scrollHeight` at eight offsets from 0 to the end of the document: 1440
+ * ×900 held 1425 × 4896 at every offset, 390×844 held 390 × 5534, and 1280×520
+ * — deliberately under the 522px line above — held 1265 × 4896. `scrollWidth`
+ * equalled `clientWidth` throughout, so the page never gained a pixel in either
+ * axis. The same run confirmed the rate (`translateY` 8px at scroll 100, 32px
+ * at 400, 72px at 900, then held), that the x term stays 0, and that under
+ * `prefers-reduced-motion: reduce` and on `/work/[slug]` the container reports
+ * `transform: none` with no animation attached at all.
+ *
+ * Touch (rule 4): no pointer gate, and that is a finding rather than an
+ * omission. The timeline is the scroll position, which a touch reader drives
+ * identically to a pointer reader — there is no hover state here for a gate to
+ * protect, and `(hover: hover)` could only subtract the effect from phones.
+ * Resolved on the compositor, it also keeps step with an inertial fling instead
+ * of lagging behind it.
+ *
+ * Reduced motion (rule 3): the whole rule is inside `no-preference`, so asking
+ * for less motion leaves the glow at its layout position with the drift already
+ * stopped — the same static glow the case studies have always had. Nothing here
+ * hides anything: there is no opacity term in this rule at all, so rule 3's
+ * corollary has nothing it could strand.
+ *
+ * Stacking, checked because a transform creates a stacking context and this
+ * element's whole job is to paint behind its siblings at `z-index: -10`: it is
+ * already one, since `position: absolute` with a non-auto z-index makes one on
+ * its own. The transform therefore adds nothing, and the box's place among the
+ * root stacking context's negative-z children is unchanged — still behind the
+ * header's text, still above the dot grid, which is the sibling order the
+ * composite above depends on.
+ *
+ * `will-change` inside both guards on the `.page-glow--drift` precedent, so a
+ * browser without scroll timelines and a reader who asked for less motion never
+ * promote a layer they will not animate. It stays for the page's life because
+ * the animation does: a scroll timeline is re-sampled every frame rather than
+ * finishing.
+ *
+ * Longhands, not the `animation` shorthand, for W1's reason: the shorthand
+ * resets `animation-timeline` and `animation-range`, which here would snap the
+ * glow 8vh down the page on load and leave it there. `animation-duration` stays
+ * at `auto`, which is what binds the animation to the range rather than a
+ * clock.
+ */
+@keyframes glow-parallax {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 8vh, 0);
+  }
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page-glow--drift {
+      will-change: transform;
+      animation-name: glow-parallax;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 100vh;
+    }
+  }
+}
+
+/*
  * Secondary prose — section lead-ins and chart captions. Muted at rest, which
  * is what every one of them already was, lifting to the foreground colour under
  * the pointer so the one being read comes forward.
@@ -207,6 +392,111 @@ body {
 
   .prose-hover:hover {
     color: var(--color-fg);
+  }
+}
+
+/*
+ * Project card spotlight: the card's own 1px hairline picks up the accent where
+ * the pointer is. `CardSpotlight.tsx` writes `--spotlight-x` / `--spotlight-y`
+ * onto the list; every rule that makes them visible is here.
+ *
+ * On the hairline and on nothing else (rule 1). The two mask layers are the
+ * pseudo-element's border box and its padding box, composited `exclude` — the
+ * difference of the two, which is exactly the 1px ring and nothing inside it.
+ * `inset: -1px` puts that ring over the card's real border: an absolutely
+ * positioned child is laid out against the padding box, so -1px on every side
+ * reaches the border box, and the pseudo-element's own 1px transparent border
+ * makes its padding box the card's padding box again.
+ *
+ * It is a gradient, not a glow: a radial-gradient is the same tool `.page-glow`
+ * and `.scroll-cue__fade` already use, there is no `filter`, no `blur` and no
+ * `box-shadow` anywhere in this rule, and the lit area is one pixel thick. The
+ * radius is 12rem — 192px against cards that run to 704px wide, so the light is
+ * a section of the border rather than the whole of it, and the card it is on
+ * stays the one thing being looked at (rule 0). Nothing else in this viewport
+ * moves or lights while it does: it exists only under a pointer, only on the
+ * one card that pointer is on.
+ *
+ * Contrast (rule 7). Nothing is painted behind text at any pointer position —
+ * the mask removes the padding box, which is the entire area any glyph occupies,
+ * so every ratio in the palette header is untouched and there is no new
+ * composite to re-derive. What the effect does change is the border's own
+ * contrast against the page, and only upwards. Against `--color-bg` #0d0d0f the
+ * resting `--color-hairline` #26262b is 1.29:1 and the hover
+ * `--color-hairline-bright` #3f3f46 is 1.86:1; at the centre of the light the
+ * ring composites 55% `--color-accent` #38bdf8 over that hover value, giving
+ * rgb(59, 132, 168) at 4.67:1. The falloff runs from there back down to 1.86:1
+ * at 192px, so every pixel of the border is between the value it has today and
+ * 4.67:1 — the effect can only add. The resting border is not touched at all:
+ * outside `:hover` this pseudo-element is at opacity 0, and outside the two
+ * guards below it does not exist.
+ *
+ * Touch (rule 4): the whole block is inside `(hover: hover) and (pointer: fine)`,
+ * so a touch device keeps today's card exactly — the hairline-bright border,
+ * the surface fill, the accent rule and the arrow nudge, none of which this
+ * changes. Following `.prose-hover`: the resting state gives up nothing to buy
+ * the hover, so a reader who cannot trigger it pays nothing for it. The
+ * component applies the same gate in JS and attaches no listener at all there.
+ *
+ * Reduced motion: no guard, and that is a decision rather than an omission.
+ * Nothing here animates — there are no keyframes, no timeline, and no transform
+ * — and the light's position is not something the page produces. It is the
+ * reader's own pointer, drawn where their hand is, still whenever their hand is
+ * still, which is direct manipulation rather than motion. The precedent is
+ * `.prose-hover`, the site's other pointer-driven appearance change, which is
+ * likewise outside the query; and as there, the global reduce rule at the foot
+ * of this file collapses the opacity transition, so a reader who asked for less
+ * motion gets the light with no fade. Nothing is lost either way: the resting
+ * state is the same card.
+ *
+ * A pseudo-element rather than a `<span aria-hidden>` (rule 14). A pseudo-
+ * element has no DOM node, so there is no accessibility node to hide, no hit
+ * target to disable and nothing added to the four cards' markup; the
+ * `pointer-events: none` below is a second lock on a layer that is already not
+ * in the tree. It cannot swallow the card's click either way: `::before` is the
+ * card's first child in paint order, and the stretched `after:absolute
+ * after:inset-0` that makes the whole card one link sits on the title link,
+ * later in tree order and therefore above it (rule 9 — the card stays exactly
+ * one link, and the hit target is unchanged).
+ *
+ * `@supports (mask-composite: exclude)` because the mask is what confines the
+ * paint to the hairline. Without it the two layers would composite `add`, the
+ * mask would be the full border box, and the gradient would wash the card's
+ * interior — behind text, which is the one thing the contrast note above
+ * promises it never does. A browser that cannot cut the ring gets no
+ * pseudo-element rather than a filled card.
+ *
+ * 175ms is the card's existing timing (rule 16) — the border colour, the accent
+ * rule and the arrow all use it, and the light arrives with them rather than on
+ * a clock of its own. Opacity is the only property that transitions, so nothing
+ * can reflow (rule 5); the light's own travel is not a transition at all, it is
+ * the next frame's gradient position.
+ */
+@supports (mask-composite: exclude) {
+  @media (hover: hover) and (pointer: fine) {
+    .spotlight-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      pointer-events: none;
+      border: 1px solid transparent;
+      background: radial-gradient(
+          circle 12rem at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+          var(--color-accent),
+          transparent 100%
+        )
+        border-box;
+      mask:
+        linear-gradient(#000 0 0) padding-box,
+        linear-gradient(#000 0 0) border-box;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 175ms ease-out;
+    }
+
+    .spotlight-card:hover::before {
+      opacity: 0.55;
+    }
   }
 }
 
@@ -267,22 +557,287 @@ body {
 }
 
 /*
- * Scroll reveal. The hidden state only exists under `no-preference`, so with
- * reduced motion requested the content is simply visible and no observer work
- * has any effect.
+ * Scroll reveal, driven by the scroll position itself. `view()` gives each
+ * wrapper its own view-progress timeline, which is what the IntersectionObserver
+ * in Reveal.tsx used to do by hand — so the wrapper is a server component now
+ * and the reveal costs no JS at all.
+ *
+ * It is a rise, not a fade. **There is no opacity in this animation**, and that
+ * is a correction carried out of D1 cycle 2 rather than a preference. The
+ * version that faded 0 → 1 across the range cost a frozen threshold: at scroll 0
+ * the `<h2>` of `#selected-work` sat inside a wrapper at opacity 0.5324, which
+ * composites `--color-muted` to rgb(92, 92, 98) — 2.92:1, an axe
+ * `color-contrast` failure, Lighthouse accessibility 95 against a registered
+ * 100 (T5, deterministic across three runs).
+ *
+ * Why that could not be repaired by moving the ramp, which is the obvious fix
+ * and the one that does not work. A scroll-driven opacity is a *static function
+ * of position*: at the reader's first paint every wrapper already sits at
+ * whatever value its own place in the layout selects, and no time passes to
+ * carry it off that value. At scroll 0 a block whose top is `t` px down the
+ * document is at entry progress `(V − t) / min(h, V)`, and `t` is decided by the
+ * layout — copy length, wrapping, font metrics, viewport width. Across the
+ * blocks a page can hold, that progress therefore takes *every* value in
+ * [0, 1], so a continuous ramp always has some layout that parks a block on its
+ * sub-AA stretch. And that stretch is most of the ramp: muted text over
+ * `--color-bg` reaches 4.5:1 only above alpha ≈ 0.74 (7.6:1 at alpha 1, 4.40:1
+ * at 0.72, 4.69:1 at 0.75). The only opacity curve with no sub-AA value on it is
+ * one that takes no intermediate value at all — a step. A step is not a fade.
+ *
+ * So the choice was a step or nothing, and it is nothing. A step would have had
+ * to land at `entry 15%` to keep faith with the `threshold: 0.15` of the
+ * observer this replaced (see I2 below), which is a block going from unpainted
+ * to fully painted in one frame across 0.15·min(h, V) — 141px at Lighthouse's
+ * 940px desktop viewport — at the bottom edge of the screen, in both directions,
+ * every time the reader crosses it. It would also cost the lean: the projection
+ * bound below is sub-pixel because the rotation is at full angle only while the
+ * band of the block on screen is a sliver, and a block that *appears* at 15%
+ * appears with the whole 3deg on it and 0.15·min(h, V) of band already showing —
+ * 1.7px of squash at 940px and 11.3px at 2400px, against the 0.10px the range
+ * below holds it to. Dropping the opacity keeps the lean, keeps the rise, and
+ * closes the threshold by construction rather than by margin.
+ *
+ * What that buys, beyond the threshold: **nothing on this selector can hide
+ * anything any more.** Charter rule 3's corollary is not merely satisfied here,
+ * it has nothing left to be about — `transform` moves where a glyph lands, never
+ * whether it is painted or what colour it is, so no browser, no viewport height,
+ * no scroll position and no failure of this animation can leave content
+ * invisible or under 4.5:1. Measured, not asserted: at scroll 0 all 32 wrappers
+ * across the six routes read opacity 1 at 1512x900 and at 1350x940
+ * (`scripts/verify-reveal.mjs`, invariant I4).
+ *
+ * Two guards remain, and they now guard motion rather than a hidden state.
+ * `@supports` because Firefox has no scroll-driven animations yet;
+ * `no-preference` because this is still motion (charter rule 3). Outside either
+ * one this selector declares nothing, which is the same content, laid out the
+ * same way, without the 12px of travel. `animation-duration` is left at `auto`
+ * for the same reason the longhands are used at all — see below — and `auto`
+ * outside a timeline would resolve to 0s, so even a browser that ignored the
+ * `@supports` condition would land on the `to` keyframe and paint the resting
+ * position.
+ *
+ * Range: `entry 0% → entry min(100%, 135px)`, both ends written out. It is two
+ * bounds doing two different jobs, and they are worth separating because the
+ * previous two versions of this rule each had only one of them.
+ *
+ * `entry` progress is scrolled distance from the moment the block's top edge
+ * reaches the bottom of the viewport, and the entry range is over once the block
+ * has finished entering — after `h` px of that for a block shorter than the
+ * viewport, after `V` px for one taller, because a block taller than the
+ * viewport has finished entering once it covers the viewport. So `entry` is
+ * `min(h, V)` long, `100%` of it is `min(h, V)` px of scrolling, and the travel
+ * is **`min(h, V, 135)` px**.
+ *
+ * **I1, nothing can be stranded mid-reveal — the percentage.** The scroll
+ * available beneath a block's top edge is set by the document, not the window:
+ * it is `h + f`, the block's own height plus whatever follows it, and it does
+ * not grow when the viewport does. `min(h, V, 135) ≤ min(h, V) ≤ h ≤ h + f` at
+ * every viewport height, so the animation always completes. This is the
+ * structural form of D1 cycle 1's REQUIRED 1, where an end at `entry 36vh` asked
+ * for `0.36·V` of a fixed `h + f` and failed above a ~1210px viewport. 100% of
+ * `entry` is the largest end the proof admits — past it the range asks for more
+ * than the block's own height and starts depending on `f`. The margin is `f` for
+ * a block shorter than the viewport and `h + f − V` for a taller one; the
+ * tightest on the site is `/`'s closing Contact block, 299.9px tall with 125px
+ * of document beneath it. It reaches zero only for a block that is the last
+ * painted thing in a document, which no page here has.
+ *
+ * **Rule 16 — the length cap.** A percentage alone cannot hold a duration,
+ * because `min(h, V)` runs from 79.7px to a full viewport across this site, and
+ * D1 cycle 2's REQUIRED 2 was that the previous end, `entry 15%`, put 14 of 19
+ * wrappers under 50px and three at 12px — 18ms at an ordinary flick, one frame
+ * at 60Hz. Raising the percentage fixes the short end and breaks the long one:
+ * at `entry 100%` a block taller than the viewport spends `V` px of scrolling on
+ * a 12px rise, 1333ms at 900px and 1393ms at Lighthouse's 940px — which is as
+ * far above the band as 18ms is below it, and reads as drift rather than as a
+ * reveal (12px over 900px is 1.3% of the reader's scroll rate). No single
+ * percentage can do both: the short end needs ≥ 100% and the long end needs
+ * ≤ 29%.
+ *
+ * So the end is a percentage **and** a cap, and the two compose in the one
+ * direction that is safe. A *floor* in px cannot coexist with I1 — I1's bound is
+ * the block's own height, and for a block shorter than the floor the two
+ * contradict outright. A *ceiling* in px is free: it can only ever lower a range
+ * that is already proved completable, so I1 survives it untouched. 135px is
+ * A5's own stand-in for the reveal's original 400ms (~200ms at ~675 px/s), which
+ * is the one figure of the previous range cycle 2 did not fault.
+ *
+ * Measured travel, at 1512x900 and unchanged at 1350x940 (the numbers are the
+ * blocks', not the window's, until the cap binds):
+ *
+ *   /                                 135, 135, 135, 135, 135 px
+ *   /colophon                         135, 108.5, 135 px
+ *   /work/blotquant                   135, 135, 135, 135, 135, 135, 81.6, 79.7
+ *   /work/lifespan-extract            135, 135, 135, 135, 135, 135, 81.6, 79.7
+ *   /work/media-automation-platform   135, 135, 135, 81.6, 79.7 px
+ *   /work/mira                        135, 135, 81.6 px
+ *
+ * — every wrapper on the site between **118ms and 200ms**, against a band whose
+ * one-shot transitions run 120ms to 400ms. Three of the 32 are the 79.7px
+ * closing wrapper of a case study, at 118ms: 2ms under the floor, and **provably
+ * as long as that block can get**, because I1 caps the range at the block's own
+ * entry and 100% of a 79.7px block's entry is 79.7px of scrolling. That is the
+ * trade rule 16 allows — "stays inside it *or justifies leaving it*" — and it is
+ * a 2ms miss on 3 of 32 wrappers, where the same three had 12px and 18ms before.
+ *
+ * **I2, nothing above the fold starts hidden.** Trivially, now — nothing starts
+ * hidden anywhere. The observer's `threshold: 0.15` is kept in the record
+ * because it is what the effect must not regress against, and `verify-reveal`
+ * still asserts it, but no range can breach it while opacity is absent.
+ *
+ * `linear` rather than an ease because the timeline is the reader's own scroll:
+ * easing a scroll position would drag the reveal against the hand moving it.
+ *
+ * `both` fill holds the first keyframe before the range and the last after it,
+ * so a block below the fold waits at its 12px offset — invisible, since it is
+ * below the fold — and a block scrolled past stays put.
+ *
+ * Depth: the block starts fractionally further away and comes forward, which is
+ * the same sentence the rise already says — starts low and rises, starts leaning
+ * and straightens. A `rotateX` whose sign put the block *in front of* the page
+ * and retreating would contradict it, so the tilt leans away: every point below
+ * the pivot begins at negative z and ends at zero.
+ *
+ * `perspective()` the transform function, not `perspective` the property. The
+ * property only projects an element's *descendants*, so it would have needed
+ * either a second element inside every Reveal or a shared ancestor:
+ *
+ * - A wrapper per reveal is a DOM node that carries no content and does no work
+ *   a function on the existing node cannot (charter 14 — decoration declares
+ *   itself and earns its place; charter 12 — the wrapper takes children as a
+ *   slot precisely so it stays one node).
+ * - A shared ancestor has one vanishing point at *its* centre, so each section
+ *   would be projected off-axis by a different amount depending on how far down
+ *   the page it sits — the reveal would look unlike itself from section to
+ *   section, which is what rule 15 exists to prevent. It would also put a
+ *   containing block and a stacking context on an element that has neither
+ *   today: on `/` the only ancestor common to all five wrappers is the page
+ *   container, which is also the parent of the `fixed` ScrollCue.
+ *
+ * The function has neither problem: it projects the element it is written on,
+ * about that element's own `transform-origin`, and the set of elements carrying
+ * a transform stays exactly what W1 made it — `[data-reveal]` and nothing else.
+ *
+ * `transform-origin: 50% 0` — the pivot is the block's top edge, the same edge
+ * the `entry` range is measured from. That is what bounds the projection, and it
+ * has to be bounded because these wrappers are not one size: a colophon section
+ * runs to 109px and a case-study block with two chart embeds passes 1500px, and
+ * perspective distortion grows with the *square* of the distance from the pivot.
+ * Hinged at the top, the distortion is zero at the pivot and grows downward —
+ * and the band of the block on screen while the animation runs is exactly the
+ * range end, because at scrolled distance `d` into the entry the top `d` px of
+ * the block is what is showing.
+ *
+ * **Which the cap now bounds outright, in px, at every viewport.** The band is
+ * at most 135px — not `0.15·V`, not `min(h, V)`, but the cap itself — so the
+ * offset at the foot of it is `b²·sin(3°) / 600` = **1.59px**, full stop, on any
+ * display at any zoom. It would take a cap of ~371px to reach the 12px that
+ * cancels the rise outright, and that is the value rule 7 asks for: the number
+ * that breaks this is the cap three lines above, not a viewport height nobody
+ * checks. Both previous versions of this rule had to name a viewport instead —
+ * `0.36·V` broke at V ≈ 1030px, `0.15·V` at V ≈ 2470px — because their band grew
+ * with the window.
+ *
+ * That 1.59px is conservative: it pairs the widest band with the full rotation,
+ * and the band is widest exactly when the rotation is gone. `to` is
+ * `transform: none`, and the identity for `perspective()` is an infinite
+ * distance, so the interpolation runs on the reciprocal — at progress `p` the
+ * band is `min(h, V, 135)·p` while the distance is `600/(1 − p)` px and the
+ * angle `3(1 − p)deg`. The offset therefore goes as `p²(1 − p)²`, peaking at
+ * `p = 0.5` at one sixteenth of the bound: **0.10px** at a capped block, 0.03px
+ * at the 79.7px one. The frame with the most rotation in it is the frame with
+ * almost nothing painted. (Both the per-function and the matrix-decomposition
+ * interpolation paths agree here — the perspective component of a decomposed
+ * matrix is 1/d, and interpolating that to the identity's 0 is the same
+ * reciprocal ramp.)
+ *
+ * Which leaves the honest question of whether a sub-pixel vertical offset is a
+ * lean at all. It is, and it is the *horizontal* term that carries it: the same
+ * projection factor that lifts the foot of the band by 0.10px also narrows it,
+ * and 0.18% of a 1512px-wide block is 2.6px across — 1.3px in from each side,
+ * tapering to nothing at the pivot. That is what makes the entering edge read as
+ * tilted away rather than as merely low. It also bounds the cost: a glyph is
+ * resampled at most 0.18% off its metrics, sub-pixel on a 16px stem, and at rest
+ * the element carries no transform at all, so the text a reader actually reads
+ * is rasterised exactly as it was before any of this.
+ *
+ * Contrast (rule 7): this animation cannot move it. The only two things it
+ * changes are where the block is and how it is projected, and a projection
+ * resamples where glyphs land, not what colour they are — every pixel of
+ * `--color-fg` is #e8e8ea over #0d0d0f, 15.9:1, on every frame of the reveal and
+ * at rest. The term that used to lower it, the alpha, is gone. This paragraph
+ * used to carry a derivation of how long body text spent under 4.5:1 during the
+ * fade; there is no such window left to bound.
+ *
+ * `transform: none` at the end is what the interpolation wants — but writing it
+ * does *not* mean the wrapper ends the page with no transform, and the comment
+ * that used to say so was wrong. A filling animation's computed value is the
+ * interpolated one, and interpolating a function list toward `none` resolves
+ * `none` to that list's identity, so a wrapper the reader has scrolled past
+ * reports `matrix(1, 0, 0, 1, 0, 0)` and not the keyword — measured, at maximum
+ * scroll, by `scripts/verify-reveal.mjs`, which accepts either. An identity
+ * transform is still a transform, so every wrapper does hold a stacking context
+ * and a containing block for the life of the page (as `will-change: transform`
+ * above would have made it do regardless). That is harmless here, and it is
+ * harmless for a reason rather than by luck — verified against the two things
+ * that would care:
+ *
+ * - `position: fixed` — the site has two fixed layers. The dot grid is a child
+ *   of `<body>` in `layout.tsx`, above every page's container. `.scroll-cue`
+ *   renders on `/` alone and is a sibling of `<main>` there. Neither is a
+ *   descendant of a Reveal on any of the three routes, and nothing on the site
+ *   is `sticky`.
+ * - `.page-glow`, `position: absolute` at `z-index: -10`, which needs to paint
+ *   behind its siblings. It sits inside the page `<header class="relative">` —
+ *   Hero on `/`, the title block on `/work/[slug]`, and not at all on
+ *   `/colophon` — and every one of those headers is a *sibling* of the Reveals,
+ *   not a child. No reveal's stacking context can contain it.
+ *
+ * `transform-style` and `backface-visibility` are deliberately absent: nothing
+ * inside a Reveal is itself 3D-transformed, so there is no descendant to keep in
+ * the parent's 3D space, and a 3deg tilt never turns the element past 90deg, so
+ * the back face is never toward the reader.
+ *
+ * `will-change` is scoped inside both guards on the `.page-glow--drift`
+ * precedent, so a browser without support and a reader who asked for less
+ * motion never promote a layer they will not animate. It names `transform`
+ * alone now that opacity is not animated. It stays for the page's life because
+ * a view timeline does too: unlike the transition it replaced, this animation is
+ * re-sampled on every scroll frame rather than finishing.
+ *
+ * No pointer gate anywhere in this rule, and none is wanted (rule 4): the
+ * timeline is the scroll position, which a touch reader drives identically —
+ * and being resolved on the compositor it keeps step with an inertial fling
+ * instead of lagging behind it. Reduced motion is the only opt-out, and it
+ * removes the tilt with the rest of the animation rather than flattening it
+ * separately, because the whole thing is one `animation-name`.
+ *
+ * Longhands, not the `animation` shorthand: the shorthand resets
+ * `animation-timeline` and `animation-range` to `auto`, which would silently
+ * turn this back into a zero-length time-driven animation. `animation-duration`
+ * is deliberately left at its initial `auto`, which is what binds the animation
+ * to the timeline's full range rather than to a clock.
  */
-@media (prefers-reduced-motion: no-preference) {
-  [data-reveal] {
-    opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity 400ms ease-out,
-      transform 400ms ease-out;
+@keyframes reveal-rise {
+  from {
+    transform: perspective(600px) rotateX(-3deg) translateY(12px);
   }
-
-  [data-reveal="shown"] {
-    opacity: 1;
+  to {
     transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      will-change: transform;
+      transform-origin: 50% 0;
+      animation-name: reveal-rise;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry min(100%, 135px);
+    }
   }
 }
 
@@ -346,5 +901,70 @@ body {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * View transitions on this site, after D1's partial revert.
+ *
+ * The shared-element morph this section used to configure is GONE. The project
+ * card's <h3> and the case-study <h1> carried the same
+ * `view-transition-name` via React's <ViewTransition>, and the pair never
+ * formed: React called `document.startViewTransition`, a root crossfade ran,
+ * but `view-transition-name` stayed `none` on the <h3> for the whole
+ * transition and no `::view-transition-group(project-title-*)` ever animated.
+ * The cause is version, not markup — `react` resolves to 19.2.8, which exports
+ * no `ViewTransition`; only Next's vendored 19.3.0-canary does. Measured, not
+ * inferred: design/LOOP_LOG.md, "W5 partially reverted".
+ *
+ * With the named components removed, nothing on the site starts a view
+ * transition at all — `startViewTransition` is called zero times, verified.
+ * The `::view-transition-group(.project-title)` duration rule went with them,
+ * because `share="project-title"` was the only thing that put that class on a
+ * group and a rule selecting a class nothing applies is a claim that the
+ * feature exists.
+ *
+ * The two rules below are kept deliberately even though they are currently
+ * INERT — no transition runs, so neither can fire. They are the correct
+ * behaviour for the moment view transitions return (see the backlog: it needs
+ * a React version that exports ViewTransition), and both are about *removing*
+ * a user-agent default rather than adding motion of our own, so neither can
+ * introduce anything while dormant.
+ */
+
+/*
+ * The transition overlay sits above the live page and swallows pointer events
+ * for its duration. 175ms is short, but the site's position is that an
+ * affordance works or it does not (rule 11: the chevron is a real anchor, the
+ * pipeline hit targets are real buttons), and a link that is inert for a fifth
+ * of a second because of a decoration is a decoration that took something —
+ * which rule 14 does not allow. Named participants are still skipped by
+ * hit-testing while they animate; that is the browser's behaviour, not ours.
+ */
+::view-transition {
+  pointer-events: none;
+}
+
+/*
+ * Reduced motion. This one is shaped the other way round from every other rule
+ * on this page and the reason is worth stating: elsewhere the motion is ours,
+ * so it is declared inside `no-preference` and simply never added. Here the
+ * animation is the user agent's own default for a captured element, so it has
+ * to be removed rather than not-added. At 0s the browser swaps the two titles
+ * instantly, which is exactly what this site did before the morph existed —
+ * motion goes, content and navigation do not (rule 3).
+ *
+ * The blanket rule above does not reach these. `*` is a type selector and
+ * matches elements, not pseudo-elements, and `*::before` / `*::after` name the
+ * only two it does reach; the `::view-transition-*` tree is a separate
+ * pseudo-element tree rooted on the document element, so it is untouched by
+ * that rule and needs this one.
+ */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

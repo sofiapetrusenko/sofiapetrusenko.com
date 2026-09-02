@@ -5,3 +5,19 @@ node_modules/
 pnpm-lock.yaml
 next-env.d.ts
 index.html
+
+# Design phase D1 records.
+#
+# design/reports/ and design/shots/ are measurement artefacts — Lighthouse JSON
+# and screenshots — not authored source; reformatting them would rewrite
+# evidence and churn ~60 large files for nothing.
+#
+# The three .md records are excluded for a stronger reason: BASELINE.md carries
+# a frozen threshold section, and CHARTER.md carries a sign-off block signed by
+# Sofia. Prettier rewrites their emphasis markers (`*text*` -> `_text_`), which
+# would silently alter signed and frozen text. Verified, not assumed.
+design/reports/
+design/shots/
+design/BASELINE.md
+design/CHARTER.md
+design/LOOP_LOG.md
