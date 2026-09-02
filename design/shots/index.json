@@ -1,0 +1,294 @@
+{
+  "capturedVia": "headless Chrome over CDP (playwright not installed)",
+  "deviceScaleFactor": 2,
+  "shots": [
+    {
+      "file": "hero-390-main.png",
+      "side": "main",
+      "width": 390,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-390-main.png",
+      "side": "main",
+      "width": 390,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-390-main.png",
+      "side": "main",
+      "width": 390,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-768-main.png",
+      "side": "main",
+      "width": 768,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-768-main.png",
+      "side": "main",
+      "width": 768,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-768-main.png",
+      "side": "main",
+      "width": 768,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-1440-main.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-1440-main.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-1440-main.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-390-branch.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-390-branch.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-390-branch.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-768-branch.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-768-branch.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-768-branch.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-1440-branch.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "selected-work-1440-branch.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": false
+    },
+    {
+      "file": "blotquant-top-1440-branch.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": false
+    },
+    {
+      "file": "hero-390-main-reduced-motion.png",
+      "side": "main",
+      "width": 390,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-390-main-reduced-motion.png",
+      "side": "main",
+      "width": 390,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-390-main-reduced-motion.png",
+      "side": "main",
+      "width": 390,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    },
+    {
+      "file": "hero-768-main-reduced-motion.png",
+      "side": "main",
+      "width": 768,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-768-main-reduced-motion.png",
+      "side": "main",
+      "width": 768,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-768-main-reduced-motion.png",
+      "side": "main",
+      "width": 768,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    },
+    {
+      "file": "hero-1440-main-reduced-motion.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-1440-main-reduced-motion.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-1440-main-reduced-motion.png",
+      "side": "main",
+      "width": 1440,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    },
+    {
+      "file": "hero-390-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-390-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-390-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 390,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    },
+    {
+      "file": "hero-768-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-768-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-768-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 768,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    },
+    {
+      "file": "hero-1440-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "hero",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "selected-work-1440-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "selected-work",
+      "route": "/",
+      "reducedMotion": true
+    },
+    {
+      "file": "blotquant-top-1440-branch-reduced-motion.png",
+      "side": "branch",
+      "width": 1440,
+      "scene": "blotquant-top",
+      "route": "/work/blotquant",
+      "reducedMotion": true
+    }
+  ]
+}

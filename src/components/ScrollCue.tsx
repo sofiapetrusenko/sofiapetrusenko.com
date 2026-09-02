@@ -3,6 +3,21 @@
 import { useEffect, useState } from "react";
 
 /**
+ * One of the site's **two chrome-level client boundaries** — CardSpotlight is
+ * the other: this one needs the viewport height and the scroll offset, and
+ * neither is knowable on the server. Reveal was the second until its
+ * IntersectionObserver became a CSS scroll-driven animation, and W4's spotlight
+ * took the vacated slot.
+ *
+ * Charter 12 makes the count normative, so it is stated exactly: `use client`
+ * appears in **nine** components. These two, which are part of the page shell on
+ * every route that renders them, and seven interactive case-study widgets —
+ * BlotquantInspector, Disclosure, GoldRecordInspector, LifespanFunnel,
+ * PipelineDiagram, RefusalGrid, SweepExplorer — every one of which is rendered
+ * only by `/work/[slug]` and is the content of a case study rather than site
+ * chrome. Both numbers are asserted in `Reveal.test.tsx` so neither can drift
+ * again; "two" on its own was wrong by seven and had been since before D1.
+ *
  * A fade and a chevron pinned to the bottom of the viewport, so a tall screen
  * that shows nothing but the hero still says the page continues. The chevron is
  * a real anchor to the first section, not a decoration with a scroll handler:

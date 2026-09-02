@@ -190,6 +190,11 @@ export default async function ProjectPage({
           <p className="text-muted font-mono text-xs tracking-wider">
             {project.year}
           </p>
+          {/* This <h1> carried the incoming half of a shared-element morph
+              with the project card's title. The morph was removed in D1: it
+              never paired at runtime, so the names were dead attributes that
+              read like a working feature. See design/LOOP_LOG.md, "W5 partially
+              reverted". The root crossfade that remains needs no markup. */}
           <h1 className="mt-4 text-[clamp(2.25rem,7vw,3.5rem)] leading-[0.98] font-semibold tracking-[-0.02em] text-balance">
             {project.name}
           </h1>
