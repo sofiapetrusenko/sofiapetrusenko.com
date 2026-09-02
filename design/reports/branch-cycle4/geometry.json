@@ -1,0 +1,320 @@
+{
+  "measuredAt": "2026-09-02T09:43:47Z",
+  "viewport": "1512x900",
+  "base": "http://localhost:3000",
+  "routes": [
+    {
+      "route": "/",
+      "count": 5,
+      "docHeight": 4896,
+      "last": {
+        "i": 4,
+        "h": 299.9,
+        "top": 4470.9,
+        "f": 125.3,
+        "scrollBeneathTop": 425.1
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 1170.1,
+          "top": 873.8,
+          "f": 2852.1,
+          "scrollBeneathTop": 4022.2
+        },
+        {
+          "i": 1,
+          "h": 237.1,
+          "top": 2278.4,
+          "f": 2380.5,
+          "scrollBeneathTop": 2617.6
+        },
+        {
+          "i": 2,
+          "h": 1067.9,
+          "top": 2681.4,
+          "f": 1146.7,
+          "scrollBeneathTop": 2214.6
+        },
+        {
+          "i": 3,
+          "h": 279.5,
+          "top": 4023.4,
+          "f": 593.1,
+          "scrollBeneathTop": 872.6
+        },
+        {
+          "i": 4,
+          "h": 299.9,
+          "top": 4470.9,
+          "f": 125.3,
+          "scrollBeneathTop": 425.1
+        }
+      ]
+    },
+    {
+      "route": "/colophon",
+      "count": 3,
+      "docHeight": 1412,
+      "last": {
+        "i": 2,
+        "h": 206.8,
+        "top": 858.2,
+        "f": 347,
+        "scrollBeneathTop": 553.8
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 159.5,
+          "top": 390.6,
+          "f": 861.9,
+          "scrollBeneathTop": 1021.4
+        },
+        {
+          "i": 1,
+          "h": 108.5,
+          "top": 646.1,
+          "f": 657.4,
+          "scrollBeneathTop": 765.9
+        },
+        {
+          "i": 2,
+          "h": 206.8,
+          "top": 858.2,
+          "f": 347,
+          "scrollBeneathTop": 553.8
+        }
+      ]
+    },
+    {
+      "route": "/work/blotquant",
+      "count": 8,
+      "docHeight": 6634,
+      "last": {
+        "i": 7,
+        "h": 79.7,
+        "top": 6212.2,
+        "f": 342.1,
+        "scrollBeneathTop": 421.8
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 315.3,
+          "top": 603.4,
+          "f": 5715.4,
+          "scrollBeneathTop": 6030.6
+        },
+        {
+          "i": 1,
+          "h": 1182.8,
+          "top": 1042.6,
+          "f": 4408.6,
+          "scrollBeneathTop": 5591.4
+        },
+        {
+          "i": 2,
+          "h": 1595.8,
+          "top": 2478.5,
+          "f": 2559.7,
+          "scrollBeneathTop": 4155.5
+        },
+        {
+          "i": 3,
+          "h": 834.2,
+          "top": 4451.5,
+          "f": 1348.3,
+          "scrollBeneathTop": 2182.5
+        },
+        {
+          "i": 4,
+          "h": 174.9,
+          "top": 5466.5,
+          "f": 992.6,
+          "scrollBeneathTop": 1167.5
+        },
+        {
+          "i": 5,
+          "h": 146.6,
+          "top": 5756.7,
+          "f": 730.7,
+          "scrollBeneathTop": 877.3
+        },
+        {
+          "i": 6,
+          "h": 81.6,
+          "top": 6017.7,
+          "f": 534.7,
+          "scrollBeneathTop": 616.3
+        },
+        {
+          "i": 7,
+          "h": 79.7,
+          "top": 6212.2,
+          "f": 342.1,
+          "scrollBeneathTop": 421.8
+        }
+      ]
+    },
+    {
+      "route": "/work/lifespan-extract",
+      "count": 8,
+      "docHeight": 5401,
+      "last": {
+        "i": 7,
+        "h": 79.7,
+        "top": 4979.1,
+        "f": 342.2,
+        "scrollBeneathTop": 421.9
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 344.5,
+          "top": 669.4,
+          "f": 4387.1,
+          "scrollBeneathTop": 4731.6
+        },
+        {
+          "i": 1,
+          "h": 1031.8,
+          "top": 1137.8,
+          "f": 3231.4,
+          "scrollBeneathTop": 4263.2
+        },
+        {
+          "i": 2,
+          "h": 1323.4,
+          "top": 2387.8,
+          "f": 1689.8,
+          "scrollBeneathTop": 3013.2
+        },
+        {
+          "i": 3,
+          "h": 146.6,
+          "top": 4001.6,
+          "f": 1252.8,
+          "scrollBeneathTop": 1399.4
+        },
+        {
+          "i": 4,
+          "h": 146.6,
+          "top": 4262.6,
+          "f": 991.8,
+          "scrollBeneathTop": 1138.4
+        },
+        {
+          "i": 5,
+          "h": 146.6,
+          "top": 4523.6,
+          "f": 730.8,
+          "scrollBeneathTop": 877.4
+        },
+        {
+          "i": 6,
+          "h": 81.6,
+          "top": 4784.6,
+          "f": 534.8,
+          "scrollBeneathTop": 616.4
+        },
+        {
+          "i": 7,
+          "h": 79.7,
+          "top": 4979.1,
+          "f": 342.2,
+          "scrollBeneathTop": 421.9
+        }
+      ]
+    },
+    {
+      "route": "/work/media-automation-platform",
+      "count": 5,
+      "docHeight": 2459,
+      "last": {
+        "i": 4,
+        "h": 79.7,
+        "top": 2037.5,
+        "f": 341.8,
+        "scrollBeneathTop": 421.5
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 173.5,
+          "top": 514.3,
+          "f": 1771.3,
+          "scrollBeneathTop": 1944.8
+        },
+        {
+          "i": 1,
+          "h": 202.5,
+          "top": 802.8,
+          "f": 1453.7,
+          "scrollBeneathTop": 1656.2
+        },
+        {
+          "i": 2,
+          "h": 572.3,
+          "top": 1126.5,
+          "f": 760.2,
+          "scrollBeneathTop": 1332.5
+        },
+        {
+          "i": 3,
+          "h": 81.6,
+          "top": 1843,
+          "f": 534.4,
+          "scrollBeneathTop": 616
+        },
+        {
+          "i": 4,
+          "h": 79.7,
+          "top": 2037.5,
+          "f": 341.8,
+          "scrollBeneathTop": 421.5
+        }
+      ]
+    },
+    {
+      "route": "/work/mira",
+      "count": 3,
+      "docHeight": 1468,
+      "last": {
+        "i": 2,
+        "h": 81.6,
+        "top": 1044.6,
+        "f": 341.8,
+        "scrollBeneathTop": 423.4
+      },
+      "rows": [
+        {
+          "i": 0,
+          "h": 144.3,
+          "top": 490.9,
+          "f": 832.9,
+          "scrollBeneathTop": 977.1
+        },
+        {
+          "i": 1,
+          "h": 173.5,
+          "top": 747.1,
+          "f": 547.4,
+          "scrollBeneathTop": 720.9
+        },
+        {
+          "i": 2,
+          "h": 81.6,
+          "top": 1044.6,
+          "f": 341.8,
+          "scrollBeneathTop": 423.4
+        }
+      ]
+    }
+  ],
+  "tightest": {
+    "route": "/",
+    "h": 299.9,
+    "f": 125.3
+  }
+}
