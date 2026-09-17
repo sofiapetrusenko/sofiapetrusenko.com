@@ -53,6 +53,33 @@ function MetaRow({ period, country }: { period: string; country: string }) {
 }
 
 /**
+ * Eight, because the widths and the fill order are CSS, keyed by `:nth-child`.
+ */
+const REDACTION_SEGMENTS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+/**
+ * The org line for a role whose name is not yet public. The bar is decoration —
+ * `aria-hidden`, fixed widths, opacity-only animation — so the org string still
+ * reaches assistive tech through the visually hidden span beside it, and
+ * nothing on the line reflows while the segments fill.
+ */
+function UndisclosedOrg({ org }: { org: string }) {
+  return (
+    <div className="mt-1">
+      <span className="sr-only">{org}</span>
+      <span aria-hidden="true" className="redaction flex">
+        {REDACTION_SEGMENTS.map((segment) => (
+          <span key={segment} className="redaction__segment" />
+        ))}
+      </span>
+      <p className="text-muted mt-2 font-mono text-xs tracking-wider">
+        {labels.buildingSymbol} {labels.buildingCaption}
+      </p>
+    </div>
+  );
+}
+
+/**
  * Padding sits on each item, not the list: the nodes are positioned from the
  * item's left edge, so that edge has to be the rail itself.
  */
@@ -73,12 +100,25 @@ export function Experience() {
             key={`${role.org}-${role.period}`}
             className="relative pl-6 sm:pl-8"
           >
-            <Node kind={role.kind} pulsing={isCurrentRole(role)} />
+            {/*
+              No ring on the undisclosed entry. The redaction bar is that
+              item's signature effect, and "present" in the meta row plus the
+              "building" caption already carry currency — so the ring would add
+              a second rhythm to the same list item and buy nothing.
+            */}
+            <Node
+              kind={role.kind}
+              pulsing={isCurrentRole(role) && !role.undisclosed}
+            />
             <MetaRow period={role.period} country={role.country} />
             <h3 className="mt-2 text-lg font-medium tracking-tight">
               {role.title}
             </h3>
-            <p className="text-muted mt-1 text-sm">{role.org}</p>
+            {role.undisclosed ? (
+              <UndisclosedOrg org={role.org} />
+            ) : (
+              <p className="text-muted mt-1 text-sm">{role.org}</p>
+            )}
             {/* A short contract entry is a dated line and carries no prose. */}
             {role.summary && (
               <p className="text-muted mt-3 max-w-[68ch] text-sm leading-relaxed">

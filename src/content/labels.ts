@@ -25,6 +25,10 @@ export const labels = {
   /* Shell-prompt chrome for the hero's "currently" line. */
   promptSymbol: "$",
   promptCurrently: "currently:",
+  /* Caption under the redaction bar of a role whose org is undisclosed. The
+     marker is its own string so the component holds no copy at all. */
+  buildingSymbol: "▸",
+  buildingCaption: "building",
   pipelineRun: "Pipeline run",
   simulateFailure: "Simulate failure",
   humanApproval: "human approval",

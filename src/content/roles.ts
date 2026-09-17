@@ -3,14 +3,28 @@ import type { Role } from "./types";
 /** Most recent first. Values taken from the CV. */
 export const roles = [
   {
+    /* The org name is withheld, so the timeline renders a redaction bar in
+       place of it. `undisclosed` is the only flag here that drives rendering;
+       everything else is the same shape as any other entry. */
+    org: "Name to be announced",
+    title: "Founder & CEO",
+    location: "Cascais, Portugal (remote)",
+    country: "Portugal",
+    kind: "engineering",
+    period: "2026 – present",
+    summary:
+      "Building a company from zero to production — product, engineering and go-to-market. Currently in production; name to be announced.",
+    undisclosed: true,
+  },
+  {
     org: "Independent",
     title: "Founder & Engineer — AI Content Automation",
     location: "Cascais, Portugal (remote)",
     country: "Portugal",
     kind: "engineering",
-    period: "2025 – present",
+    period: "2025 – 2026",
     summary:
-      "Designed, built and operate a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers.",
+      "Designed, built and operated a full-stack platform for automated media production and distribution: LLM-driven generation pipeline, speech synthesis, video assembly, publishing and analytics, orchestrated through asynchronous background workers.",
   },
   {
     /* A dated line rather than a role write-up: adjacent contract work, kept
