@@ -31,8 +31,7 @@ export function Hero() {
         {profile.now}
       </p>
       <div className="mt-10">
-        {/* The CV pill is hidden until the CV is updated; `profile.cv` stays. */}
-        <LinkList links={profile.links} variant="pill" />
+        <LinkList links={[...profile.links, profile.cv]} variant="pill" />
       </div>
     </header>
   );
