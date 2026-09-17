@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { education, notes, profile, projects, roles } from "@/content";
+import { education, labels, notes, profile, projects, roles } from "@/content";
 import Home from "./page";
 
 describe("Home", () => {
@@ -73,13 +73,38 @@ describe("Home", () => {
     }
   });
 
-  it("offers the CV from the hero and states availability in the footer", () => {
+  it("states availability in the footer and keeps the CV pill off the hero", () => {
     render(<Home />);
 
-    expect(
-      screen.getByRole("link", { name: profile.cv.label }),
-    ).toHaveAttribute("href", profile.cv.href);
     expect(screen.getByText(profile.availability)).toBeInTheDocument();
+    // `profile.cv` and the PDF both stay; the pill is hidden until the CV is
+    // updated, so no link on the page points at it.
+    expect(
+      screen.queryByRole("link", { name: profile.cv.label }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("redacts the undisclosed org, leaving the name to assistive tech alone", () => {
+    const { container } = render(<Home />);
+
+    const role = roles.find((entry) => entry.undisclosed);
+    if (!role) throw new Error("expected one undisclosed role");
+
+    // The org string reaches the a11y tree, and appears nowhere else on the page.
+    const matches = screen.getAllByText(role.org);
+    expect(matches).toHaveLength(1);
+    expect(matches[0]).toHaveClass("sr-only");
+
+    // The bar is decoration: hidden from the a11y tree and carrying no text.
+    const bar = container.querySelector(".redaction");
+    expect(bar).toHaveAttribute("aria-hidden", "true");
+    expect(bar).toHaveTextContent("");
+    expect(container.querySelectorAll(".redaction__segment")).toHaveLength(8);
+
+    // The caption is the only visible text standing in for the name.
+    expect(
+      screen.getByText(`${labels.buildingSymbol} ${labels.buildingCaption}`),
+    ).toBeInTheDocument();
   });
 
   it("tags every timeline entry with its country", () => {

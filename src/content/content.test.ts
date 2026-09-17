@@ -7,6 +7,7 @@ import {
   projects,
   roles,
   type Project,
+  type Role,
 } from "./index";
 
 /**
@@ -15,6 +16,9 @@ import {
  * `never[]` and quietly drop those fields out of the checks below.
  */
 const allProjects: readonly Project[] = projects;
+
+/** Same reason as `allProjects`: `undisclosed` is optional and set on one entry. */
+const allRoles: readonly Role[] = roles;
 
 /** A labelled string, so a failure names the exact field that broke. */
 type Field = { path: string; value: string };
@@ -168,6 +172,17 @@ describe("content", () => {
     const current = roles.filter(isCurrentRole);
     expect(current).toHaveLength(1);
     expect(current[0]).toBe(roles[0]);
+  });
+
+  it("withholds at most one org, and only on the current role", () => {
+    // An invariant, so it holds at zero too. That the flag is actually set on
+    // one role today is anchored in `page.test.tsx`, which throws if it is not.
+    const undisclosed = allRoles.filter((role) => role.undisclosed === true);
+
+    expect(undisclosed.length).toBeLessThanOrEqual(1);
+    for (const role of undisclosed) {
+      expect(isCurrentRole(role), role.period).toBe(true);
+    }
   });
 
   it("does not treat a closed period as current", () => {

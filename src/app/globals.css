@@ -540,6 +540,109 @@ body {
   }
 }
 
+/*
+ * Redaction bar standing in for the org name of the undisclosed role. It is
+ * decoration: `aria-hidden` in `Background.tsx`, no pointer target of its own,
+ * and carrying no content — the org name is in the `sr-only` span beside it and
+ * the state is spelled out by the caption under it.
+ *
+ * Segment widths, the gap between them, and the filled base state are all
+ * declared outside the motion query, so asking for less motion leaves a
+ * complete, legible bar. The animation touches opacity and nothing else: the
+ * line cannot reflow and the bar cannot change its footprint while it runs.
+ */
+.redaction {
+  gap: 0.25rem;
+  pointer-events: none;
+}
+
+.redaction__segment {
+  height: 0.5rem;
+  border-radius: 1px;
+  background-color: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  opacity: 1;
+}
+
+.redaction__segment:nth-child(1) {
+  width: 2.75rem;
+}
+.redaction__segment:nth-child(2) {
+  width: 1.5rem;
+}
+.redaction__segment:nth-child(3) {
+  width: 3.25rem;
+}
+.redaction__segment:nth-child(4) {
+  width: 2rem;
+}
+.redaction__segment:nth-child(5) {
+  width: 1.25rem;
+}
+.redaction__segment:nth-child(6) {
+  width: 2.5rem;
+}
+.redaction__segment:nth-child(7) {
+  width: 3rem;
+}
+.redaction__segment:nth-child(8) {
+  width: 1.75rem;
+}
+
+/*
+ * The keyframes are declared inside the query rather than beside it: under
+ * `reduce` there is no animation to suppress because there is none to inherit.
+ *
+ * The stagger is a per-segment delay with `backwards` fill, so a segment shows
+ * its empty starting opacity while it waits instead of flashing filled first.
+ * Each segment runs the same cycle, offset, which reads as a fill sweeping left
+ * to right, a hold, and a reset.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes redaction-fill {
+    0%,
+    8% {
+      opacity: 0.14;
+    }
+    22%,
+    82% {
+      opacity: 1;
+    }
+    96%,
+    100% {
+      opacity: 0.14;
+    }
+  }
+
+  .redaction__segment {
+    animation: redaction-fill 2s ease-in-out infinite backwards;
+  }
+
+  .redaction__segment:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .redaction__segment:nth-child(2) {
+    animation-delay: 0.09s;
+  }
+  .redaction__segment:nth-child(3) {
+    animation-delay: 0.18s;
+  }
+  .redaction__segment:nth-child(4) {
+    animation-delay: 0.27s;
+  }
+  .redaction__segment:nth-child(5) {
+    animation-delay: 0.36s;
+  }
+  .redaction__segment:nth-child(6) {
+    animation-delay: 0.45s;
+  }
+  .redaction__segment:nth-child(7) {
+    animation-delay: 0.54s;
+  }
+  .redaction__segment:nth-child(8) {
+    animation-delay: 0.63s;
+  }
+}
+
 /* Detail panel content swap. Keyed remount replays this on every selection. */
 @keyframes panel-fade {
   from {

@@ -48,7 +48,8 @@ must be updated in the same diff.
 | --- | --- | --- |
 | The two page-glow tints | home hero **only**, via the `drift` prop | `PageGlow.tsx`, `.page-glow--drift` |
 | The scroll-cue chevron | home page, 6px nudge | `.scroll-cue__chevron` |
-| The timeline ring | current role only, opacity only | `.timeline-pulse` |
+| The timeline ring | current role only **unless undisclosed**, opacity only | `.timeline-pulse` |
+| The redaction bar | the undisclosed role only, opacity only, 2s | `.redaction__segment` |
 
 > "Drifts, and only here. The scroll cue's chevron is the only other thing on
 > this page that moves without being asked to." — `Hero.tsx`
@@ -735,3 +736,7 @@ radial gradient; they do not affect the worst case. Retained from the original
 sign-off.)*
 
 **Recorded by:** the orchestrator, who wrote A6 and got it wrong.
+
+---
+
+**A8 — withdrawn.** The rule-0 breach it recorded was resolved in code, not accepted.

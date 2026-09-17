@@ -151,7 +151,7 @@ export const projects = [
         href: "https://github.com/sofiapetrusenko/media-automation-platform",
       },
     ],
-    year: "2025 — operating",
+    year: "2025 — 2026",
   },
   {
     slug: "mira",

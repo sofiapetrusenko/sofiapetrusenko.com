@@ -70,6 +70,16 @@ export type Role = {
    * timeline renders it without a prose block rather than padding one out.
    */
   summary?: string;
+  /**
+   * Optional: org name withheld; timeline renders a redaction bar instead of
+   * the org text.
+   *
+   * The bar is decoration, not redaction: `org` still ships in the HTML, in the
+   * visually hidden span the bar stands in front of. So `org` must stay a
+   * public-safe placeholder for as long as this is `true` — putting the real
+   * name here and leaving the flag set publishes it.
+   */
+  undisclosed?: boolean;
 };
 
 /**
@@ -136,7 +146,7 @@ export type Profile = {
   location: string;
   /** current focus, one line, rendered after a shell-style prompt */
   now: string;
-  /** what kind of work is being looked for, one line, shown above the contact links */
+  /** one-line call to action shown above the contact links */
   availability: string;
   email: string;
   links: readonly Link[];
