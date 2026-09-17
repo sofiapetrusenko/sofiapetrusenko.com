@@ -19,12 +19,6 @@ export const profile = {
     },
     { label: "Email", href: "mailto:sofia.petrusenko988@gmail.com" },
   ],
-  /**
-   * Served from `public/`. Kept, with the PDF, while the hero's CV pill is
-   * hidden — see `Hero.tsx`.
-   *
-   * TODO: not linked anywhere on the site while the CV still reflects
-   * job-seeker positioning. Restore the hero pill once the CV is updated.
-   */
+  /** Served from `public/`; the hero appends it to the link pills. */
   cv: { label: "CV (PDF)", href: "/Sofia_Petrusenko_CV.pdf" },
 } satisfies Profile;

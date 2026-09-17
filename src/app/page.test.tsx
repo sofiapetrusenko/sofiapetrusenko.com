@@ -73,15 +73,13 @@ describe("Home", () => {
     }
   });
 
-  it("states availability in the footer and keeps the CV pill off the hero", () => {
+  it("offers the CV from the hero and states availability in the footer", () => {
     render(<Home />);
 
-    expect(screen.getByText(profile.availability)).toBeInTheDocument();
-    // `profile.cv` and the PDF both stay; the pill is hidden until the CV is
-    // updated, so no link on the page points at it.
     expect(
-      screen.queryByRole("link", { name: profile.cv.label }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("link", { name: profile.cv.label }),
+    ).toHaveAttribute("href", profile.cv.href);
+    expect(screen.getByText(profile.availability)).toBeInTheDocument();
   });
 
   it("redacts the undisclosed org, leaving the name to assistive tech alone", () => {
