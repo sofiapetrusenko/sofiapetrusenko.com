@@ -31,6 +31,10 @@
      name — and is never used decoratively. */
   --color-gate: #fbbf24;
 
+  /* Hero character field glyphs. Muted, because the field's job is texture and
+     the brightness budget is set by alpha (see `.ascii-field`), not by hue. */
+  --color-glyph: var(--color-muted);
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
@@ -88,8 +92,9 @@ body {
 
 /*
  * Page glow: two faint radial tints anchored near the top of a page, behind the
- * title. Purely decorative — as is the scroll cue's fade, the only other layer
- * on the site that carries no content — and shared by the home page and the
+ * title. Purely decorative — as are the scroll cue's fade and the home hero's
+ * character field (`.ascii-field`), the only other layers on the site that
+ * carry no content — and shared by the home page and the
  * case studies so the three read as one place.
  *
  * Contrast: each glow peaks at 10% opacity. The brightest colour the pair can
@@ -173,6 +178,91 @@ body {
 
   .page-glow--drift::after {
     animation: aurora-drift-b 26s ease-in-out infinite alternate;
+  }
+}
+
+/*
+ * Hero character field (`components/hero/AsciiField.tsx`): a canvas of glyphs
+ * behind the home hero, bled out to the page's top and side padding so it
+ * reaches the viewport edge on a phone and the column edge on a desktop.
+ *
+ * Contrast. Glyphs are --color-glyph (muted) at up to 20% alpha. The canvas
+ * mask below is the scrim: full strength only in the top bleed, where there is
+ * no text, and held at 20% from the top of the <h1> down, so under any hero
+ * text a glyph pixel tops out at 4% alpha. The worst point it can land on is a
+ * dot of the fixed grid under the coincident glows, rgb(29, 56, 53) (see the
+ * glow's bound below — the grid is the third layer and glyph ink does sit on
+ * it, since letters swap in place). There the glyph composites to
+ * rgb(34, 60, 58): fg 9.64:1, muted 4.60:1, accent 5.51:1 — AA for every hero
+ * text colour, the pills' accent included. Off the dot it is rgb(28, 54, 52):
+ * muted 5.02:1; over plain --color-bg, rgb(19, 19, 21): muted 7.24:1. 5.4%
+ * is where muted reaches exactly 4.5:1 on the dot, which is why the scrim
+ * holds at 20% and not the 27% that would give it. Unmasked 20% sits only in
+ * the bleed above the <h1>, where there is no text to read.
+ *
+ * `contain: strict` keeps the canvas's repaints from invalidating layout or
+ * paint outside it; the absolute insets mean it takes no space, so it cannot
+ * shift anything when it mounts or resizes.
+ */
+.ascii-field {
+  --ascii-bleed: 6rem;
+  /* Referenced so Tailwind always emits the token the canvas reads. */
+  color: var(--color-glyph);
+  position: absolute;
+  top: calc(-1 * var(--ascii-bleed));
+  bottom: -3rem;
+  inset-inline: -1.5rem;
+  z-index: -10;
+  overflow: clip;
+  pointer-events: none;
+  contain: strict;
+  opacity: 0;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 2rem,
+    black calc(100% - 2rem),
+    transparent
+  );
+}
+
+@media (min-width: 40rem) {
+  .ascii-field {
+    --ascii-bleed: 8rem;
+    inset-inline: -2rem;
+  }
+}
+
+.ascii-field[data-ready] {
+  opacity: 1;
+}
+
+/* Forced colours would leave the glyphs in muted grey against whatever palette
+   the reader chose; print has no use for texture. Decoration, so it goes. */
+@media (forced-colors: active), print {
+  .ascii-field {
+    display: none;
+  }
+}
+
+.ascii-field__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 2rem,
+    black calc(var(--ascii-bleed) - 3rem),
+    rgb(0 0 0 / 0.2) var(--ascii-bleed),
+    rgb(0 0 0 / 0.2) calc(100% - 6rem),
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ascii-field {
+    transition: opacity 900ms ease-out;
   }
 }
 

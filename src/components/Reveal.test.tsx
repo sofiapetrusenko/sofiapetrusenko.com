@@ -33,11 +33,14 @@ const source = readFileSync(
 const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
 
 /** Every component file whose first statement is the "use client" directive,
- *  by bare filename, sorted. Anchored to a whole line so that a *mention* of
+ *  by path relative to `src/components`, sorted. Anchored to a whole line so that a *mention* of
  *  the string — this file's own assertion above, for one — is not counted. */
 function componentsWithUseClient() {
   const dir = join(process.cwd(), "src/components");
-  return readdirSync(dir)
+  // Recursive, with paths relative to `src/components`: a boundary in a
+  // subdirectory (`hero/AsciiField.tsx`) is still a boundary and still counts.
+  return (readdirSync(dir, { recursive: true }) as string[])
+    .map((f) => f.split("\\").join("/"))
     .filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"))
     .filter((f) =>
       /^\s*["']use client["'];?\s*$/m.test(readFileSync(join(dir, f), "utf8")),
@@ -117,7 +120,7 @@ describe("Reveal", () => {
   // wrong count survived — nothing asserted the positive, so three comments
   // could say "the site's two client components" while nine files carried the
   // directive. These two tests assert the count itself.
-  it("keeps the site to nine client components, two of them chrome", () => {
+  it("keeps the site to ten client components, three of them chrome", () => {
     const clients = componentsWithUseClient();
 
     expect(clients).toEqual([
@@ -130,16 +133,23 @@ describe("Reveal", () => {
       "RefusalGrid.tsx",
       "ScrollCue.tsx",
       "SweepExplorer.tsx",
+      "hero/AsciiField.tsx",
     ]);
-    expect(clients).toHaveLength(9);
+    expect(clients).toHaveLength(10);
   });
 
   it("renders the other seven only from /work/[slug]", () => {
-    // What makes "two" a defensible thing to say next to ScrollCue and
-    // CardSpotlight: the other seven are the content of a case study, not part
-    // of the site's chrome. That is only true while no other route imports one.
+    // What makes "three" a defensible thing to say next to ScrollCue,
+    // CardSpotlight and the hero's AsciiField: the other seven are the content
+    // of a case study, not part of the site's chrome. That is only true while
+    // no other route imports one.
+    const chrome = [
+      "ScrollCue.tsx",
+      "CardSpotlight.tsx",
+      "hero/AsciiField.tsx",
+    ];
     const widgets = componentsWithUseClient().filter(
-      (f) => f !== "ScrollCue.tsx" && f !== "CardSpotlight.tsx",
+      (f) => !chrome.includes(f),
     );
     const caseStudy = readFileSync(
       join(process.cwd(), "src/app/work/[slug]/page.tsx"),

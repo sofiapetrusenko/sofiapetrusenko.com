@@ -50,6 +50,7 @@ must be updated in the same diff.
 | The scroll-cue chevron | home page, 6px nudge | `.scroll-cue__chevron` |
 | The timeline ring | current role only **unless undisclosed**, opacity only | `.timeline-pulse` |
 | The redaction bar | the undisclosed role only, opacity only, 2s | `.redaction__segment` |
+| The hero character field *(A9, pending sign-off)* | home hero **only**; glyph alpha and letter swaps, canvas, no transform | `hero/AsciiField.tsx`, `.ascii-field` |
 
 > "Drifts, and only here. The scroll cue's chevron is the only other thing on
 > this page that moves without being asked to." — `Hero.tsx`
@@ -740,3 +741,48 @@ sign-off.)*
 ---
 
 **A8 — withdrawn.** The rule-0 breach it recorded was resolved in code, not accepted.
+
+---
+
+## A9 — The hero character field: rule 2a row, rule 12 count, rule 0 question (feat/hero-ascii-field) — **awaiting sign-off**
+
+**Raised by:** the implementer of `feat/hero-ascii-field`, whose brief asked for
+an animated glyph field behind the home hero. Recorded here rather than left
+for review to find, because three rules are touched.
+
+**Rule 2a.** The field's ambient drift and occasional letter swaps run on an
+idle page, so it is unprompted motion and gets a 2a row (added above, marked
+pending). Its ripples are pointer-prompted and fall under A3, not rule 2.
+Reduced motion gets one static frame: content is unaffected (rule 3), since the
+field carries none.
+
+**Rule 12.** The count goes from nine to **ten**, three of them chrome:
+`ScrollCue`, `CardSpotlight` and `hero/AsciiField`. A server component cannot
+do the job — it needs a canvas context, `requestAnimationFrame`, and three
+observers. It takes no children, so the slot clause is met trivially: it is a
+leaf, and `Hero` stays a server component. The boundary test in
+`Reveal.test.tsx` now walks `src/components` recursively, because the flat scan
+it had would have missed a boundary in a subdirectory. Left unedited pending
+sign-off, and to be updated with it: rule 12's "The real count is nine" above,
+and the "two" chrome-boundary counts in the comments of `ScrollCue.tsx`,
+`CardSpotlight.tsx` and `Reveal.tsx`, which the test now contradicts.
+
+**Rule 7.** Bound derived in `.ascii-field` in `globals.css`: 4% glyph alpha
+under text, over the three-layer worst case (a grid dot under the coincident
+glows, rgb(29, 56, 53)), muted 4.60:1, and the value that breaks it (5.4%). The
+first draft held 9% against the two-layer glow bound only and missed the dot
+grid — muted 4.24:1 on a dot; caught in review cycle 1.
+
+**Rule 0 — not resolved, needs a decision.** The drifting glow is the home
+hero's signature effect, and rule 0 says a new effect that competes with it
+loses. The field is subordinate in brightness (4% under text, 20% peak in the
+bleed, against the glow's 10% tint) but it is a second unprompted motion in the
+same viewport. Either the field is ruled subordinate to the glow, or it becomes
+the signature and the glow's drift is retired. This entry does not choose.
+
+**Stale quote.** The `Hero.tsx` comment quoted under rule 0 and rule 2a
+("the scroll cue's chevron is the only other thing on this page that moves")
+was updated in the same diff to name the field. The blockquote of it under
+rule 2a now misquotes the source and is to be updated with the sign-off.
+
+**Signed off by:** — (pending)
