@@ -38,7 +38,7 @@ const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
 function componentsWithUseClient() {
   const dir = join(process.cwd(), "src/components");
   // Recursive, with paths relative to `src/components`: a boundary in a
-  // subdirectory (`hero/AsciiField.tsx`) is still a boundary and still counts.
+  // subdirectory (`field/AsciiField.tsx`) is still a boundary and still counts.
   return (readdirSync(dir, { recursive: true }) as string[])
     .map((f) => f.split("\\").join("/"))
     .filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"))
@@ -133,7 +133,7 @@ describe("Reveal", () => {
       "RefusalGrid.tsx",
       "ScrollCue.tsx",
       "SweepExplorer.tsx",
-      "hero/AsciiField.tsx",
+      "field/AsciiField.tsx",
     ]);
     expect(clients).toHaveLength(10);
   });
@@ -146,7 +146,7 @@ describe("Reveal", () => {
     const chrome = [
       "ScrollCue.tsx",
       "CardSpotlight.tsx",
-      "hero/AsciiField.tsx",
+      "field/AsciiField.tsx",
     ];
     const widgets = componentsWithUseClient().filter(
       (f) => !chrome.includes(f),

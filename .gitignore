@@ -47,3 +47,6 @@ CLAUDE.md
 
 # lighthouse reports
 .lighthouse/
+
+# server and tool logs
+*.log

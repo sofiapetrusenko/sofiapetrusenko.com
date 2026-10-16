@@ -10,7 +10,9 @@ finding must cite a rule number.
 
 ---
 
-## 0. One signature effect per viewport; everything else supports it
+## 0. ~~One signature effect per viewport; everything else supports it~~ — revoked by Sofia, 2026-10-16 (A9)
+
+*Kept as written below for the record; it no longer binds. See A9.*
 
 At any scroll position there is exactly one thing asking to be looked at. Every
 other moving or lit element is either static or subordinate to it. If a new
@@ -50,10 +52,13 @@ must be updated in the same diff.
 | The scroll-cue chevron | home page, 6px nudge | `.scroll-cue__chevron` |
 | The timeline ring | current role only **unless undisclosed**, opacity only | `.timeline-pulse` |
 | The redaction bar | the undisclosed role only, opacity only, 2s | `.redaction__segment` |
-| The hero character field *(A9, pending sign-off)* | home hero **only**; glyph alpha and letter swaps, canvas, no transform | `hero/AsciiField.tsx`, `.ascii-field` |
+| The character field (A9) | every page, one fixed canvas; glyph alpha and letter swaps only, nothing moves | `field/AsciiField.tsx`, `.ascii-field` |
 
-> "Drifts, and only here. The scroll cue's chevron is the only other thing on
-> this page that moves without being asked to." — `Hero.tsx`
+> ~~"Drifts, and only here. The scroll cue's chevron is the only other thing on
+> this page that moves without being asked to." — `Hero.tsx`~~ Superseded by
+> A9; the comment now reads: "Drifts, as do the site glows further down; the
+> character field behind it is site-wide and mounted once in the root layout
+> (charter A9)."
 
 > "Off everywhere but the home page hero: movement suits a landing page and
 > competes with a chart someone is reading numbers off." — `PageGlow.tsx`
@@ -249,8 +254,9 @@ value, so the first client read reveals rather than hides.
 > "It takes its children as a slot, so ProjectCard and everything inside it
 > stays a server component and only this wrapper ships JS." — `CardSpotlight.tsx`
 
-**The real count is nine**, and rule 12 means it literally: `ScrollCue` and
-`CardSpotlight` are the chrome-level boundaries; `BlotquantInspector`,
+**The real count is ten** (nine until A9), and rule 12 means it literally:
+`ScrollCue`, `CardSpotlight` and `field/AsciiField` are the chrome-level
+boundaries; `BlotquantInspector`,
 `Disclosure`, `GoldRecordInspector`, `LifespanFunnel`, `PipelineDiagram`,
 `RefusalGrid` and `SweepExplorer` are case-study widgets rendered only by
 `/work/[slug]`. Two tests assert the exact list.
@@ -744,45 +750,31 @@ sign-off.)*
 
 ---
 
-## A9 — The hero character field: rule 2a row, rule 12 count, rule 0 question (feat/hero-ascii-field) — **awaiting sign-off**
+## A9 — Rule 0 revoked; the character field and gradient glows go site-wide
 
-**Raised by:** the implementer of `feat/hero-ascii-field`, whose brief asked for
-an animated glyph field behind the home hero. Recorded here rather than left
-for review to find, because three rules are touched.
+> Rule 0 revoked by Sofia, 2026-10-16. Hero character field + gradient glows
+> extend site-wide.
 
-**Rule 2a.** The field's ambient drift and occasional letter swaps run on an
-idle page, so it is unprompted motion and gets a 2a row (added above, marked
-pending). Its ripples are pointer-prompted and fall under A3, not rule 2.
-Reduced motion gets one static frame: content is unaffected (rule 3), since the
-field carries none.
+**Ratified by Sofia, 2026-10-16.**
 
-**Rule 12.** The count goes from nine to **ten**, three of them chrome:
-`ScrollCue`, `CardSpotlight` and `hero/AsciiField`. A server component cannot
-do the job — it needs a canvas context, `requestAnimationFrame`, and three
-observers. It takes no children, so the slot clause is met trivially: it is a
-leaf, and `Hero` stays a server component. The boundary test in
-`Reveal.test.tsx` now walks `src/components` recursively, because the flat scan
-it had would have missed a boundary in a subdirectory. Left unedited pending
-sign-off, and to be updated with it: rule 12's "The real count is nine" above,
-and the "two" chrome-boundary counts in the comments of `ScrollCue.tsx`,
-`CardSpotlight.tsx` and `Reveal.tsx`, which the test now contradicts.
+**What changes with it, in the same diff:**
 
-**Rule 7.** Bound derived in `.ascii-field` in `globals.css`: 4% glyph alpha
-under text, over the three-layer worst case (a grid dot under the coincident
-glows, rgb(29, 56, 53)), muted 4.60:1, and the value that breaks it (5.4%). The
-first draft held 9% against the two-layer glow bound only and missed the dot
-grid — muted 4.24:1 on a dot; caught in review cycle 1.
-
-**Rule 0 — not resolved, needs a decision.** The drifting glow is the home
-hero's signature effect, and rule 0 says a new effect that competes with it
-loses. The field is subordinate in brightness (4% under text, 20% peak in the
-bleed, against the glow's 10% tint) but it is a second unprompted motion in the
-same viewport. Either the field is ruled subordinate to the glow, or it becomes
-the signature and the glow's drift is retired. This entry does not choose.
-
-**Stale quote.** The `Hero.tsx` comment quoted under rule 0 and rule 2a
-("the scroll cue's chevron is the only other thing on this page that moves")
-was updated in the same diff to name the field. The blockquote of it under
-rule 2a now misquotes the source and is to be updated with the sign-off.
-
-**Signed off by:** — (pending)
+- **Rule 0** is struck through above, not deleted — rules are amended in the
+  open.
+- **Rule 2a** gains one row: the character field (one fixed canvas behind every
+  page, `field/AsciiField.tsx`). The site glows (`SiteGlow.tsx`) are static —
+  their drift was cut at the kill-criterion step, so they need no row. The hero
+  glow's own row is unchanged. The field's ripples are pointer-prompted and fall
+  under A3. Reduced motion gets one static field frame and still glows (rule 3:
+  neither carries content).
+- **Rule 12**: the count is ten, three of them chrome — `ScrollCue`,
+  `CardSpotlight`, `field/AsciiField`. The field needs a canvas context and
+  `requestAnimationFrame`, and is a leaf, so it drags nothing across the
+  boundary. `SiteGlow` is a server component. The boundary test walks
+  `src/components` recursively. The comments in `ScrollCue.tsx`,
+  `CardSpotlight.tsx` and `Reveal.tsx` carry the new count.
+- **Rule 7 / 17**: the bound is stated under `.ascii-field` and `.site-glow` in
+  `globals.css`, with the search that found it — an audit of 1,782 text nodes
+  across every route at 1440, 768 and 390px. With a 4% glyph ceiling wherever
+  text can sit, none falls below AA. The tightest is muted at 4.59:1, and 5%
+  would leave 4.51:1.

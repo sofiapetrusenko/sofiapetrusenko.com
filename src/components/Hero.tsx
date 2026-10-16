@@ -1,22 +1,15 @@
 import { labels, profile } from "@/content";
 import { LinkList } from "./LinkList";
 import { PageGlow } from "./PageGlow";
-import { AsciiField } from "./hero/AsciiField";
 
 export function Hero() {
   return (
     <header className="relative">
       {/*
-        Drifts, and only here. Beside it, the character field below and the
-        scroll cue's chevron are the only other things on this page that move
-        without being asked to (charter A9, pending sign-off).
+        Drifts, as do the site glows further down; the character field behind
+        it is site-wide and mounted once in the root layout (charter A9).
       */}
       <PageGlow drift />
-      {/*
-        Character field: after the glow so it paints above it, and a child of
-        this header because it reads pointer input off its parent.
-      */}
-      <AsciiField />
 
       <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] leading-[0.92] font-bold tracking-[-0.02em] text-balance">
         {profile.name}

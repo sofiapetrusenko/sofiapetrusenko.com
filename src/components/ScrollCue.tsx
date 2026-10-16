@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 
 /**
- * One of the site's **two chrome-level client boundaries** — CardSpotlight is
- * the other: this one needs the viewport height and the scroll offset, and
+ * One of the site's **three chrome-level client boundaries** — CardSpotlight
+ * and the site-wide character field (`field/AsciiField`) are the others: this one needs the viewport height and the scroll offset, and
  * neither is knowable on the server. Reveal was the second until its
  * IntersectionObserver became a CSS scroll-driven animation, and W4's spotlight
  * took the vacated slot.
  *
  * Charter 12 makes the count normative, so it is stated exactly: `use client`
- * appears in **nine** components. These two, which are part of the page shell on
- * every route that renders them, and seven interactive case-study widgets —
+ * appears in **ten** components. These three, which are part of the page shell
+ * on every route that renders them, and seven interactive case-study widgets —
  * BlotquantInspector, Disclosure, GoldRecordInspector, LifespanFunnel,
  * PipelineDiagram, RefusalGrid, SweepExplorer — every one of which is rendered
  * only by `/work/[slug]` and is the content of a case study rather than site

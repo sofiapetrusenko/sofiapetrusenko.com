@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { AsciiField } from "@/components/field/AsciiField";
+import { SiteGlow } from "@/components/SiteGlow";
 import { profile } from "@/content";
 import "./globals.css";
 
@@ -40,7 +42,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetBrainsMono.variable}`}>
-      <body>
+      {/*
+        Relative so the site glows can span the full page height. Nothing else
+        resolves against it: every other absolute element on the site has a
+        positioned parent of its own.
+      */}
+      <body className="relative">
         {/*
           Dot grid: a 1px dot every 32px at 3.5% opacity. Enough to give the
           black a surface without reading as a pattern.
@@ -54,6 +61,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             backgroundSize: "32px 32px",
           }}
         />
+        {/*
+          Glows, then the character field: both -z-10 in the root stacking
+          context, so they paint in this order, above the dot grid and below
+          every page's content.
+        */}
+        <SiteGlow />
+        <AsciiField />
         {children}
       </body>
       <GoogleAnalytics gaId="G-TMXHBTE4SS" />

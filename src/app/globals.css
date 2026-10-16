@@ -31,8 +31,8 @@
      name — and is never used decoratively. */
   --color-gate: #fbbf24;
 
-  /* Hero character field glyphs. Muted, because the field's job is texture and
-     the brightness budget is set by alpha (see `.ascii-field`), not by hue. */
+  /* Character field glyphs. Muted, because the field's job is texture and the
+     brightness budget is set by alpha (see `.ascii-field`), not by hue. */
   --color-glyph: var(--color-muted);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -92,9 +92,10 @@ body {
 
 /*
  * Page glow: two faint radial tints anchored near the top of a page, behind the
- * title. Purely decorative — as are the scroll cue's fade and the home hero's
- * character field (`.ascii-field`), the only other layers on the site that
- * carry no content — and shared by the home page and the
+ * title. Purely decorative — as are the scroll cue's fade, the site-wide
+ * character field (`.ascii-field`) and the site glows (`.site-glow`), the only
+ * other layers on the site that carry no content — and shared by the home page
+ * and the
  * case studies so the three read as one place.
  *
  * Contrast: each glow peaks at 10% opacity. The brightest colour the pair can
@@ -182,87 +183,132 @@ body {
 }
 
 /*
- * Hero character field (`components/hero/AsciiField.tsx`): a canvas of glyphs
- * behind the home hero, bled out to the page's top and side padding so it
- * reaches the viewport edge on a phone and the column edge on a desktop.
+ * Site-wide character field (`components/field/AsciiField.tsx`): one canvas,
+ * fixed to the viewport behind every page. The glyph grid stays put; the
+ * field's bright regions are sampled in page coordinates and scroll with the
+ * content. It takes no space and no pointer events.
  *
- * Contrast. Glyphs are --color-glyph (muted) at up to 20% alpha. The canvas
- * mask below is the scrim: full strength only in the top bleed, where there is
- * no text, and held at 20% from the top of the <h1> down, so under any hero
- * text a glyph pixel tops out at 4% alpha. The worst point it can land on is a
- * dot of the fixed grid under the coincident glows, rgb(29, 56, 53) (see the
- * glow's bound below — the grid is the third layer and glyph ink does sit on
- * it, since letters swap in place). There the glyph composites to
- * rgb(34, 60, 58): fg 9.64:1, muted 4.60:1, accent 5.51:1 — AA for every hero
- * text colour, the pills' accent included. Off the dot it is rgb(28, 54, 52):
- * muted 5.02:1; over plain --color-bg, rgb(19, 19, 21): muted 7.24:1. 5.4%
- * is where muted reaches exactly 4.5:1 on the dot, which is why the scrim
- * holds at 20% and not the 27% that would give it. Unmasked 20% sits only in
- * the bleed above the <h1>, where there is no text to read.
+ * Contrast. Glyphs are --color-glyph (muted). Their alpha is capped per cell
+ * column by `alphaCap` in `asciiField.math.ts`: COLUMN_CAP 0.04 across the
+ * content column (read live from <main>) and everywhere below 640px. Outside
+ * the column only, where there is no text, it eases (smoothstep) across ~70%
+ * of each gutter to a peak of up to GUTTER_CAP 0.6, scaled down for narrow
+ * gutters; the edge's start wanders up to 50px *outward* with page height and
+ * time. Outward only, so the wobble can never raise the ceiling over the column. The cap is the ceiling for ambient *and* ripple peak
+ * together — quantisation rounds down — so 4% is the most any glyph pixel under
+ * text can ever be.
+ *
+ * Worst point under text: a dot of the fixed grid under the hero glow pair at
+ * its coincident worst, rgb(29, 56, 53) — the three-layer bound under
+ * `.page-glow` — with a 4% glyph on top or beneath the glows (both orders, since
+ * the hero glow paints above the canvas and the site glows below it): muted
+ * 4.59:1, accent 5.5:1, fg 9.6:1. Below the hero glow's reach only one site
+ * blob can sit under a point (`.site-glow`), which leaves more margin.
+ *
+ * Measured, not only derived (charter 17): an audit over every route at
+ * 1440, 768 and 390px, every disclosure open, composited each of 1,782 visible
+ * text nodes — SVG chart labels included — over that worst underlay at the cap
+ * its own column gets, through every translucent fill beneath it. 0 below AA.
+ * Tightest: muted body copy under the hero glows, 4.59:1. Tightest on a tinted
+ * fill: the pipeline diagram's accent stage labels, 5.29:1. At 5% the tightest
+ * drops to 4.51:1, which is why the cap is 4% and not 5%.
  *
  * `contain: strict` keeps the canvas's repaints from invalidating layout or
- * paint outside it; the absolute insets mean it takes no space, so it cannot
- * shift anything when it mounts or resizes.
+ * paint outside it; `position: fixed` with zero insets means it takes no
+ * space, so it cannot shift anything when it mounts or resizes.
  */
 .ascii-field {
-  --ascii-bleed: 6rem;
   /* Referenced so Tailwind always emits the token the canvas reads. */
   color: var(--color-glyph);
-  position: absolute;
-  top: calc(-1 * var(--ascii-bleed));
-  bottom: -3rem;
-  inset-inline: -1.5rem;
+  position: fixed;
+  inset: 0;
   z-index: -10;
   overflow: clip;
   pointer-events: none;
   contain: strict;
   opacity: 0;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 2rem,
-    black calc(100% - 2rem),
-    transparent
-  );
-}
-
-@media (min-width: 40rem) {
-  .ascii-field {
-    --ascii-bleed: 8rem;
-    inset-inline: -2rem;
-  }
 }
 
 .ascii-field[data-ready] {
   opacity: 1;
 }
 
-/* Forced colours would leave the glyphs in muted grey against whatever palette
-   the reader chose; print has no use for texture. Decoration, so it goes. */
-@media (forced-colors: active), print {
-  .ascii-field {
-    display: none;
-  }
-}
-
 .ascii-field__canvas {
   display: block;
   width: 100%;
   height: 100%;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    black 2rem,
-    black calc(var(--ascii-bleed) - 3rem),
-    rgb(0 0 0 / 0.2) var(--ascii-bleed),
-    rgb(0 0 0 / 0.2) calc(100% - 6rem),
-    transparent
-  );
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .ascii-field {
     transition: opacity 900ms ease-out;
+  }
+}
+
+/*
+ * Site glows (`SiteGlow.tsx`): the hero glow's form, repeated down every page.
+ * Each blob is one 10%-opacity radial tint in the existing palette — accent,
+ * ok, or an even mix of the two, whose luminance sits between them.
+ *
+ * Static: no drift. Twenty-four animated tints cost measurable main-thread
+ * time on a throttled phone (A9's kill-criterion step), and the field already
+ * supplies the motion.
+ *
+ * Contrast. Blobs start at 64rem and repeat every 36rem at no more than 26rem
+ * tall, so neighbours keep 10rem apart and never overlap. The hero glow's box ends at
+ * 30rem plus its 8vh parallax — 38rem at that height — so it never reaches the
+ * first blob either. Every point is therefore under at most the hero pair or
+ * one site blob, and one blob at 10% is dimmer than the pair's coincident
+ * worst case, rgb(23, 50, 47), which stays the bound for the whole site.
+ *
+ * `overflow: clip` on the container keeps blobs past the end of a short page
+ * from adding scroll height or width.
+ */
+.site-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.site-glow__blob {
+  position: absolute;
+  width: min(26rem, 72%);
+  aspect-ratio: 1;
+  opacity: 0.1;
+}
+
+.site-glow__blob--left {
+  left: 2%;
+}
+
+.site-glow__blob--right {
+  right: 4%;
+}
+
+.site-glow__blob--accent {
+  background: radial-gradient(closest-side, var(--color-accent), transparent);
+}
+
+.site-glow__blob--ok {
+  background: radial-gradient(closest-side, var(--color-ok), transparent);
+}
+
+.site-glow__blob--mix {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 50%, var(--color-ok)),
+    transparent
+  );
+}
+
+/* Forced colours would leave tints and glyphs against whatever palette the
+   reader chose; print has no use for texture. Decoration, so both go. */
+@media (forced-colors: active), print {
+  .ascii-field,
+  .site-glow {
+    display: none;
   }
 }
 

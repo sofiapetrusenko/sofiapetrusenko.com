@@ -2,40 +2,58 @@
 
 import { useEffect, useRef } from "react";
 import {
+  ALPHA_LEVELS,
   GLYPHS,
+  COLUMN_CAP,
   RIPPLE,
-  bucketAlpha,
+  alphaCap,
   bucketIndex,
   clamp01,
+  edgeOffset,
   fieldValue,
+  gutterProfile,
   rippleContribution,
+  type GutterProfile,
 } from "./asciiField.math";
 
 /**
- * Character field behind the home hero: a fixed grid of monospace glyphs whose
- * alpha follows a drifting blob, with ripples from the pointer. Glyphs never
- * move; only their brightness and, occasionally, which letter they are.
+ * Site-wide character field: one viewport-sized canvas behind every page, a
+ * fixed grid of monospace glyphs whose alpha follows a drifting field sampled
+ * in *page* coordinates — so the bright regions scroll with the content while
+ * the grid stays put — with ripples from the pointer, also page-anchored.
+ * Glyphs never move; only their brightness and, occasionally, which letter
+ * they are.
  *
- * Decorative only. The canvas is `aria-hidden` and `pointer-events: none`;
- * pointer input is read off the hero `<header>` (this component's parent), so
- * every link and button in the hero stays the hit target it always was.
+ * Decorative only. The canvas is `aria-hidden` and `pointer-events: none`, and
+ * pointer input is read off `window`, so every link and button on the site
+ * stays the hit target it always was.
  *
- * Perf guards: 30 fps cap, DPR capped at 2, 8 alpha buckets of which the top
- * six are painted, so `globalAlpha` changes at most six times a frame rather
- * than once per cell; the loop starts only after the browser goes idle, and it
- * stops whenever the hero is off-screen or the tab is hidden.
- * `prefers-reduced-motion: reduce` gets one static frame, no loop and no
- * pointer listeners — only what keeps that frame correct (resize, DPR, font
- * load, context restore).
+ * Brightness is capped per cell by `alphaCap`: `COLUMN_CAP` over the content
+ * column read live from `<main>` and everywhere below 640px; outside it, an
+ * ease-in-out rise across ~70% of each gutter, whose start wanders outward
+ * along y and over time (`edgeOffset`) so the edge is organic, to a peak
+ * scaled by how wide that gutter is. The contrast bound for that cap is in
+ * `globals.css` under `.ascii-field`.
  *
- * Contrast is held in CSS, not here: see `.ascii-field` in `globals.css`.
+ * Perf guards: 30 fps cap, DPR capped at 2, ten alpha levels so `globalAlpha`
+ * changes at most nine times a frame rather than once per cell, a coarser
+ * grid below 640px, nothing at all — not even the first frame — runs until
+ * the browser goes idle, the column rect is re-read twice a second rather than
+ * every frame, and the loop stops whenever the tab is hidden.
+ * `prefers-reduced-motion: reduce` gets one static frame, no loop and no pointer listeners — only what keeps that frame
+ * correct (resize, DPR, font load, context restore, and a once-a-second check
+ * that the content column has not moved after a client-side navigation).
+ *
+ * A client boundary because it needs a canvas context, `requestAnimationFrame`
+ * and observers; a leaf, so it takes no children and drags nothing across.
  */
 
-export const LEVELS = 8;
-/** Peak glyph alpha. The CSS mask scales it to 20% (4% absolute) under the hero text. */
-export const MAX_ALPHA = 0.2;
-/** Share of the brightness budget the ambient field may use; ripples add the rest. */
-const AMBIENT = 0.55;
+/** Share of each cell's ceiling the ambient field may use; ripples add the rest. */
+const AMBIENT = 0.6;
+/**
+ * Lowest bucket painted. Bucket 0 is "nothing"; from 1 up every level is drawn.
+ */
+export const FIRST_DRAWN = 1;
 const FRAME_MS = 1000 / 30;
 const MAX_RIPPLES = 12;
 const MOVE_THROTTLE_MS = 90;
@@ -43,20 +61,18 @@ const MUTATE_BASE = 0.002;
 const MUTATE_WAVE = 0.06;
 const STRONG = 1;
 const WEAK = 0.32;
-/**
- * Lowest bucket painted. Bucket 1 is 0.2/7 ≈ 2.9% canvas alpha: under 0.6%
- * once the scrim applies, so invisible under the text and only faint in the
- * bleed above it. It is the most populated bucket, so skipping it removes
- * most of each frame's fillText calls for a slightly thinner bleed.
- */
-export const FIRST_DRAWN = 2;
+const NARROW_PX = 640;
+const COLUMN_READ_MS = 500;
+const LEVELS = ALPHA_LEVELS.length;
 
-/** Origin in CSS px, so a resize that changes the cell size keeps it in place. */
+/** Origin in page CSS px, so it stays anchored to the content under a scroll. */
 type Ripple = { x: number; y: number; start: number; amp: number };
 const NO_RIPPLES: readonly Ripple[] = [];
 
 function cellSize(width: number) {
-  return width < 640 ? { w: 12, h: 20, font: 13 } : { w: 9, h: 16, font: 11.5 };
+  return width < NARROW_PX
+    ? { w: 16, h: 28, font: 15 }
+    : { w: 9, h: 16, font: 11.5 };
 }
 
 export function AsciiField() {
@@ -66,9 +82,8 @@ export function AsciiField() {
   useEffect(() => {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
-    const host = wrap?.parentElement;
     const ctx = canvas?.getContext("2d");
-    if (!wrap || !canvas || !host || !ctx) return;
+    if (!wrap || !canvas || !ctx) return;
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     let teardown = setup(motionQuery.matches);
@@ -94,6 +109,12 @@ export function AsciiField() {
       let glyphs = new Uint8Array(0);
       let bucket = new Uint8Array(0);
       let order = new Uint32Array(0);
+      /** Per cell column: 0 over the column, 1 left gutter, 2 right gutter. */
+      let side = new Uint8Array(0);
+      /** Per cell column: px from the column edge to the cell's nearest edge. */
+      let out = new Float32Array(0);
+      let leftGutter: GutterProfile = gutterProfile(0);
+      let rightGutter: GutterProfile = gutterProfile(0);
       const counts = new Uint32Array(LEVELS);
       const offsets = new Uint32Array(LEVELS);
 
@@ -102,11 +123,13 @@ export function AsciiField() {
       let t = 0;
       let last = 0;
       let raf = 0;
-      let visible = true;
       let started = false;
       let lastMove = 0;
       let cssW = 0;
       let cssH = 0;
+      let colLeft = 0;
+      let colRight = 0;
+      let lastColumnRead = 0;
 
       const color = () =>
         // No token, no glyphs: `currentColor` would inherit fg, which the
@@ -114,6 +137,7 @@ export function AsciiField() {
         getComputedStyle(c).getPropertyValue("--color-glyph").trim() ||
         "transparent";
       const font = getComputedStyle(c).fontFamily || "monospace";
+      const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
 
       /** Resizing the backing store resets context state, so it is set here. */
       function applyContextState() {
@@ -123,7 +147,45 @@ export function AsciiField() {
         g.textAlign = "center";
         g.textBaseline = "middle";
       }
-      const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+
+      /**
+       * Re-read the content column; recompute the per-column geometry only if
+       * it moved. Taken before any canvas work, while layout is clean. Below
+       * 640px, or with no `<main>` (a 404), every cell counts as column.
+       */
+      function readColumn(): boolean {
+        const r = document.querySelector("main")?.getBoundingClientRect();
+        const left = r ? r.left : 0;
+        const right = r ? r.right : 0;
+        if (left === colLeft && right === colRight && side.length === cols)
+          return false;
+        colLeft = left;
+        colRight = right;
+        if (side.length !== cols) {
+          side = new Uint8Array(cols);
+          out = new Float32Array(cols);
+        }
+        const whole = cssW < NARROW_PX || !(right > left);
+        leftGutter = gutterProfile(left);
+        rightGutter = gutterProfile(cssW - right);
+        for (let col = 0; col < cols; col++) {
+          // Measured from the cell's edge nearest the column, so any cell
+          // whose box touches the column counts as column.
+          const x0 = col * cell.w;
+          const x1 = x0 + cell.w;
+          if (whole || (x1 > left && x0 < right)) {
+            side[col] = 0;
+            out[col] = 0;
+          } else if (x1 <= left) {
+            side[col] = 1;
+            out[col] = left - x1;
+          } else {
+            side[col] = 2;
+            out[col] = x0 - right;
+          }
+        }
+        return true;
+      }
 
       function resize() {
         const w = wrap!.clientWidth;
@@ -151,25 +213,38 @@ export function AsciiField() {
           bucket = new Uint8Array(n);
           order = new Uint32Array(n);
         }
+        colLeft = colRight = Number.NaN; // force the ceilings to recompute
+        readColumn();
         draw(performance.now(), started && !reduced);
       }
 
       function draw(now: number, animate: boolean) {
-        const aspect = (cols * cell.w) / Math.max(rows * cell.h, 1);
         const cellAspect = cell.h / cell.w;
         const live = animate ? ripples : NO_RIPPLES;
+        const scrollY = window.scrollY;
         counts.fill(0);
 
         for (let r = 0; r < rows; r++) {
-          const v = (r + 0.5) / rows;
+          const pageY = (r + 0.5) * cell.h + scrollY;
+          // Page-anchored like the field, so the wobble scrolls with content.
+          const offL = edgeOffset(pageY, t, 0);
+          const offR = edgeOffset(pageY, t, 1);
           for (let col = 0; col < cols; col++) {
+            const sd = side[col]!;
+            const cap =
+              sd === 0
+                ? COLUMN_CAP
+                : sd === 1
+                  ? alphaCap(out[col]! - offL, leftGutter)
+                  : alphaCap(out[col]! - offR, rightGutter);
             const i = r * cols + col;
+            const pageX = (col + 0.5) * cell.w;
             let wave = 0;
             for (let k = 0; k < live.length; k++) {
               const rp = live[k]!;
               wave += rippleContribution(
-                col + 0.5 - rp.x / cell.w,
-                r + 0.5 - rp.y / cell.h,
+                (pageX - rp.x) / cell.w,
+                (pageY - rp.y) / cell.h,
                 (now - rp.start) / 1000,
                 cellAspect,
                 rp.amp,
@@ -181,10 +256,12 @@ export function AsciiField() {
                 glyphs[i] = (Math.random() * GLYPHS.length) | 0;
               }
             }
-            const value =
-              AMBIENT * fieldValue((col + 0.5) / cols, v, t, aspect) +
-              (1 - AMBIENT) * wave;
-            const b = bucketIndex(clamp01(value), LEVELS);
+            const value = clamp01(
+              AMBIENT * fieldValue(pageX, pageY, t, cssW) +
+                (1 - AMBIENT) * wave,
+            );
+            // value ≤ 1, so alpha ≤ the cell's ceiling, ripple peak included.
+            const b = bucketIndex(value * cap);
             bucket[i] = b;
             counts[b]!++;
           }
@@ -200,13 +277,13 @@ export function AsciiField() {
         for (let i = 0; i < n; i++) order[offsets[bucket[i]!]!++] = i;
 
         g.clearRect(0, 0, cssW, cssH);
-        // Buckets below FIRST_DRAWN are skipped; offsets[b] now points at the
-        // end of run b, so run b is [offsets[b-1], offsets[b]).
+        // offsets[b] now points at the end of run b, so run b is
+        // [offsets[b-1], offsets[b]).
         let start = offsets[FIRST_DRAWN - 1]!;
         for (let b = FIRST_DRAWN; b < LEVELS; b++) {
           const end = offsets[b]!;
           if (end > start) {
-            g.globalAlpha = bucketAlpha(b, LEVELS, MAX_ALPHA);
+            g.globalAlpha = ALPHA_LEVELS[b]!;
             for (let j = start; j < end; j++) {
               const i = order[j]!;
               const col = i % cols;
@@ -233,11 +310,17 @@ export function AsciiField() {
           if (now - ripples[k]!.start > RIPPLE.lifetime * 1000)
             ripples.splice(k, 1);
         }
+        // The column only moves on a resize or a navigation; a rect read
+        // twice a second follows both without forcing layout every frame.
+        if (now - lastColumnRead > COLUMN_READ_MS) {
+          lastColumnRead = now;
+          readColumn();
+        }
         draw(now, true);
       }
 
       function sync() {
-        const run = started && visible && !document.hidden;
+        const run = started && !document.hidden;
         if (run && !raf) {
           last = performance.now();
           raf = requestAnimationFrame(frame);
@@ -248,7 +331,6 @@ export function AsciiField() {
       }
 
       function addRipple(e: PointerEvent, amp: number) {
-        const rect = c.getBoundingClientRect();
         if (ripples.length >= MAX_RIPPLES) {
           // A steady drag fills the cap in ~1.1s; never let it cut a click's
           // ripple short. The oldest weak one makes way; if all twelve are
@@ -259,44 +341,36 @@ export function AsciiField() {
           else ripples.shift();
         }
         ripples.push({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
+          x: e.clientX,
+          y: e.clientY + window.scrollY,
           start: performance.now(),
           amp,
         });
       }
       const onDown = (e: PointerEvent) => addRipple(e, STRONG);
       const onMove = (e: PointerEvent) => {
+        // Touch moves are scrolls; on a phone only a tap ripples.
+        if (e.pointerType === "touch") return;
         if (e.timeStamp - lastMove < MOVE_THROTTLE_MS) return;
         lastMove = e.timeStamp;
         addRipple(e, WEAK);
       };
 
-      const ro =
-        typeof ResizeObserver === "undefined"
-          ? null
-          : new ResizeObserver(resize);
-      ro?.observe(wrap!);
-      resize();
-      wrap!.dataset.ready = "";
-
-      // The web font may land after the first frame, and `fonts.ready` can
-      // resolve before it has even been requested — so ask for it by name.
-      // Matters most under reduced motion, where nothing else repaints.
+      // Everything below — observers, the first frame, the loop — waits for
+      // the browser to go idle, so none of it lands in the hydration task:
+      // first paint and LCP are what they were before, and the canvas fades in
+      // (`[data-ready]`) only once it has something on it.
       let alive = true;
+      let ro: ResizeObserver | null = null;
+      let poll = 0;
+      let dprQuery: MediaQueryList | null = null;
       const repaint = () => {
         if (!alive) return;
         applyContextState();
         draw(performance.now(), started && !reduced);
       };
-      document.fonts?.load(`${cell.font}px ${font}`).then(repaint, () => {});
-      // A restored context comes back with default state (identity transform,
-      // black fill), which would silently draw the field into a corner.
-      c.addEventListener("contextrestored", repaint);
-
       // DPR can change with no size change (window dragged to another
       // screen), which ResizeObserver does not report.
-      let dprQuery: MediaQueryList | null = null;
       const onDprChange = () => {
         dprQuery?.removeEventListener("change", onDprChange);
         resize();
@@ -308,33 +382,37 @@ export function AsciiField() {
         );
         dprQuery?.addEventListener("change", onDprChange);
       };
-      watchDpr();
 
-      if (reduced) {
-        return () => {
-          alive = false;
-          ro?.disconnect();
-          dprQuery?.removeEventListener("change", onDprChange);
-          c.removeEventListener("contextrestored", repaint);
-        };
-      }
-
-      const io =
-        typeof IntersectionObserver === "undefined"
-          ? null
-          : new IntersectionObserver((entries) => {
-              // Latest entry wins if several queue up during a busy frame.
-              visible = entries[entries.length - 1]?.isIntersecting ?? true;
-              sync();
-            });
-      io?.observe(wrap!);
-      document.addEventListener("visibilitychange", sync);
-      host!.addEventListener("pointerdown", onDown);
-      host!.addEventListener("pointermove", onMove);
-
-      // Keep the animation out of the load path: start once the main thread
-      // is idle, so the hero's first paint and LCP are what they were before.
       const begin = () => {
+        ro =
+          typeof ResizeObserver === "undefined"
+            ? null
+            : new ResizeObserver(resize);
+        ro?.observe(wrap!);
+        resize();
+        wrap!.dataset.ready = "";
+
+        // The web font may land after the first frame, and `fonts.ready` can
+        // resolve before it has even been requested — so ask for it by name.
+        // Matters most under reduced motion, where nothing else repaints.
+        document.fonts?.load(`${cell.font}px ${font}`).then(repaint, () => {});
+        // A restored context comes back with default state (identity
+        // transform, black fill), which would silently draw into a corner.
+        c.addEventListener("contextrestored", repaint);
+        watchDpr();
+
+        if (reduced) {
+          // A client-side navigation can move or remove `<main>` with no
+          // resize; the static frame follows it, and is otherwise left alone.
+          poll = window.setInterval(() => {
+            if (readColumn()) repaint();
+          }, 1000);
+          return;
+        }
+
+        document.addEventListener("visibilitychange", sync);
+        window.addEventListener("pointerdown", onDown, { passive: true });
+        window.addEventListener("pointermove", onMove, { passive: true });
         started = true;
         sync();
       };
@@ -347,13 +425,13 @@ export function AsciiField() {
         alive = false;
         if (usedIdle) window.cancelIdleCallback(idle);
         else window.clearTimeout(idle);
+        window.clearInterval(poll);
         cancelAnimationFrame(raf);
         raf = 0;
         ro?.disconnect();
-        io?.disconnect();
         document.removeEventListener("visibilitychange", sync);
-        host!.removeEventListener("pointerdown", onDown);
-        host!.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerdown", onDown);
+        window.removeEventListener("pointermove", onMove);
         dprQuery?.removeEventListener("change", onDprChange);
         c.removeEventListener("contextrestored", repaint);
       };
