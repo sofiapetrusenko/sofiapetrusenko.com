@@ -1,0 +1,68 @@
+<!doctype html>
+<!--
+  Known-answer fixture for scripts/contrast-audit.mjs. Test-only: it lives
+  outside src/ and is never part of the build. Every case's text starts with
+  CASE- and says what the audit must do with it. Ratios are against the audit's
+  worst-case underlay (dot grid + both hero glows + a 4% glyph), not against
+  this page's own background, which the audit treats as part of the underlay.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>contrast-audit fixture</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 2rem;
+        background: #0d0d0f;
+        font: 16px/1.5 sans-serif;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .tint {
+        background-color: color-mix(in srgb, #ffffff 80%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <p style="color: rgb(158, 158, 158)">CASE-fail-4.39</p>
+    <p style="color: rgb(160, 160, 160)">CASE-fail-4.498</p>
+    <p style="color: rgb(161, 161, 161)">CASE-pass-4.55</p>
+    <p style="color: rgb(131, 131, 131); font-size: 24px">
+      CASE-pass-large-3.10
+    </p>
+    <p class="tint" style="color: rgb(0, 0, 0)">CASE-pass-color-mix-fill</p>
+    <span class="sr-only" style="color: rgb(20, 20, 20)"
+      >CASE-excluded-sr-only</span
+    >
+    <span
+      style="position: absolute; top: -20000px; left: 0; color: rgb(20, 20, 20)"
+      >CASE-excluded-off-page</span
+    >
+    <button
+      aria-expanded="false"
+      style="color: #e8e8ea; background: none; border: 0"
+    >
+      CASE-pass-disclosure-button
+    </button>
+    <div id="panel" hidden>
+      <p style="color: rgb(161, 161, 161)">CASE-pass-disclosure-panel</p>
+    </div>
+    <script>
+      const b = document.querySelector("button");
+      b.addEventListener("click", () => {
+        b.setAttribute("aria-expanded", "true");
+        document.getElementById("panel").hidden = false;
+      });
+    </script>
+  </body>
+</html>

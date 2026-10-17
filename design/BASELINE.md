@@ -147,10 +147,23 @@ disagree, this section binds.
   T1/T3/T5; mobile n=7, interleaved, for T2/T4/T6.
 - **T10 (new):** contrast audit across all routes at 1440, 768 and 390 px —
   **0 text nodes below WCAG AA**.
-- **Failed-request exemption (ratified by Sofia, 2026-10-17):** /favicon.ico
+- ~~**Failed-request exemption (ratified by Sofia, 2026-10-17):** /favicon.ico
   404 is exempt from the failed-request rule while the site has no favicon
   (absent on both main and branch). The exemption is removed when a favicon
-  ships.
+  ships.~~ — 2026-10-17: removed — favicon shipped (#18). No URL is exempt from
+  the failed-request rule. In #17 this exemption was applied by an uncommitted,
+  ad-hoc filter; it was never in committed code. From #18 the check lives in
+  committed code: `scripts/lh-summary.mjs` counts failed requests (status
+  ≥ 400, or no status) per report, lists every run that has one as rejected,
+  and exits non-zero (ruling by Sofia, 2026-10-17).
+- **Failed-request rule for #18 (ruling by Sofia, 2026-10-17, recorded before
+  any #18 run):** "Failed-request rule for #18: branch runs — zero failed
+  requests, no exemptions. Main runs — a /favicon.ico 404 is tolerated only
+  because it is the defect this PR fixes; any other failed request rejects the
+  run on either side. From the next PR on, the rule is zero failed requests on
+  both sides with no exemptions." The tolerance is passed on the command line
+  for the main side only (`node scripts/lh-summary.mjs --tolerate-404
+  /favicon.ico design/reports/favicon/main/…`); the script holds no URL list.
 
 **Computed T2 (from the main runs, written before any branch median is
 computed): T2 = 95.** Main `e206870` (`origin/main`), mobile ×7, Performance
@@ -168,3 +181,51 @@ fetchTime `2026-10-16T22:50:50.035Z`. Written before any branch report of this
 run was read. **This value binds for the staged code**; the first run's 95 and
 its reports (`design/reports/field-v2/pre-review/`) are kept for the record and
 measured code that is no longer staged.
+
+## #18 (favicon) — computed T2
+
+**Computed T2 (from the main runs, written before any branch median is
+computed): T2 = 97.** Main `39fb47c` (`origin/main`, separate worktree, :3200),
+mobile ×7, Performance 97, 98, 98, 98, 98, 98, 97 — lowest 97. Each main run:
+0 failed requests, 1 tolerated (`/favicon.ico` 404, per the #18 ruling above).
+Reports: `design/reports/favicon/main/lh-mobile-{1..7}.json.gz`; last main
+mobile run fetchTime `2026-10-17T11:17:37.415Z`. Branch passes T2 if its median
+of 7 mobile runs is ≥ 97.
+
+## T10 method — 2026-10-17 (#18)
+
+**Ruling (Sofia, 2026-10-17).** T10 is measured by the committed audit
+`scripts/contrast-audit.mjs` (`node scripts/contrast-audit.mjs <base-url>`),
+which exits non-zero if any node is below AA.
+
+- **What is counted:** visible, unclipped, on-page text nodes — SVG text
+  included, `aria-hidden` text included — on all 7 routes (`/`, `/colophon`,
+  `/notes/untrusted-llm-output`, the four `/work/[slug]` pages) at 1440, 768
+  and 390 px, with all disclosures and panels opened. Text clipped away by an
+  ancestor (`overflow`, `clip`, `clip-path`, i.e. `sr-only`) or placed outside
+  the document is not visible and is not counted.
+- **What each node is checked against:** the worst-case underlay recorded under
+  `.ascii-field` in `globals.css` (dot grid + both hero glows coincident,
+  rgb(29, 56, 53)) with the field glyph at the alpha cap of the node's own
+  column, in every stacking order; every translucent fill above it (including
+  `color-mix()` fills) is composited in. AA = 4.5:1, 3:1 for large text.
+- **Reference count:** main @ `39fb47c` = **1,966 text nodes**, 0 below AA,
+  tightest 4.57:1 (`/work/blotquant`, accent text on its 10% accent fill in the
+  open provenance panel).
+- **#17's figure:** #17's "0 of 1,782" was produced by an uncommitted, ad-hoc
+  method that cannot be reproduced. Its conclusion — 0 below AA — is confirmed
+  by this stricter committed audit on the same code.
+- **Known-answer validation:** `node --test scripts/contrast-audit.selftest.mjs`
+  runs the audit on the test-only fixture `scripts/fixtures/contrast-audit.html`
+  (never built or shipped). Seeded: 4.39:1 and 4.498:1 must fail; 4.55:1, large
+  text at 3.10:1, black on an 80% white `color-mix()` fill, and a disclosure's
+  button and panel must pass; an `sr-only` node and an off-page node must be
+  excluded. The audit must report exactly the seeded failures.
+
+## Report storage — 2026-10-17 (#18)
+
+**Ruling (Sofia, 2026-10-17):** from #18 on, Lighthouse reports are stored
+gzip-compressed as `.json.gz` in `design/reports/<name>/`. Reports already in
+`design/reports/` stay as they are. `scripts/lh-summary.mjs` reads both forms.
+This changes storage only; the measurement protocol and thresholds above are
+unchanged.
