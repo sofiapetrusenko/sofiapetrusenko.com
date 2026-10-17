@@ -6,8 +6,8 @@ export function Hero() {
   return (
     <header className="relative">
       {/*
-        Drifts, and only here. The scroll cue's chevron is the only other thing
-        on this page that moves without being asked to.
+        Drifts, as do the site glows further down; the character field behind
+        it is site-wide and mounted once in the root layout (charter A9).
       */}
       <PageGlow drift />
 

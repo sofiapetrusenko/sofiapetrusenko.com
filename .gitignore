@@ -44,3 +44,9 @@ next-env.d.ts
 AGENTS.md
 CLAUDE.md
 .claude/
+
+# lighthouse reports
+.lighthouse/
+
+# server and tool logs
+*.log

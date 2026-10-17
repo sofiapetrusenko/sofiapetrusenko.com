@@ -10,7 +10,9 @@ finding must cite a rule number.
 
 ---
 
-## 0. One signature effect per viewport; everything else supports it
+## 0. ~~One signature effect per viewport; everything else supports it~~ — revoked by Sofia, 2026-10-16 (A9)
+
+*Kept as written below for the record; it no longer binds. See A9.*
 
 At any scroll position there is exactly one thing asking to be looked at. Every
 other moving or lit element is either static or subordinate to it. If a new
@@ -50,9 +52,13 @@ must be updated in the same diff.
 | The scroll-cue chevron | home page, 6px nudge | `.scroll-cue__chevron` |
 | The timeline ring | current role only **unless undisclosed**, opacity only | `.timeline-pulse` |
 | The redaction bar | the undisclosed role only, opacity only, 2s | `.redaction__segment` |
+| The character field (A9) | every page, one fixed canvas; glyph alpha and letter swaps only, nothing moves | `field/AsciiField.tsx`, `.ascii-field` |
 
-> "Drifts, and only here. The scroll cue's chevron is the only other thing on
-> this page that moves without being asked to." — `Hero.tsx`
+> ~~"Drifts, and only here. The scroll cue's chevron is the only other thing on
+> this page that moves without being asked to." — `Hero.tsx`~~ Superseded by
+> A9; the comment now reads: "Drifts, as do the site glows further down; the
+> character field behind it is site-wide and mounted once in the root layout
+> (charter A9)."
 
 > "Off everywhere but the home page hero: movement suits a landing page and
 > competes with a chart someone is reading numbers off." — `PageGlow.tsx`
@@ -740,3 +746,61 @@ sign-off.)*
 ---
 
 **A8 — withdrawn.** The rule-0 breach it recorded was resolved in code, not accepted.
+
+---
+
+## A9 — Rule 0 revoked; the character field and gradient glows go site-wide
+
+> Rule 0 revoked by Sofia, 2026-10-16. Hero character field + gradient glows
+> extend site-wide.
+
+**Ratified by Sofia, 2026-10-16.**
+
+**What changes with it, in the same diff:**
+
+- **Rule 0** is struck through above, not deleted — rules are amended in the
+  open.
+- **Rule 2a** gains one row: the character field (one fixed canvas behind every
+  page, `field/AsciiField.tsx`). The site glows (`SiteGlow.tsx`) are static —
+  their drift was cut at the kill-criterion step, so they need no row. The hero
+  glow's own row is unchanged. The field's ripples are pointer-prompted and fall
+  under A3. Reduced motion gets one static field frame and still glows (rule 3:
+  neither carries content).
+- **Rule 12**: the count is ten, three of them chrome — `ScrollCue`,
+  `CardSpotlight`, `field/AsciiField`. Rule 12's text above still says nine and
+  is left as written; this amendment is where the count of ten is recorded
+  (restored 2026-10-17, by Sofia's ruling, after it had been edited in place).
+  The field needs a canvas context and `requestAnimationFrame`, and is a leaf,
+  so it drags nothing across the boundary. `SiteGlow` is a server component. The boundary test walks
+  `src/components` recursively. The comments in `ScrollCue.tsx`,
+  `CardSpotlight.tsx` and `Reveal.tsx` carry the new count.
+- **Rule 7 / 17**: the bound is stated under `.ascii-field` and `.site-glow` in
+  `globals.css`, with the search that found it — an audit of 1,782 text nodes
+  across every route at 1440, 768 and 390px. With a 4% glyph ceiling wherever
+  text can sit, none falls below AA. The tightest is muted at 4.59:1, and 5%
+  would leave 4.51:1.
+
+## A10 — The field's boundary moves to `LazyAsciiField`; its touch ripple is ungated (field v2)
+
+> Field v2 instruction, Sofia, 2026-10-16: take the field out of First Load JS
+> with `next/dynamic` and `ssr: false`, start it after the load event on idle,
+> and keep it visually identical to the approved references "including mobile
+> tap ripples".
+
+**Ratified by Sofia, 2026-10-17.** Recorded from that instruction; not a new
+taste call.
+
+- **Rule 12 / A9:** the counted boundary is now `field/LazyAsciiField` — a
+  `"use client"` wrapper that exists because `ssr: false` is only allowed in a
+  Client Component. `field/AsciiField` (the shim) keeps the canvas, worker and
+  observers but no longer carries the directive; the wrapper is its only
+  importer. The count stays **ten** (A9). Where A9 names `field/AsciiField` as
+  the boundary, read `field/LazyAsciiField`; A9 and rule 12 are left as written
+  for the record. A chunk that fails to load renders nothing
+  (rules 11, 14), and stays absent for the session.
+- **Rule 4 / A3:** the field's ripple is deliberately **not** gated on
+  `(hover: hover) and (pointer: fine)`. The desktop-only gate is removed and a
+  touch ripples once where it lands, a scroll's first contact included. Rule 4's
+  point still holds: nothing is hover-dependent, the ripple stays under the 4%
+  column cap, and no resting state is lost when it fades. Every other
+  pointer-only effect keeps rule 4's gate.

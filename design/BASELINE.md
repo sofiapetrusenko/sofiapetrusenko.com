@@ -125,3 +125,46 @@ Notes on the JS thresholds:
 Kill criterion (registered now, restated here so it sits with the numbers): any
 effect that cannot meet its threshold after the review-loop cap is REMOVED from
 the branch, not shipped degraded.
+
+## Threshold revision — 2026-10-16 (field v2)
+
+2026-10-16 — Thresholds revised by Sofia. Reason: site concept changed (CHARTER
+rule 0 revoked the same day; site-wide animated field + glows are now
+intended). The previous T2 (≥98) equalled the baseline with zero slack on a
+noisy metric. Field worker port 84a8c57 failed previous T2/T7/T8; reports kept
+in design/reports/field-v1/.
+
+New T2 rule, fixed before measurement: run main ×7 (mobile); T2 threshold = the
+LOWEST of those 7 Performance scores. Branch passes if its median of 7 mobile
+runs ≥ that value. Main runs are taken before any branch run is evaluated, and
+main and branch runs are interleaved.
+
+The table above stays as written for the record. Where it and this section
+disagree, this section binds.
+
+- **T1, T3–T9:** unchanged.
+- **T2:** replaced by the rule above. Desktop is measured n=5, interleaved, for
+  T1/T3/T5; mobile n=7, interleaved, for T2/T4/T6.
+- **T10 (new):** contrast audit across all routes at 1440, 768 and 390 px —
+  **0 text nodes below WCAG AA**.
+- **Failed-request exemption (ratified by Sofia, 2026-10-17):** /favicon.ico
+  404 is exempt from the failed-request rule while the site has no favicon
+  (absent on both main and branch). The exemption is removed when a favicon
+  ships.
+
+**Computed T2 (from the main runs, written before any branch median is
+computed): T2 = 95.** Main `e206870` (`origin/main`), mobile ×7, Performance
+95, 95, 96, 96, 95, 96, 95 — lowest 95. Reports:
+`design/reports/field-v2/pre-review/main/lh-mobile-{1..7}.json`; last main mobile run
+fetchTime `2026-10-16T22:14:37.448Z`. Branch passes T2 if its median of 7 mobile
+runs is ≥ 95.
+
+**Re-measurement on the final code (after the review loop), same rule, same
+procedure: T2 = 96.** The review loop changed shipped code, so Step 2 was
+re-run in full, main and branch interleaved again. Main `e206870`, mobile ×7,
+Performance 96, 96, 96, 96, 96, 96, 96 — lowest 96. Reports:
+`design/reports/field-v2/main/lh-mobile-{1..7}.json`; last main mobile run
+fetchTime `2026-10-16T22:50:50.035Z`. Written before any branch report of this
+run was read. **This value binds for the staged code**; the first run's 95 and
+its reports (`design/reports/field-v2/pre-review/`) are kept for the record and
+measured code that is no longer staged.
