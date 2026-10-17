@@ -18,11 +18,14 @@
 
   /* Status colours, used only by the pipeline diagram. Each is paired with a
      glyph or caption so state is never carried by colour alone.
-     Against --color-bg: ok 11.1:1, danger 7.0:1, gate 11.6:1. Every text
-     colour also clears 4.5:1 over its own tinted fill — worst case is danger
-     text on the 15% danger fill at 5.8:1. */
+     Against --color-bg: ok 11.1:1, danger 10.2:1, gate 11.6:1. Every text
+     colour also clears 4.5:1 over its own tinted fill — danger text on the
+     15% danger fill is 7.9:1.
+     Danger is #fca5a5, not #f87171 (CHARTER A11): against the worst underlay
+     T10 measures (`.ascii-field`) #f87171 was 4.25:1 as text and 3.54:1 on its
+     15% fill; #fca5a5 is 6.20:1 and 4.66:1. */
   --color-ok: #4ade80;
-  --color-danger: #f87171;
+  --color-danger: #fca5a5;
   /* Warm amber: the "a human has to look at this" hue. The pipeline diagram's
      human gate, the one node that is a checkpoint rather than a stage, and the
      blotquant inspector's QC-flagged bands and excluded ratios, which are

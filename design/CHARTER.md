@@ -804,3 +804,31 @@ taste call.
   point still holds: nothing is hover-dependent, the ripple stays under the 4%
   column cap, and no resting state is lost when it fades. Every other
   pointer-only effect keeps rule 4's gate.
+
+## A11 — Rule 7: `--color-danger` is `#fca5a5`; its row gains the T10 worst-underlay bound
+
+> Ruling, Sofia, 2026-10-17: fix the colour, not the method — the worst-case
+> underlay T10 measures against stays as registered.
+
+**Ratified by Sofia, 2026-10-17.**
+
+Rule 7's table above is left as written for the record. Where its
+`--color-danger` row and this amendment disagree, this amendment binds:
+
+| Token | Ratio | Use |
+| --- | --- | --- |
+| `--color-danger` `#fca5a5` | 10.2:1 (7.9:1 as text on its own 15% fill); against the T10 worst underlay 6.20:1, and 4.66:1 on its own 15% fill there | pipeline status |
+
+**Why.** Against the worst underlay T10 measures (`.ascii-field` in
+`globals.css`: dot grid under both hero glows coincident, with the field glyph
+at its 4% column cap), the old `#f87171` was **4.25:1** as text — the
+quote-checker tab on `/work/lifespan-extract` and the failure simulation on
+`/work/media-automation-platform` — and **3.54:1** as the failed stage's label
+on its own 15% fill. Both shipped in #17 below AA. The 15%-fill-over-underlay
+pair is the binding one; `#faa0a0`, the least lightening that clears it, does
+so by 0.014, so the next step on the same Tailwind red scale is used instead.
+
+**Scope.** One token value (`globals.css`); every danger use — text, stroke,
+the 15% stage fill and the 22% switch track — follows it. No other token moves.
+The value that would break it: anything darker than `#faa0a0` on this hue.
+

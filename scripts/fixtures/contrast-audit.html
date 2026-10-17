@@ -1,0 +1,195 @@
+<!doctype html>
+<!--
+  Known-answer fixture for scripts/contrast-audit.mjs. Test-only: it lives
+  outside src/ and is never part of the build. Every case's text starts with
+  CASE- and says what the audit must do with it. Ratios are against the audit's
+  worst-case underlay (dot grid + both hero glows + the field glyph at its
+  column's cap), not against this page's own background, which the audit
+  treats as part of the underlay. Expected values are in
+  contrast-audit.selftest.mjs.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>contrast-audit fixture</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0d0d0f;
+        font: 16px/1.5 sans-serif;
+      }
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .tint {
+        background-color: color-mix(in srgb, #ffffff 80%, transparent);
+      }
+      button {
+        color: #e8e8ea;
+        background: none;
+        border: 0;
+        font: inherit;
+      }
+      .gutter {
+        position: absolute;
+        top: 0;
+        left: 10px;
+        margin: 0;
+        color: rgb(255, 255, 255);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Outside <main>: in the field's gutter, where the glyph cap rises. -->
+    <p class="gutter">CASE-gutter</p>
+    <main>
+      <p style="color: rgb(158, 158, 158)">CASE-fail-4.39</p>
+      <p style="color: rgb(160, 160, 160)">CASE-fail-4.498</p>
+      <p style="color: rgb(161, 161, 161)">CASE-pass-4.55</p>
+      <p style="color: rgb(131, 131, 131); font-size: 24px">
+        CASE-pass-large-3.10
+      </p>
+      <p class="tint" style="color: rgb(0, 0, 0)">CASE-pass-color-mix-fill</p>
+      <div style="opacity: 0.5">
+        <p style="color: #e8e8ea">CASE-fail-opacity</p>
+      </div>
+      <!-- `color` is dark; only reading `fill` gets this right. -->
+      <svg width="300" height="30" style="color: rgb(20, 20, 20)">
+        <text x="0" y="20" fill="#e8e8ea">CASE-pass-svg-fill</text>
+      </svg>
+      <!-- Fills painted beside the text, not by an ancestor: a sibling SVG
+           <rect> under an SVG <text>, and an absolutely positioned <div>
+           under a <p>. Both are white at 60%; fg on that fails. -->
+      <svg width="300" height="30">
+        <rect
+          x="0"
+          y="0"
+          width="300"
+          height="30"
+          fill="#ffffff"
+          fill-opacity="0.6"
+        />
+        <text x="4" y="20" fill="#e8e8ea">CASE-fail-svg-sibling-rect</text>
+      </svg>
+      <div style="position: relative">
+        <div
+          style="
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.6);
+          "
+        ></div>
+        <p style="position: relative; color: #e8e8ea">
+          CASE-fail-html-sibling-fill
+        </p>
+      </div>
+      <span class="sr-only" style="color: rgb(20, 20, 20)"
+        >CASE-excluded-sr-only</span
+      >
+      <span
+        style="
+          position: absolute;
+          top: -20000px;
+          left: 0;
+          color: rgb(20, 20, 20);
+        "
+        >CASE-excluded-off-page</span
+      >
+
+      <button id="disclosure" aria-expanded="false">
+        CASE-pass-disclosure-button
+      </button>
+      <div id="disclosure-panel" hidden>
+        <p style="color: rgb(161, 161, 161)">CASE-pass-disclosure-panel</p>
+      </div>
+
+      <!-- aria-pressed tab group: the second panel exists only when chosen. -->
+      <div role="group" aria-label="pressed tabs">
+        <button aria-pressed="true" data-panel="a">
+          CASE-pass-pressed-tab-a
+        </button>
+        <button aria-pressed="false" data-panel="b">
+          CASE-pass-pressed-tab-b
+        </button>
+      </div>
+      <div id="pressed-panel"></div>
+
+      <!-- role="tab" tablist. -->
+      <div role="tablist" aria-label="role tabs">
+        <button role="tab" aria-selected="true" data-panel="a">
+          CASE-pass-role-tab-a
+        </button>
+        <button role="tab" aria-selected="false" data-panel="b">
+          CASE-pass-role-tab-b
+        </button>
+      </div>
+      <div id="role-panel" role="tabpanel"></div>
+
+      <!-- Switch: the failing text exists only when it is on. -->
+      <button role="switch" aria-checked="false">CASE-pass-switch</button>
+      <div id="switch-panel"></div>
+    </main>
+    <script>
+      const P = (text, color) => `<p style="color: ${color}">${text}</p>`;
+      const pass = "rgb(161, 161, 161)";
+      const fail = "rgb(158, 158, 158)";
+
+      document.getElementById("disclosure").addEventListener("click", (e) => {
+        e.currentTarget.setAttribute("aria-expanded", "true");
+        document.getElementById("disclosure-panel").hidden = false;
+      });
+
+      const pressedPanels = {
+        a: P("CASE-pass-pressed-panel-a", pass),
+        b: P("CASE-fail-pressed-panel-b", fail),
+      };
+      const pressed = document.querySelectorAll("[aria-pressed]");
+      const showPressed = (key) => {
+        for (const b of pressed)
+          b.setAttribute("aria-pressed", String(b.dataset.panel === key));
+        document.getElementById("pressed-panel").innerHTML = pressedPanels[key];
+      };
+      for (const b of pressed)
+        b.addEventListener("click", () => showPressed(b.dataset.panel));
+      showPressed("a");
+
+      const rolePanels = {
+        a: P("CASE-pass-role-panel-a", pass),
+        b: P("CASE-fail-role-panel-b", fail),
+      };
+      const tabs = document.querySelectorAll('[role="tab"]');
+      const showRole = (key) => {
+        for (const t of tabs)
+          t.setAttribute("aria-selected", String(t.dataset.panel === key));
+        document.getElementById("role-panel").innerHTML = rolePanels[key];
+      };
+      for (const t of tabs)
+        t.addEventListener("click", () => showRole(t.dataset.panel));
+      showRole("a");
+
+      const sw = document.querySelector('[role="switch"]');
+      sw.addEventListener("click", () => {
+        const on = sw.getAttribute("aria-checked") !== "true";
+        sw.setAttribute("aria-checked", String(on));
+        document.getElementById("switch-panel").innerHTML = on
+          ? P("CASE-fail-switch-on", fail)
+          : "";
+      });
+    </script>
+  </body>
+</html>

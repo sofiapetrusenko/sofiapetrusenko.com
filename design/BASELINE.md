@@ -168,3 +168,88 @@ fetchTime `2026-10-16T22:50:50.035Z`. Written before any branch report of this
 run was read. **This value binds for the staged code**; the first run's 95 and
 its reports (`design/reports/field-v2/pre-review/`) are kept for the record and
 measured code that is no longer staged.
+
+## Failed-request check — committed (2026-10-17)
+
+**Ruling (Sofia, 2026-10-17).** The failed-request rule is enforced by
+committed code: `scripts/lh-summary.mjs` counts failed requests (status ≥ 400,
+or no status) per report, lists every run that has one as rejected, prints
+`n/a` for any median taken over a rejected run, and exits non-zero. Until now
+the rule was applied by uncommitted, ad-hoc filters; in #17 the favicon
+exemption above was applied that way and was never in committed code.
+
+**No URL is exempt** unless a ruling recorded in this file names it, for a
+stated side of a stated PR. Such a ruling is applied only on the command line
+(`--tolerate-404 <path>`, repeatable); the script holds no URL list, and a
+tolerated request is still counted in its own column. The favicon exemption
+above is the only such ruling today, and lapses when a favicon ships (#18).
+
+## `fix/danger-contrast` — failed-request rule
+
+**Ruling (Sofia, 2026-10-17, recorded before any run of this PR):** neither
+main nor this branch ships a favicon, so a `/favicon.ico` 404 is tolerated on
+**both** sides, via `--tolerate-404 /favicon.ico`, under the existing favicon
+exemption (which lapses when #18 ships). Any other failed request rejects the
+run on either side.
+
+## Report storage — 2026-10-17
+
+**Ruling (Sofia, 2026-10-17):** from `fix/danger-contrast` on, Lighthouse
+reports are stored gzip-compressed as `.json.gz` in `design/reports/<name>/`.
+Reports already in `design/reports/` stay as they are. `scripts/lh-summary.mjs`
+reads both forms. This changes storage only; the measurement protocol and
+thresholds above are unchanged.
+
+## T10 method — 2026-10-17
+
+**Ruling (Sofia, 2026-10-17).** T10 is measured by the committed audit
+`scripts/contrast-audit.mjs` (`node scripts/contrast-audit.mjs <base-url>`),
+which exits non-zero if any node is below AA.
+
+- **What is counted:** visible, unclipped, on-page text nodes — SVG text
+  included, `aria-hidden` text included — on all 7 routes (`/`, `/colophon`,
+  `/notes/untrusted-llm-output`, the four `/work/[slug]` pages) and the 404
+  page, at 1440, 768 and 390 px. Text clipped away by an ancestor (`overflow`,
+  `clip`, `clip-path`, i.e. `sr-only`) or placed outside the document is not
+  visible and is not counted.
+- **States:** every disclosure (`aria-expanded`) is open in every state. On top
+  of that, every tab not already active (`role="tab"`, or `button[aria-pressed]`)
+  and every `role="switch"` is activated, one at a time, each on a fresh load.
+  A node seen in several states is counted once, at its worst state.
+- **What each node is checked against:** the worst-case underlay recorded under
+  `.ascii-field` in `globals.css` (dot grid + both hero glows coincident,
+  rgb(29, 56, 53)) with the field glyph at the alpha cap of the node's own
+  column, in every stacking order; every translucent ancestor fill (including
+  `color-mix()` fills) and ancestor opacity is composited in. AA = 4.5:1, 3:1
+  for large text.
+- **What is beneath a node is hit-tested, not inferred:** at up to three
+  points across each line box, `document.elementsFromPoint` gives the paint
+  stack, and every element painted below the text — ancestors and
+  non-ancestors alike, sibling SVG `<rect>`s included — is composited, with its
+  `fill-opacity` and every ancestor's `opacity`. Line boxes are re-measured at
+  the scroll offset where they are sampled, because the scroll-driven reveal
+  moves content. A node none of whose points can be hit-tested falls back to
+  its ancestors' fills and is counted as a fallback in the report.
+- **Reference on main @ `39fb47c`:** 2,930 text nodes across 47 page states at
+  each width, **58 below AA**, in two groups:
+  - **24 `--color-danger` nodes:** 21 as text at 4.252:1 (the
+    `/work/lifespan-extract` quote-checker tab and the
+    `/work/media-automation-platform` failure simulation) and 3 as the failed
+    stage's SVG label on its own 15% fill at 3.537:1.
+  - **34 selected-stage labels:** `--color-accent` text on the selected
+    stage's 12% accent fill, at 4.402:1, on both pipeline diagrams.
+- **#17's T10 claim was overstated.** Its "0 of 1,782" came from an
+  uncommitted, ad-hoc method that did not open tab panels or switches; with
+  them open, and with what is painted beneath each node hit-tested, the code
+  it shipped has the 58 failures above.
+- **Known-answer validation:** `node --test scripts/contrast-audit.selftest.mjs`
+  runs the audit on the test-only fixture `scripts/fixtures/contrast-audit.html`
+  (never built or shipped), which seeds cases that must fail (4.39:1, 4.498:1,
+  ancestor opacity, a hidden `aria-pressed` tab panel, a hidden `role="tab"`
+  panel, a switch's on state, a gutter node at 1440 px, and fg over a 60%
+  white fill painted by a sibling SVG `<rect>` and by a non-ancestor `<div>`),
+  cases that must
+  pass (4.55:1, large text at 3.10:1, a `color-mix()` fill, SVG `fill`, the
+  disclosure, tabs and switch themselves) and cases that must be excluded
+  (`sr-only`, off-page). The audit must report exactly the seeded failures.
+
