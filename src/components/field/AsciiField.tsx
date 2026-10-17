@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import { buildAtlas, cellSize } from "./cells";
 import type { FromWorker, Size, ToWorker } from "./protocol";
@@ -15,32 +13,33 @@ import type { FromWorker, Size, ToWorker } from "./protocol";
  *  - forwards what the worker cannot know: viewport size and DPR (capped at 2),
  *    the `<main>` column rect on resize or layout change, `scrollY`
  *    (coalesced to one message a frame), pointer input (moves throttled to
- *    90ms; touch moves are scrolls and ignored, so a phone ripples on tap), and
+ *    90ms; touch moves are scrolls and ignored, so a phone ripples once per
+ *    touch — a tap, or the start of a scroll), and
  *    page visibility.
  *
- * Animated only on a large screen with a fine pointer — `ANIMATE_QUERY`, the
- * kill-criterion step after the worker alone still cost a throttled phone too
- * much main-thread time while it animated through page load.
- *
- * Everywhere else, and as the fallback — reduced motion, a touch or small
- * screen, no OffscreenCanvas, or a worker that errors or does not report
- * ready: one static frame drawn on the main thread by the same
+ * Animated on every screen, phones included (every touch ripples once where
+ * it lands, a scroll's first contact included). The fallback —
+ * reduced motion, no OffscreenCanvas, or a worker that errors or does not
+ * report ready — is one static frame drawn on the main thread by the same
  * `FieldRenderer`, loaded with a dynamic import so it is never in the main
  * bundle, and redrawn only when size, column or font change. There is no
  * main-thread animation loop in any case.
  *
- * Nothing runs until the browser is idle, so none of it lands in hydration.
+ * Nothing runs until the load event has fired and the browser is then idle
+ * (`requestIdleCallback`, 2s timeout), so none of it lands in hydration or
+ * competes with page load. The shim is itself a lazy chunk, mounted by
+ * `LazyAsciiField` with `ssr: false`, so none of it is in First Load JS.
  * Decorative only: `aria-hidden`, `pointer-events: none`, and pointer input is
  * read off `window`, so every link and button stays the hit target it was.
  * The contrast bound for the column cap is in `globals.css` (`.ascii-field`).
  *
- * A client boundary because it needs a canvas, a worker and observers; a
- * leaf, so it takes no children and drags nothing across.
+ * Client code, but not a boundary of its own: `LazyAsciiField` is the
+ * boundary, and is the only importer. A leaf, so it takes no children.
  */
 
 const MOVE_THROTTLE_MS = 90;
-/** Where the field animates; everywhere else it is one static frame. */
-const ANIMATE_QUERY = "(min-width: 1024px) and (pointer: fine)";
+/** The idle callback's deadline once the page has loaded. */
+const IDLE_TIMEOUT_MS = 2000;
 /** A worker that has not drawn its first frame by now is treated as failed. */
 const READY_TIMEOUT_MS = 4000;
 
@@ -52,37 +51,41 @@ export function AsciiField() {
     if (!wrap) return;
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const animateQuery = window.matchMedia(ANIMATE_QUERY);
-    const animate = () =>
-      !motionQuery.matches && animateQuery.matches && canAnimateOffThread();
+    const animate = () => !motionQuery.matches && canAnimateOffThread();
     let teardown = whenIdle(animate());
-    // Re-decide when either changes: reduced motion toggled, or a window
-    // dragged across 1024px.
+    // Re-decide when reduced motion is toggled.
     const onChange = () => {
       teardown();
       teardown = whenIdle(animate());
     };
     motionQuery.addEventListener("change", onChange);
-    animateQuery.addEventListener("change", onChange);
     return () => {
       motionQuery.removeEventListener("change", onChange);
-      animateQuery.removeEventListener("change", onChange);
       teardown();
     };
 
-    /** Start once the main thread is idle, so nothing lands in hydration. */
+    /** Start once the page has loaded and the main thread is then idle. */
     function whenIdle(animated: boolean): () => void {
       let stop: (() => void) | null = null;
+      let idle: number | null = null;
+      const usedIdle = typeof window.requestIdleCallback === "function";
       const begin = () => {
+        idle = null;
         stop = animated ? startWorker() : startStatic();
       };
-      const usedIdle = typeof window.requestIdleCallback === "function";
-      const idle = usedIdle
-        ? window.requestIdleCallback(begin, { timeout: 2000 })
-        : window.setTimeout(begin, 600);
+      const afterLoad = () => {
+        idle = usedIdle
+          ? window.requestIdleCallback(begin, { timeout: IDLE_TIMEOUT_MS })
+          : window.setTimeout(begin, 600);
+      };
+      if (document.readyState === "complete") afterLoad();
+      else window.addEventListener("load", afterLoad, { once: true });
       return () => {
-        if (usedIdle) window.cancelIdleCallback(idle);
-        else window.clearTimeout(idle);
+        window.removeEventListener("load", afterLoad);
+        if (idle !== null) {
+          if (usedIdle) window.cancelIdleCallback(idle);
+          else window.clearTimeout(idle);
+        }
         stop?.();
         delete wrap!.dataset.ready;
       };
@@ -269,7 +272,7 @@ export function AsciiField() {
           strong: true,
         });
       const onMove = (e: PointerEvent) => {
-        // Touch moves are scrolls; on a phone only a tap ripples.
+        // Touch moves are scrolls; on a phone only the touch itself ripples.
         if (e.pointerType === "touch") return;
         if (e.timeStamp - lastMove < MOVE_THROTTLE_MS) return;
         lastMove = e.timeStamp;
@@ -316,41 +319,48 @@ export function AsciiField() {
       let redraw: (() => void) | null = null;
       let unwatch: (() => void) | null = null;
 
-      import("./renderer").then(({ FieldRenderer }) => {
-        if (!alive) return;
-        const r = new FieldRenderer(g);
-        let sz = size();
-        const paint = () => {
-          const { font, color } = style(c);
-          r.setPainter({ kind: "text", font, color });
-          const col = column();
-          r.setColumn(col.left, col.right);
-          r.scrollY = window.scrollY;
-          r.drawStatic(performance.now());
-        };
-        r.resize(sz.w, sz.h, sz.dpr);
-        paint();
-        wrap!.dataset.ready = "";
-        redraw = () => {
+      // A renderer chunk that fails to load leaves the field unshown, not an
+      // unhandled rejection: it is decoration.
+      import("./renderer").then(
+        ({ FieldRenderer }) => {
           if (!alive) return;
-          const next = size();
-          if (next.w !== sz.w || next.h !== sz.h || next.dpr !== sz.dpr) {
-            sz = next;
-            r.resize(sz.w, sz.h, sz.dpr);
-          }
+          const r = new FieldRenderer(g);
+          let sz = size();
+          const paint = () => {
+            const { font, color } = style(c);
+            r.setPainter({ kind: "text", font, color });
+            const col = column();
+            r.setColumn(col.left, col.right);
+            r.scrollY = window.scrollY;
+            r.drawStatic(performance.now());
+          };
+          r.resize(sz.w, sz.h, sz.dpr);
           paint();
-        };
-        unwatch = watchLayout(redraw);
-        document.fonts?.load(`${cellSize(sz.w).font}px ${style(c).font}`).then(
-          () => redraw?.(),
-          () => {},
-        );
-        // A restored context comes back with default state; repaint fully.
-        c.addEventListener("contextrestored", () => {
-          r.applyContextState();
-          redraw?.();
-        });
-      });
+          wrap!.dataset.ready = "";
+          redraw = () => {
+            if (!alive) return;
+            const next = size();
+            if (next.w !== sz.w || next.h !== sz.h || next.dpr !== sz.dpr) {
+              sz = next;
+              r.resize(sz.w, sz.h, sz.dpr);
+            }
+            paint();
+          };
+          unwatch = watchLayout(redraw);
+          document.fonts
+            ?.load(`${cellSize(sz.w).font}px ${style(c).font}`)
+            .then(
+              () => redraw?.(),
+              () => {},
+            );
+          // A restored context comes back with default state; repaint fully.
+          c.addEventListener("contextrestored", () => {
+            r.applyContextState();
+            redraw?.();
+          });
+        },
+        () => {},
+      );
 
       return () => {
         alive = false;

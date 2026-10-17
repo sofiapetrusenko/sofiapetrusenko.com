@@ -11,6 +11,10 @@ const shim = readFileSync(
   join(process.cwd(), "src/components/field/AsciiField.tsx"),
   "utf8",
 );
+const lazy = readFileSync(
+  join(process.cwd(), "src/components/field/LazyAsciiField.tsx"),
+  "utf8",
+);
 
 /** The declarations of a top-level rule, by exact selector. */
 function ruleBlock(selector: string) {
@@ -23,20 +27,15 @@ function ruleBlock(selector: string) {
  * Live media state, like a real MediaQueryList: `matches` is read on access,
  * and `media()` notifies every registered change listener.
  */
-const mediaState = { reduce: false, desktop: true };
+const mediaState = { reduce: false };
 const mediaListeners = new Set<() => void>();
-function media({ reduce = false, desktop = true } = {}) {
+function media({ reduce = false } = {}) {
   mediaState.reduce = reduce;
-  mediaState.desktop = desktop;
   vi.mocked(window.matchMedia).mockImplementation(
     (query: string) =>
       ({
         get matches() {
-          return query.includes("reduce")
-            ? mediaState.reduce
-            : query.includes("min-width: 1024px")
-              ? mediaState.desktop
-              : false;
+          return query.includes("reduce") ? mediaState.reduce : false;
         },
         media: query,
         onchange: null,
@@ -125,7 +124,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
-  media({ reduce: false, desktop: false });
+  media({ reduce: false });
   Object.defineProperty(window, "devicePixelRatio", {
     value: 1,
     configurable: true,
@@ -184,8 +183,16 @@ describe("AsciiField (shim)", () => {
     expect(css).toMatch(/--color-glyph: var\(--color-muted\);/);
   });
 
-  it("is mounted once, in the root layout", () => {
-    expect(layout.match(/<AsciiField/g)).toHaveLength(1);
+  it("is mounted once, in the root layout, as a client-only lazy chunk", () => {
+    expect(layout.match(/<LazyAsciiField/g)).toHaveLength(1);
+    expect(layout).not.toMatch(/<AsciiField/);
+    // The boundary is the wrapper; the shim is reachable only through
+    // `next/dynamic` with `ssr: false`, so it is not in First Load JS.
+    expect(lazy).toMatch(/^"use client";/);
+    expect(lazy).toMatch(/import\("\.\/AsciiField"\)/);
+    expect(lazy).toMatch(/ssr: false/);
+    expect(lazy).not.toMatch(/from "\.\/AsciiField"/);
+    expect(shim).not.toMatch(/["']use client["']/);
   });
 
   it("keeps the renderer and the math out of the main bundle", () => {
@@ -199,6 +206,91 @@ describe("AsciiField (shim)", () => {
       "utf8",
     );
     expect(cells).not.toMatch(/from "\.\/asciiField\.math"/);
+  });
+
+  it("waits for the load event, then for idle", async () => {
+    offThreadCapable();
+    const state = vi
+      .spyOn(document, "readyState", "get")
+      .mockReturnValue("interactive");
+    const { container } = mount();
+    await idle();
+    expect(FakeWorker.last).toBeNull();
+    expect(container.querySelector("canvas")).toBeNull();
+    state.mockReturnValue("complete");
+    await act(async () => {
+      window.dispatchEvent(new Event("load"));
+    });
+    expect(FakeWorker.last).toBeNull();
+    await idle();
+    expect(FakeWorker.last).not.toBeNull();
+  });
+
+  it("starts nothing if unmounted before the load event", async () => {
+    offThreadCapable();
+    vi.spyOn(document, "readyState", "get").mockReturnValue("interactive");
+    const { unmount } = mount();
+    unmount();
+    await act(async () => {
+      window.dispatchEvent(new Event("load"));
+    });
+    await idle();
+    expect(FakeWorker.last).toBeNull();
+  });
+
+  it("starts nothing if unmounted between the load event and idle", async () => {
+    offThreadCapable();
+    const { unmount } = mount();
+    unmount();
+    await idle();
+    expect(FakeWorker.last).toBeNull();
+  });
+
+  it("starts exactly one worker when reduced motion is toggled before load", async () => {
+    offThreadCapable();
+    media({ reduce: true });
+    vi.spyOn(document, "readyState", "get").mockReturnValue("interactive");
+    let workers = 0;
+    vi.stubGlobal(
+      "Worker",
+      class extends FakeWorker {
+        constructor() {
+          super();
+          workers++;
+        }
+      },
+    );
+    const { container } = mount();
+    mediaState.reduce = false;
+    await act(async () => {
+      for (const cb of [...mediaListeners]) cb();
+    });
+    await act(async () => {
+      window.dispatchEvent(new Event("load"));
+    });
+    await idle();
+    expect(workers).toBe(1);
+    expect(container.querySelectorAll("canvas")).toHaveLength(1);
+    // A leaked reduced-motion pipeline would paint and mark the field ready
+    // before the worker has said it drew anything.
+    await act(async () => {
+      await vi.dynamicImportSettled();
+    });
+    expect(container.querySelector(".ascii-field")).not.toHaveAttribute(
+      "data-ready",
+    );
+  });
+
+  it("gives the idle callback a 2s deadline after load", async () => {
+    offThreadCapable();
+    const ric = vi.fn(() => 1);
+    vi.stubGlobal("requestIdleCallback", ric);
+    const cancel = vi.fn();
+    vi.stubGlobal("cancelIdleCallback", cancel);
+    const { unmount } = mount();
+    expect(ric).toHaveBeenCalledWith(expect.any(Function), { timeout: 2000 });
+    unmount();
+    expect(cancel).toHaveBeenCalledWith(1);
   });
 
   it("does nothing at all until idle", () => {
@@ -342,36 +434,34 @@ describe("AsciiField (shim)", () => {
       act(() => FakeWorker.last!.onmessage!({ data: { type: "ready" } }));
       expect(wrap).toHaveAttribute("data-ready");
     });
+
+    it("runs on a phone too: screen size is no input, and a touch ripples", async () => {
+      offThreadCapable();
+      mount();
+      await idle();
+      expect(FakeWorker.last).not.toBeNull();
+      // Nothing asks about width, pointer or hover: reduced motion decides,
+      // and the DPR watcher only re-sizes.
+      const queries = vi.mocked(window.matchMedia).mock.calls.map(([q]) => q);
+      expect(queries).toContain("(prefers-reduced-motion: reduce)");
+      expect(queries.filter((q) => /width|pointer|hover/.test(q))).toEqual([]);
+      const worker = FakeWorker.last!;
+      await act(async () => {
+        window.dispatchEvent(
+          Object.assign(new Event("pointerdown"), {
+            pointerType: "touch",
+            clientX: 195,
+            clientY: 220,
+          }),
+        );
+      });
+      expect(worker.of("pointer")).toEqual([
+        { type: "pointer", x: 195, pageY: 220, strong: true },
+      ]);
+    });
   });
 
   describe("static fallback", () => {
-    it("is what a phone or a touch screen gets, even where the worker would work", async () => {
-      offThreadCapable();
-      media({ desktop: false });
-      const add = vi.spyOn(window, "addEventListener");
-      mount();
-      await idle();
-      expect(FakeWorker.last).toBeNull();
-      expect(fillText).toHaveBeenCalled();
-      expect(add.mock.calls.filter(([t]) => /pointer/.test(String(t)))).toEqual(
-        [],
-      );
-    });
-
-    it("re-decides when the window crosses 1024px", async () => {
-      offThreadCapable();
-      media({ desktop: false });
-      mount();
-      await idle();
-      expect(FakeWorker.last).toBeNull();
-      mediaState.desktop = true;
-      await act(async () => {
-        for (const cb of [...mediaListeners]) cb();
-      });
-      await idle();
-      expect(FakeWorker.last).not.toBeNull();
-    });
-
     it("draws exactly one frame on the main thread when OffscreenCanvas is missing, and never loops", async () => {
       const add = vi.spyOn(window, "addEventListener");
       const { container } = mount();

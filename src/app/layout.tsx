@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { AsciiField } from "@/components/field/AsciiField";
+import { LazyAsciiField } from "@/components/field/LazyAsciiField";
 import { SiteGlow } from "@/components/SiteGlow";
 import { profile } from "@/content";
 import "./globals.css";
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           every page's content.
         */}
         <SiteGlow />
-        <AsciiField />
+        <LazyAsciiField />
         {children}
       </body>
       <GoogleAnalytics gaId="G-TMXHBTE4SS" />

@@ -9,7 +9,7 @@ import { useEffect, useRef, type ReactNode } from "react";
  * where the pointer is.
  *
  * One of the site's three chrome-level client boundaries — ScrollCue and the
- * character field (`field/AsciiField`) are the others, and `ScrollCue.tsx`
+ * character field (`field/LazyAsciiField`) are the others, and `ScrollCue.tsx`
  * carries the full count charter 12 requires: ten `use client` components,
  * these three plus seven case-study widgets under
  * `/work/[slug]`. A server

@@ -38,7 +38,7 @@ const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
 function componentsWithUseClient() {
   const dir = join(process.cwd(), "src/components");
   // Recursive, with paths relative to `src/components`: a boundary in a
-  // subdirectory (`field/AsciiField.tsx`) is still a boundary and still counts.
+  // subdirectory (`field/LazyAsciiField.tsx`) is still a boundary and still counts.
   return (readdirSync(dir, { recursive: true }) as string[])
     .map((f) => f.split("\\").join("/"))
     .filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"))
@@ -133,20 +133,20 @@ describe("Reveal", () => {
       "RefusalGrid.tsx",
       "ScrollCue.tsx",
       "SweepExplorer.tsx",
-      "field/AsciiField.tsx",
+      "field/LazyAsciiField.tsx",
     ]);
     expect(clients).toHaveLength(10);
   });
 
   it("renders the other seven only from /work/[slug]", () => {
     // What makes "three" a defensible thing to say next to ScrollCue,
-    // CardSpotlight and the hero's AsciiField: the other seven are the content
+    // CardSpotlight and the field's LazyAsciiField: the other seven are the content
     // of a case study, not part of the site's chrome. That is only true while
     // no other route imports one.
     const chrome = [
       "ScrollCue.tsx",
       "CardSpotlight.tsx",
-      "field/AsciiField.tsx",
+      "field/LazyAsciiField.tsx",
     ];
     const widgets = componentsWithUseClient().filter(
       (f) => !chrome.includes(f),

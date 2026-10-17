@@ -254,9 +254,8 @@ value, so the first client read reveals rather than hides.
 > "It takes its children as a slot, so ProjectCard and everything inside it
 > stays a server component and only this wrapper ships JS." — `CardSpotlight.tsx`
 
-**The real count is ten** (nine until A9), and rule 12 means it literally:
-`ScrollCue`, `CardSpotlight` and `field/AsciiField` are the chrome-level
-boundaries; `BlotquantInspector`,
+**The real count is nine**, and rule 12 means it literally: `ScrollCue` and
+`CardSpotlight` are the chrome-level boundaries; `BlotquantInspector`,
 `Disclosure`, `GoldRecordInspector`, `LifespanFunnel`, `PipelineDiagram`,
 `RefusalGrid` and `SweepExplorer` are case-study widgets rendered only by
 `/work/[slug]`. Two tests assert the exact list.
@@ -768,9 +767,11 @@ sign-off.)*
   under A3. Reduced motion gets one static field frame and still glows (rule 3:
   neither carries content).
 - **Rule 12**: the count is ten, three of them chrome — `ScrollCue`,
-  `CardSpotlight`, `field/AsciiField`. The field needs a canvas context and
-  `requestAnimationFrame`, and is a leaf, so it drags nothing across the
-  boundary. `SiteGlow` is a server component. The boundary test walks
+  `CardSpotlight`, `field/AsciiField`. Rule 12's text above still says nine and
+  is left as written; this amendment is where the count of ten is recorded
+  (restored 2026-10-17, by Sofia's ruling, after it had been edited in place).
+  The field needs a canvas context and `requestAnimationFrame`, and is a leaf,
+  so it drags nothing across the boundary. `SiteGlow` is a server component. The boundary test walks
   `src/components` recursively. The comments in `ScrollCue.tsx`,
   `CardSpotlight.tsx` and `Reveal.tsx` carry the new count.
 - **Rule 7 / 17**: the bound is stated under `.ascii-field` and `.site-glow` in
@@ -778,3 +779,28 @@ sign-off.)*
   across every route at 1440, 768 and 390px. With a 4% glyph ceiling wherever
   text can sit, none falls below AA. The tightest is muted at 4.59:1, and 5%
   would leave 4.51:1.
+
+## A10 — The field's boundary moves to `LazyAsciiField`; its touch ripple is ungated (field v2)
+
+> Field v2 instruction, Sofia, 2026-10-16: take the field out of First Load JS
+> with `next/dynamic` and `ssr: false`, start it after the load event on idle,
+> and keep it visually identical to the approved references "including mobile
+> tap ripples".
+
+**Ratified by Sofia, 2026-10-17.** Recorded from that instruction; not a new
+taste call.
+
+- **Rule 12 / A9:** the counted boundary is now `field/LazyAsciiField` — a
+  `"use client"` wrapper that exists because `ssr: false` is only allowed in a
+  Client Component. `field/AsciiField` (the shim) keeps the canvas, worker and
+  observers but no longer carries the directive; the wrapper is its only
+  importer. The count stays **ten** (A9). Where A9 names `field/AsciiField` as
+  the boundary, read `field/LazyAsciiField`; A9 and rule 12 are left as written
+  for the record. A chunk that fails to load renders nothing
+  (rules 11, 14), and stays absent for the session.
+- **Rule 4 / A3:** the field's ripple is deliberately **not** gated on
+  `(hover: hover) and (pointer: fine)`. The desktop-only gate is removed and a
+  touch ripples once where it lands, a scroll's first contact included. Rule 4's
+  point still holds: nothing is hover-dependent, the ripple stays under the 4%
+  column cap, and no resting state is lost when it fades. Every other
+  pointer-only effect keeps rule 4's gate.

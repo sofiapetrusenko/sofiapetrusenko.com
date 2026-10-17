@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 /**
  * One of the site's **three chrome-level client boundaries** — CardSpotlight
- * and the site-wide character field (`field/AsciiField`) are the others: this one needs the viewport height and the scroll offset, and
+ * and the site-wide character field (`field/LazyAsciiField`) are the others: this one needs the viewport height and the scroll offset, and
  * neither is knowable on the server. Reveal was the second until its
  * IntersectionObserver became a CSS scroll-driven animation, and W4's spotlight
  * took the vacated slot.
