@@ -184,13 +184,21 @@ measured code that is no longer staged.
 
 ## #18 (favicon) — computed T2
 
-**Computed T2 (from the main runs, written before any branch median is
+> **VOID (Sofia, 2026-10-17).** The T2 = 97 below, and the branch verdicts of
+> the run it belongs to, do not bind. The branch reports
+> (`design/reports/favicon/branch/`) came from a stale server: the :3201
+> process was started before the branch was rebuilt, so it served build
+> `BmldLVA89oVSXDyQG0kkK` while the reports sit next to build
+> `kgBiVkJ25bwnRxT-AhwCP`. #18 is re-measured from fresh servers on fresh
+> builds after the danger-contrast fix lands on main.
+
+~~**Computed T2 (from the main runs, written before any branch median is
 computed): T2 = 97.** Main `39fb47c` (`origin/main`, separate worktree, :3200),
 mobile ×7, Performance 97, 98, 98, 98, 98, 98, 97 — lowest 97. Each main run:
 0 failed requests, 1 tolerated (`/favicon.ico` 404, per the #18 ruling above).
 Reports: `design/reports/favicon/main/lh-mobile-{1..7}.json.gz`; last main
 mobile run fetchTime `2026-10-17T11:17:37.415Z`. Branch passes T2 if its median
-of 7 mobile runs is ≥ 97.
+of 7 mobile runs is ≥ 97.~~
 
 ## T10 method — 2026-10-17 (#18)
 
@@ -213,8 +221,12 @@ which exits non-zero if any node is below AA.
   tightest 4.57:1 (`/work/blotquant`, accent text on its 10% accent fill in the
   open provenance panel).
 - **#17's figure:** #17's "0 of 1,782" was produced by an uncommitted, ad-hoc
-  method that cannot be reproduced. Its conclusion — 0 below AA — is confirmed
-  by this stricter committed audit on the same code.
+  method that cannot be reproduced. ~~Its conclusion — 0 below AA — is confirmed
+  by this stricter committed audit on the same code.~~ Withdrawn (Sofia,
+  2026-10-17): #17's audit did not open tab panels or switches, and neither
+  did this one. With them open, 24 nodes are below AA on main @ `39fb47c`
+  (`--color-danger` text, 4.252:1 against the worst underlay). Fixed in
+  `fix/danger-contrast` before #18 is re-measured.
 - **Known-answer validation:** `node --test scripts/contrast-audit.selftest.mjs`
   runs the audit on the test-only fixture `scripts/fixtures/contrast-audit.html`
   (never built or shipped). Seeded: 4.39:1 and 4.498:1 must fail; 4.55:1, large
