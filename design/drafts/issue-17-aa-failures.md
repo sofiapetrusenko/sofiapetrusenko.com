@@ -8,14 +8,13 @@ PR #17 (`39fb47c`) reported T10 as "0 of 1,782 nodes below AA". The code it
 shipped has **58 text nodes below WCAG 2.1 AA as T10 scores them**, under the
 T10 worst-case underlay
 (`design/BASELINE.md` → "T10 method"), in two colour pairs. Both are fixed in
-`fix/danger-contrast` (PR #<n>).
+`fix/danger-contrast` (PR #25).
 
 One more node is below AA on `39fb47c` but is not among the 58: "Selected
 work" on `/` at 768 px. The scroll-cue fade is painted *above* it at page load.
 T10 scores it on what is beneath it (4.589:1). With the fade composited it is
 2.797:1. The audit now detects paint above text. This node is the one
-recorded exclusion in BASELINE, tracked in its own follow-up issue (#<scroll-cue
-issue>), and is not fixed by `fix/danger-contrast`.
+recorded exclusion in BASELINE, tracked in its own follow-up issue (#21), and is not fixed by `fix/danger-contrast`.
 
 Measured on main `39fb47c` (fresh build `9cSYEmW-ULaHXwrJpQZ6s`) with the committed
 audit `scripts/contrast-audit.mjs`: 2,930 text nodes across 47 page states per

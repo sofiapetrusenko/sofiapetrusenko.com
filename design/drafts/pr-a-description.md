@@ -21,7 +21,11 @@ Rulings by Sofia, 2026-10-17 and 2026-10-19:
 - Superseding notes on A9's #17 figures and on A11's "least lightening" were ratified on 2026-10-19; A9 and A11 themselves are unedited.
 - A warm-up-run protocol is recorded for the next PR. It is not applied here.
 
-#17's T10 claim is corrected in #<issue>. No runtime dependencies; the scripts use the Node stdlib only.
+#17's T10 claim is corrected in #23.
+
+Closes #23.
+
+No runtime dependencies; the scripts use the Node stdlib only.
 
 ## Status: ready
 - [x] Visual approved: `design/shots/danger-contrast/before-after.png` (danger) and `design/shots/accent-contrast/before-after.png` (selected stages, fg vs 8% fill)
@@ -60,7 +64,7 @@ Notes on T2 and T10:
 - **T2:** it was set by main's cold first run (94; TBT 204 ms, `main/lh-mobile-1.json.gz`). Main's other six runs scored 96.
 - **T10:**
   - Taken with the final audit, `scripts/contrast-audit.mjs` at sha256 `e3e10ae5…c731`, unchanged since: 0 partially sampled, 0 unmeasured and 0 covered on either side.
-  - Excluded on both sides: "Selected work" on `/` at 768 px, under the scroll-cue fade at page load. T10 scores it 4.589:1 on what is beneath it; with the fade it is 2.797:1 (`evidence/scroll-cue-fade-composite.json`). It is on main too, and is tracked in #<scroll-cue issue>.
+  - Excluded on both sides: "Selected work" on `/` at 768 px, under the scroll-cue fade at page load. T10 scores it 4.589:1 on what is beneath it; with the fade it is 2.797:1 (`evidence/scroll-cue-fade-composite.json`). It is on main too, and is tracked in #21.
   - The branch was rebuilt after comment-only CSS edits; its `.next/static` is byte-identical to the Lighthouse-measured build apart from the build-ID directory.
   - Main's 58 are 24 danger nodes (21 at 4.252, 3 at 3.537) and 34 selected-stage labels at 4.402.
 
@@ -68,9 +72,10 @@ Secondary, mobile medians (not criteria): LCP main 2520 ms / branch 2519 ms; TBT
 
 ## Follow-ups (separate PRs)
 - #18 — add a favicon and remove the BASELINE favicon exemption (PR B; WIP on `feat/favicon`)
-- #<scroll-cue issue>: the scroll-cue fade lies over "Selected work" at 768 px, and its wrapper takes clicks from links beneath it at some viewports. Removing BASELINE's one paint-above exclusion depends on this fix.
-- Pressed toggles at 4.570:1, accent on a 10% accent fill: they pass AA by 0.07 (54 nodes on `/work/blotquant` and `/work/lifespan-extract`; draft issue).
-- Warm-up run: from the next PR, one discarded warm-up run per side (BASELINE, "Protocol — warm-up run").
+- #21: the scroll-cue fade lies over "Selected work" at 768 px, and its wrapper takes clicks from links beneath it at some viewports. Removing BASELINE's one paint-above exclusion depends on this fix.
+- Pressed toggles at 4.570:1, accent on a 10% accent fill: they pass AA by 0.07 (54 nodes on `/work/blotquant` and `/work/lifespan-extract`): #22.
+- Warm-up run: from the next PR, one discarded warm-up run per side (BASELINE, "Protocol — warm-up run"). Its form factors and report location are ruled in #24.
+- #24: audit and protocol tidy-up, the non-blocking items left when this PR's review loop closed.
 - Stop the field worker while hidden under forced-colors
 - Cap the wait for the load event before field start
 

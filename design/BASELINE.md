@@ -291,7 +291,7 @@ which exits non-zero if any node is below AA.
 <!-- T10 paint-above exclusions: begin -->
 | route | width | selector | text | paint above | issue |
 | --- | --- | --- | --- | --- | --- |
-| `/` | 768 | `h2.text-muted.mb-10.flex` | "Selected work" | `div.scroll-cue__fade.pointer-events-none.absolute` | draft `design/drafts/issue-scroll-cue-overlay.md` (not filed) |
+| `/` | 768 | `h2.text-muted.mb-10.flex` | "Selected work" | `div.scroll-cue__fade.pointer-events-none.absolute` | #21 |
 <!-- T10 paint-above exclusions: end -->
 
 - **The page audited is the page meant:** a failed navigation, an HTTP status
