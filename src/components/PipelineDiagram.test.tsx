@@ -44,6 +44,27 @@ describe("PipelineDiagram", () => {
     expect(screen.getByText(firstStage.failure)).toBeInTheDocument();
   });
 
+  it("labels the selected stage in fg, not accent (CHARTER A12)", () => {
+    const { container } = render(<PipelineDiagram stages={pipelineStages} />);
+    if (!fourthStage) throw new Error("missing stage");
+
+    fireEvent.click(nodeFor(fourthStage.name));
+
+    // Accent on the 12% accent fill is 4.40:1 over the worst underlay; the
+    // border and fill carry the selection instead.
+    const selected = [...container.querySelectorAll("svg rect")].filter(
+      (r) =>
+        r.getAttribute("stroke") === "var(--color-accent)" &&
+        r.getAttribute("stroke-width") === "2",
+    );
+    expect(selected.length).toBeGreaterThan(0);
+    for (const rect of selected) {
+      expect(rect.getAttribute("fill-opacity")).toBe("0.12");
+      const label = rect.parentElement?.querySelector("text.pipe-label");
+      expect(label?.getAttribute("fill")).toBe("var(--color-fg)");
+    }
+  });
+
   it("fills the detail panel from the clicked stage", () => {
     render(<PipelineDiagram stages={pipelineStages} />);
     if (!fourthStage) throw new Error("missing stage");

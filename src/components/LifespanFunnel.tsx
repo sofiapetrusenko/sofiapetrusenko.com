@@ -211,9 +211,9 @@ function Diagram({
                 y={box.y + box.height / 2}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill={
-                  isSelected ? TOKEN.accent : planned ? TOKEN.muted : TOKEN.fg
-                }
+                /* Selected stays fg, not accent: accent on the 12% fill is
+                   4.40:1 over the T10 worst underlay (CHARTER A12). */
+                fill={planned && !isSelected ? TOKEN.muted : TOKEN.fg}
                 fontSize={11}
                 className="pipe-label"
               >

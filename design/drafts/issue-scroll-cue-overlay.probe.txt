@@ -1,0 +1,9 @@
+# design/drafts/issue-scroll-cue-overlay.probe.mjs against http://localhost:3201/ (build kqenurahUwEBYzDtegTom), 2026-10-19T15:37:31Z
+1440x900 {"visible":"true","wrap":[834,900],"fadeTop":760,"blocked":[],"under":[]}
+1440x800 {"visible":"true","wrap":[734,800],"fadeTop":660,"blocked":[],"under":[]}
+1280x720 {"visible":"true","wrap":[654,720],"fadeTop":580,"blocked":["GitHub [651-689] -> scroll-cue","LinkedIn [651-689] -> scroll-cue","Email [651-689] -> scroll-cue","CV (PDF) [651-689] -> scroll-cue"],"under":[]}
+768x900 {"visible":"true","wrap":[834,900],"fadeTop":760,"blocked":["lifespan-extract [892-921] -> scroll-cue"],"under":[]}
+768x1024 {"visible":"true","wrap":[958,1024],"fadeTop":884,"blocked":[],"under":[]}
+390x844 {"visible":"true","wrap":[778,844],"fadeTop":704,"blocked":[],"under":[]}
+390x667 {"visible":"true","wrap":[601,667],"fadeTop":527,"blocked":["GitHub [646-684] -> scroll-cue","LinkedIn [646-684] -> scroll-cue","Email [646-684] -> scroll-cue"],"under":[]}
+375x667 {"visible":"true","wrap":[601,667],"fadeTop":527,"blocked":[],"under":[]}

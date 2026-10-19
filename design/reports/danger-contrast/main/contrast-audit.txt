@@ -1,0 +1,77 @@
+| route | 1440 | 768 | 390 | states (per width) |
+| --- | --- | --- | --- | --- |
+| / | 111 | 111 | 111 | 1/1/1 |
+| /colophon | 23 | 23 | 23 | 1/1/1 |
+| /notes/untrusted-llm-output | 8 | 8 | 8 | 1/1/1 |
+| /work/blotquant | 491 | 491 | 463 | 16/16/16 |
+| /work/lifespan-extract | 263 | 263 | 261 | 8/8/8 |
+| /work/media-automation-platform | 76 | 76 | 75 | 18/18/18 |
+| /work/mira | 13 | 13 | 13 | 1/1/1 |
+| /this-page-does-not-exist | 2 | 2 | 2 | 1/1/1 |
+
+text nodes: 2930
+below AA:   58
+tightest:   3.537:1 (min 4.5) — /work/media-automation-platform @1440 text "Metadata"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @1440 [base] text "fetch"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @1440 [pressed "screen, planned"] text "screen"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @1440 [pressed "extract, planned"] text "extract"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @1440 [pressed "verify, built"] text "verify"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @1440 [pressed "record, built"] text "record"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @1440 [pressed "quote checker"] p.font-mono.text-[0.6875rem].tracking-[0.14em] "no match"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @1440 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "“"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @1440 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "a sentence the paper never contained"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @1440 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "” —"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @1440 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "not present in the source, so the record fails rather than w"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @768 [base] text "fetch"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @768 [pressed "screen, planned"] text "screen"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @768 [pressed "extract, planned"] text "extract"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @768 [pressed "verify, built"] text "verify"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @768 [pressed "record, built"] text "record"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @768 [pressed "quote checker"] p.font-mono.text-[0.6875rem].tracking-[0.14em] "no match"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @768 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "“"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @768 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "a sentence the paper never contained"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @768 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "” —"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @768 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "not present in the source, so the record fails rather than w"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @390 [base] text "fetch"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @390 [pressed "screen, planned"] text "screen"
+  FAIL 4.402:1 < 4.5 — /work/lifespan-extract @390 [pressed "extract, planned"] text "extract"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @390 [pressed "quote checker"] p.font-mono.text-[0.6875rem].tracking-[0.14em] "no match"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @390 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "“"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @390 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "a sentence the paper never contained"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @390 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "” —"
+  FAIL 4.252:1 < 4.5 — /work/lifespan-extract @390 [pressed "quote checker"] p.mt-2.font-mono.text-[0.6875rem] "not present in the source, so the record fails rather than w"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @1440 [switch "Simulate failure"] span "Simulate failure"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [base] text "Script"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Voiceover"] text "Voiceover"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Stock footage"] text "Stock"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Assembly"] text "Assembly"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Subtitles"] text "Subtitles"
+  FAIL 3.537:1 < 4.5 — /work/media-automation-platform @1440 [switch "Simulate failure"] text "Metadata"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Thumbnail"] text "Thumbnail"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @1440 [pressed "Upload"] text "Upload"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @1440 [switch "Simulate failure"] span "Metadata & SEO"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @768 [switch "Simulate failure"] span "Simulate failure"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [base] text "Script"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Voiceover"] text "Voiceover"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Stock footage"] text "Stock"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Assembly"] text "Assembly"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Subtitles"] text "Subtitles"
+  FAIL 3.537:1 < 4.5 — /work/media-automation-platform @768 [switch "Simulate failure"] text "Metadata"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Thumbnail"] text "Thumbnail"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @768 [pressed "Upload"] text "Upload"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @768 [switch "Simulate failure"] span "Metadata & SEO"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @390 [switch "Simulate failure"] span "Simulate failure"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [base] text "Script"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Voiceover"] text "Voiceover"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Stock footage"] text "Stock footage"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Assembly"] text "Assembly"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Subtitles"] text "Subtitles"
+  FAIL 3.537:1 < 4.5 — /work/media-automation-platform @390 [switch "Simulate failure"] text "Metadata & SEO"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Thumbnail"] text "Thumbnail"
+  FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Upload"] text "Upload"
+  FAIL 4.252:1 < 4.5 — /work/media-automation-platform @390 [switch "Simulate failure"] span "Metadata & SEO"
+partially sampled: 0
+covered (paint above text): 0
+excluded (BASELINE.md): 1
+  EXCLUDED — / @768 h2.text-muted.mb-10.flex "Selected work" under div.scroll-cue__fade.pointer-events-none.absolute: draft `design/drafts/issue-scroll-cue-overlay.md` (not filed)
+unmeasured: 0

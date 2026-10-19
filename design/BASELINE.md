@@ -168,3 +168,351 @@ fetchTime `2026-10-16T22:50:50.035Z`. Written before any branch report of this
 run was read. **This value binds for the staged code**; the first run's 95 and
 its reports (`design/reports/field-v2/pre-review/`) are kept for the record and
 measured code that is no longer staged.
+
+## Failed-request check — committed (2026-10-17)
+
+**Ruling (Sofia, 2026-10-17).** The failed-request rule is enforced by
+committed code: `scripts/lh-summary.mjs` counts failed requests (status ≥ 400,
+or no status) per report, lists every run that has one as rejected, prints
+`n/a` for any median taken over a rejected run, and exits non-zero. Until now
+the rule was applied by uncommitted, ad-hoc filters; in #17 the favicon
+exemption above was applied that way and was never in committed code.
+
+**No URL is exempt** unless a ruling recorded in this file names it, for a
+stated side of a stated PR. Such a ruling is applied only on the command line
+(`--tolerate-404 <path>`, repeatable); the script holds no URL list, and a
+tolerated request is still counted in its own column. The favicon exemption
+above is the only such ruling today, and lapses when a favicon ships (#18).
+
+## `fix/danger-contrast` — failed-request rule
+
+**Ruling (Sofia, 2026-10-17, recorded before any run of this PR):** neither
+main nor this branch ships a favicon, so a `/favicon.ico` 404 is tolerated on
+**both** sides, via `--tolerate-404 /favicon.ico`, under the existing favicon
+exemption (which lapses when #18 ships). Any other failed request rejects the
+run on either side.
+
+## Report storage — 2026-10-17
+
+**Ruling (Sofia, 2026-10-17):** from `fix/danger-contrast` on, Lighthouse
+reports are stored gzip-compressed as `.json.gz` in `design/reports/<name>/`.
+Reports already in `design/reports/` stay as they are. `scripts/lh-summary.mjs`
+reads both forms. This changes storage only; the measurement protocol and
+thresholds above are unchanged.
+
+## T10 method — 2026-10-17
+
+**Ruling (Sofia, 2026-10-17).** T10 is measured by the committed audit
+`scripts/contrast-audit.mjs` (`node scripts/contrast-audit.mjs <base-url>`),
+which exits non-zero if any node is below AA.
+
+- **What is counted:** visible, unclipped, on-page text nodes — SVG text
+  included, `aria-hidden` text included — on all 7 routes (`/`, `/colophon`,
+  `/notes/untrusted-llm-output`, the four `/work/[slug]` pages) and the 404
+  page, at 1440, 768 and 390 px. Text clipped away by an ancestor (`overflow`,
+  `clip`, `clip-path`, i.e. `sr-only`) or placed outside the document is not
+  visible and is not counted.
+- **States:** every disclosure (`button[aria-expanded="false"]`; every
+  disclosure on the site is a button) is open in every state. On top
+  of that, every tab not already active (`role="tab"`, or `button[aria-pressed]`)
+  and every `role="switch"` is activated, one at a time, each on a fresh load.
+  A node seen in several states is counted once, at its worst state.
+- **What each node is checked against:** the worst-case underlay recorded under
+  `.ascii-field` in `globals.css` (dot grid + both hero glows coincident,
+  rgb(29, 56, 53)) with the field glyph at the alpha cap of the node's own
+  column, in every stacking order; every translucent ancestor fill (including
+  `color-mix()` fills) and ancestor opacity is composited in. AA = 4.5:1, 3:1
+  for large text.
+- **What is beneath a node is hit-tested, not inferred:** at three points
+  (25/50/75%) across every line box, `document.elementsFromPoint` gives the paint
+  stack, and every element painted below the text — ancestors and
+  non-ancestors alike, sibling SVG `<rect>`s included — is composited, with its
+  `fill-opacity` and every ancestor's `opacity`. Line boxes are re-measured at
+  the scroll offset where they are sampled, because the scroll-driven reveal
+  moves content, and the page is re-scrolled until every sample point lies
+  inside the viewport with a 1 px margin (a point on its last pixel row
+  hit-tests as empty).
+- **Fills the hit-test cannot read fail the run:** a `background-image`
+  (gradient or image) on any element beneath a node, an SVG `url()` fill, or a
+  `::before`/`::after` that paints a background (pseudo-elements are never
+  returned by `elementsFromPoint`). Five layers are named as exempt in the
+  audit, each for a stated reason: the dot grid (`layout.tsx`), the
+  `.site-glow` blobs and `.page-glow`'s two pseudo-elements are the registered
+  worst underlay itself; `.link-underline::after` is a 1 px bar 3 px below the
+  text box and `.spotlight-card::before` is masked to the card's 1 px border,
+  so neither paints beneath glyphs. Points that hit nothing on a node that is
+  otherwise measured are listed as `PARTIAL`.
+- **Paint above text is detected and fails (ruling, Sofia, 2026-10-19):**
+  every element above the text in each sample point's paint stack is read. One
+  that paints any of the following makes the node *covered*:
+  - a background colour or a `background-image`, including on an outer
+    `<svg>` or a `<foreignObject>`;
+  - an SVG fill on a basic shape (`rect`, `circle`, `ellipse`, `path`,
+    `polygon`, `polyline`) or on SVG text;
+  - an SVG `<use>` or `<image>`, which counts as painting whatever it holds;
+  - replaced content (`canvas`, `img`, `video`, `iframe`, `object`, `embed`);
+  - a `::before`/`::after` that paints a background, other than the two named
+    clear above.
+
+  **Not detected** (charter rule 17: the claim is this list, not "anything
+  above"):
+  - borders, outlines and `box-shadow` of an element above;
+  - SVG strokes (the diagrams' `<line>`s and the scroll-cue chevron are
+    stroke-only);
+  - the glyphs and `text-shadow` of an overlapping element;
+  - `filter`, `backdrop-filter` and `mix-blend-mode`;
+  - pseudo-elements that paint only `content` text or borders;
+  - anything away from the three sample points on each line box's midline;
+  - any viewport other than 1440, 768 and 390 px wide by 900 px tall
+    (`HEIGHT` in the audit), and fixed or scroll-dependent overlays at any
+    scroll offset other than the one each node is sampled at. The scroll cue
+    shows only at `scrollY` ≤ 24, so at other heights it lies over other text
+    (at 1280×720 its fade starts at y = 580, above the hero links at 651–689:
+    `design/drafts/issue-scroll-cue-overlay.probe.txt`), and T10 does not see it.
+
+  Whether to extend detection to any of these is open for a ruling. Paint above is never composited into the ratio. A
+  covered node fails the run unless it is an entry in the exclusion list below,
+  matched by route, width, selector, text and the one element painting above
+  it. An entry that matches no node in a view the run audited fails the run,
+  so the list cannot outlive what it excuses. The audit reads the list from
+  this file, between the two markers.
+
+  **T10 paint-above exclusions** (exactly one entry, ruling Sofia,
+  2026-10-19). The scroll cue's fade (`ScrollCue.tsx`, `.scroll-cue__fade`:
+  a 140 px `linear-gradient` from `--color-bg` to transparent, fixed to the
+  viewport bottom) lies over the "Selected work" heading at 768 px while the
+  page is at the top (`scrollY` ≤ 24, i.e. at page load); it disappears after
+  24 px of scroll. The audit scores the heading 4.589:1 on what is beneath it;
+  composited with the fade (alpha 0.362 at the heading's midline) it is
+  2.797:1 over the worst underlay and 3.696:1 on plain `--color-bg`
+  (`evidence/scroll-cue-fade-composite.json`, from the `.mjs` beside it, on
+  build `kqenurahUwEBYzDtegTom`). It is on main at `39fb47c` too.
+
+<!-- T10 paint-above exclusions: begin -->
+| route | width | selector | text | paint above | issue |
+| --- | --- | --- | --- | --- | --- |
+| `/` | 768 | `h2.text-muted.mb-10.flex` | "Selected work" | `div.scroll-cue__fade.pointer-events-none.absolute` | #21 |
+<!-- T10 paint-above exclusions: end -->
+
+- **The page audited is the page meant:** a failed navigation, an HTTP status
+  other than 200 (404 for the 404 route, which must be a real 404), or any
+  uncaught exception in the page (`Runtime.exceptionThrown`) fails the run.
+- **Out of scope, enumerated:** hover- and focus-only states, combinations of
+  controls (one control is active per state), and infinite animations, which
+  are sampled at whatever phase they are in. The combinations that exist were
+  checked by hand in review cycle 1: fg on the 16% ok fill (a selected complete
+  stage during the failure simulation) 6.811:1; gate on the 10% gate fill
+  5.745:1.
+- **No fallback (ruling, Sofia, 2026-10-17):** a node none of whose points can
+  be hit-tested is *unmeasured*. It is reported as an audit failure and makes
+  the run exit non-zero; it is never scored from its ancestors' fills.
+- **Settling (ruling, Sofia, 2026-10-17):** before any text is recorded or
+  sampled, every finite animation on the document timeline
+  (`document.getAnimations()`) runs to its end, bounded at 5 s; a timeout fails
+  the run. Scroll-driven and infinite animations are not waited for. Reduced
+  motion is not emulated — that measures a different page state.
+- **State activation (ratified retroactively, Sofia, 2026-10-17):** after a
+  control is clicked, the audit checks that its state holds (`aria-pressed` /
+  `aria-selected` true, or `aria-checked` true for a switch) and repeats the
+  click until it does, bounded at 5 s; a control that never activates fails the
+  run. A click before hydration does nothing, and without this check that
+  state was silently audited as the base state under the state's name (one
+  `/work/blotquant` state, 12 nodes, lost in one run under load:
+  `evidence/t10-blotquant-state-lost.json.gz`, 2,918 nodes, against
+  `evidence/t10-blotquant-state-held.json.gz`, 2,930, same build). Any
+  exception thrown in the page is a failed run, never an empty result.
+- **Reference on main @ `39fb47c`** (taken with the audit before the settling,
+  no-fallback and activation rules, report not committed; reproduced exactly
+  under the current method in
+  `design/reports/danger-contrast/main/contrast-audit.{json,txt}`): 2,930 text nodes across 47 page states at
+  each width, **58 below AA**, in two groups:
+  - **24 `--color-danger` nodes:** 21 as text at 4.252:1 (the
+    `/work/lifespan-extract` quote-checker tab and the
+    `/work/media-automation-platform` failure simulation) and 3 as the failed
+    stage's SVG label on its own 15% fill at 3.537:1.
+  - **34 selected-stage labels:** `--color-accent` text on the selected
+    stage's 12% accent fill, at 4.402:1, on both pipeline diagrams.
+- **#17's T10 claim was overstated.** Its "0 of 1,782" came from an
+  uncommitted, ad-hoc method that did not open tab panels or switches; with
+  them open, and with what is painted beneath each node hit-tested, the code
+  it shipped has the 58 failures above.
+- **Known-answer validation:** `node --test scripts/contrast-audit.selftest.mjs`
+  runs the audit on the test-only fixture `scripts/fixtures/contrast-audit.html`
+  (never built or shipped), which seeds cases that must fail (4.39:1, 4.498:1,
+  ancestor opacity, a hidden `aria-pressed` tab panel, a hidden `role="tab"`
+  panel, a switch's on state, a gutter node at 1440 px, and fg over a 60%
+  white fill painted by a sibling SVG `<rect>` and by a non-ancestor `<div>`),
+  cases that must pass (4.55:1, large text at 3.10:1, a `color-mix()` fill,
+  SVG `fill`, the disclosure, tabs and switch themselves, a panel swapped in by
+  a 1.5 s slide-and-fade, text moved by a scroll-driven animation, text whose
+  sample points land on the viewport's last pixel row, and a tab group whose
+  listeners attach 1 s after load) and cases that must be excluded (`sr-only`,
+  off-page). Four cases sit under paint above their text (a background colour, a
+  gradient, an outer `<svg>`'s background, a filled `<polyline>`). Three must
+  be reported covered in every view. The fourth is listed in the fixture's own
+  exclusion table (`scripts/fixtures/contrast-audit.exclusions.md`, passed with
+  `--exclusions`) at 768 px only, so it must be excluded there and covered at
+  1440 and 390. Three more pages produce reports and have no contrast
+  failure, so paint above alone decides the exit code:
+  - one has a listed node and four nodes each differing from the entry in one
+    matched field (selector, text, a second element above, route). The run
+    must exit 1, with exactly the listed node excluded.
+  - one is listed at every width. The run must exit 0.
+  - one has a node under each further kind of paint read above text (SVG
+    text, `<use>`, `<image>`, a `<foreignObject>` background, a `url()` fill,
+    `<img>`, `<canvas>`, a painting `::before`), each of which must be
+    reported with that element and kind, and a node under an `opacity: 0`
+    overlay, which must not be covered. The run must exit 1.
+
+  An infinite animation runs throughout. A fill under the fifth
+  line box only of a long paragraph must fail. The audit must report exactly
+  the seeded failures and no unmeasured node. Nine further pages must make the
+  run fail, each with its reason: a gradient fill behind text, a `::before`
+  fill behind text, a gradient on an ancestor, a gradient on a sibling painted
+  underneath, a painting `::before` on an ancestor, an HTTP 500, an uncaught
+  exception, an exclusion entry that matches nothing, and a 404 route that
+  answers 200. Each of hit-testing, sampling every line box, the animation
+  wait, the viewport margin, the activation check, the background-image check,
+  the pseudo-element check, the status check, the exception check, each kind of
+  paint read above text and its `opacity: 0` guard, each of the exclusion's five
+  match fields, the stale-entry check, and the exit code's response to covered
+  and to excluded nodes has a negative control: removing it makes the self-test fail.
+- **Self-test stability (ruling, Sofia, 2026-10-17):** before the self-test
+  gates anything it must run clean repeatedly with full output kept. One
+  file-level failure was seen in 9 runs during development; its output was not
+  kept, so it is an unrecorded observation, never diagnosed. The harness now
+  prints the audit's exit code and stderr whenever the audit writes no report.
+  Full logs of every later run, in `design/reports/danger-contrast/evidence/`:
+  `selftest-runs-1-20.log.gz` (20/20 clean), `selftest-runs-load-1-10.log.gz`
+  (10/10 clean, every CPU core saturated), `selftest-runs-21-40.log.gz` (20/20)
+  and, after the review-cycle-1 changes, `selftest-runs-final-1-20.log.gz`
+  (20/20). Extended again in review cycle 2 (the background-image and
+  pseudo-element checks must reach ancestors and siblings beneath the text):
+  `selftest-runs-cycle2-1-20.log.gz` (20/20 clean, 24 tests each). Extended
+  in review cycle 3 (paint above text, the exclusion list):
+  `selftest-runs-cycle3-1-20.log.gz` (20/20 clean, 30 tests each). Extended in review cycle 4 (every kind of paint read above
+  text, the `opacity: 0` guard): `selftest-runs-cycle4-1-20.log.gz` (20/20
+  clean, 31 tests each).
+
+
+## `fix/danger-contrast` — measurement (2026-10-17)
+
+Fresh `rm -rf .next && pnpm build` on both sides, then `pnpm start`; the build
+ID each server actually served was read from its HTML and matched against
+`.next/BUILD_ID` before any run: main `39fb47c` → `9cSYEmW-ULaHXwrJpQZ6s`
+(port 3200), branch → `aeQ6ilct3Qm2x9O_9Mh2w` (port 3201). Lighthouse 12.8.2,
+main and branch interleaved, mobile ×7 then desktop ×5. Reports:
+`design/reports/danger-contrast/{main,branch}/`, as `.json.gz`. Failed-request
+rule as recorded above: `--tolerate-404 /favicon.ico` on both sides, nothing
+else.
+
+Environment for this run (differs from the baseline table above; both sides
+ran interleaved on the same host, so the comparison holds): macOS 26.7.1,
+Apple M2, Node v20.20.2, Lighthouse 12.8.2, HeadlessChrome 155.0.0.0, host
+benchmarkIndex 1420–1886 across the 24 reports.
+
+**Computed T2 (from the main runs, written before any branch report of this
+run was read): T2 = 94.** Main mobile ×7, Performance 94, 96, 96, 96, 96, 96,
+96 — lowest 94. Reports: `design/reports/danger-contrast/main/lh-mobile-{1..7}.json.gz`;
+last main mobile run fetchTime `2026-10-17T22:36:44.252Z`. All 7 runs: 0 failed
+requests, 1 tolerated (`/favicon.ico` 404) each. Branch passes T2 if its median
+of 7 mobile runs is ≥ 94.
+
+**Results.** Every run: 0 failed requests; 1 tolerated (`/favicon.ico` 404),
+and no other URL was tolerated.
+
+| side | report | form | perf | a11y | bp | LCP | CLS | TBT |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| main | lh-mobile-1..7 | mobile | 94, 96, 96, 96, 96, 96, 96 | 100 ×7 | 96 ×7 | | 0.0000 ×7 | |
+| main | **median (n=7)** | mobile | **96** | **100** | 96 | 2520 ms | **0.0000** | 115 ms |
+| branch | lh-mobile-1..7 | mobile | 96, 96, 95, 96, 95, 96, 97 | 100 ×7 | 96 ×7 | | 0.0000 ×7 | |
+| branch | **median (n=7)** | mobile | **96** | **100** | 96 | 2519 ms | **0.0000** | 113 ms |
+| main | lh-desktop-1..5 | desktop | 100 ×5 | 100 ×5 | 96 ×5 | | 0.0000 ×5 | |
+| main | **median (n=5)** | desktop | **100** | **100** | 96 | 556 ms | **0.0000** | 0 ms |
+| branch | lh-desktop-1..5 | desktop | 100 ×5 | 100 ×5 | 96 ×5 | | 0.0000 ×5 | |
+| branch | **median (n=5)** | desktop | **100** | **100** | 96 | 518 ms | **0.0000** | 0 ms |
+
+First Load JS (gzip, `scripts/measure-first-load-js.mjs`, `first-load-js.json`
+on each side): identical on both sides to 0.01 kB (`/work/*` gzip 320,525 B on
+main, 320,526 B on the branch) — `/` 176.70 kB, each `/work/[slug]`
+313.01 kB, shared 165.16 kB.
+
+T10 (`scripts/contrast-audit.mjs`, current method above; `contrast-audit.json`
+and `.txt` on each side): both sides 2,930 text nodes across 47 page states per
+width, 0 partially sampled, 0 unmeasured. Taken after review cycle 1 with the
+final audit (every line box sampled; background-image, pseudo-element, HTTP
+status and page-exception checks), on fresh server processes: main
+`9cSYEmW-ULaHXwrJpQZ6s` as above; branch rebuilt as `WG72wa-4tZXASfXNSUoxr`
+after comment-only edits to `globals.css`, its `.next/static` byte-identical to
+`aeQ6ilct3Qm2x9O_9Mh2w` apart from the build-ID directory (32 files, SHA-256 of
+each: `evidence/static-sha256.txt`; a later rebuild in review cycle 2 matched
+again), so the Lighthouse
+and First Load JS figures above measure the same shipped code. The audit run
+before review (`contrast-audit.pre-review.{json,txt}`) gave the same counts.
+Taken again in review cycle 3 with paint-above detection, on fresh server
+processes (main `9cSYEmW-ULaHXwrJpQZ6s`; branch `kqenurahUwEBYzDtegTom`, its
+`.next/static` again byte-identical to the measured build, 32 of 32 files):
+both sides 2,930 nodes, the same below-AA counts, 0 covered, 1 excluded (the
+one entry above), 0 partially sampled, 0 unmeasured. Those reports are
+`contrast-audit.{json,txt}`; the cycle-1 audit's are kept as
+`contrast-audit.cycle1.{json,txt}`.
+
+- **Main: 58 below AA** — the same 58 as the reference: 24 `--color-danger`
+  (21 text at 4.252:1 on `/work/lifespan-extract` and
+  `/work/media-automation-platform`; 3 failed-stage labels on the 15% fill at
+  3.537:1) and 34 selected-stage `--color-accent` labels on the 12% fill at
+  4.402:1.
+- **Branch: 0 below AA.** Tightest 4.570:1 (min 4.5), `/work/blotquant` @1440,
+  parameter button `profile_smoothing_px` — not touched by this PR.
+
+| # | Threshold | Branch | Result |
+| --- | --- | --- | --- |
+| T1 | desktop perf ≥ 100 | 100 | pass |
+| T2 | mobile perf ≥ 94 (lowest main run) | 96 | pass |
+| T3 | desktop CLS ≤ 0.0000 | 0.0000 | pass |
+| T4 | mobile CLS ≤ 0.0000 | 0.0000 | pass |
+| T5 | desktop a11y ≥ 100 | 100 | pass |
+| T6 | mobile a11y ≥ 100 | 100 | pass |
+| T7 | `/` ≤ 177.36 kB | 176.70 kB | pass |
+| T8 | each `/work/[slug]` ≤ 314.09 kB | 313.01 kB | pass |
+| T9 | shared ≤ 167.16 kB | 165.16 kB | pass |
+| T10 | 0 below AA | 0 (main 58) | pass |
+
+## Protocol — warm-up run (ruling, Sofia, 2026-10-19)
+
+**Effective from the next PR after `fix/danger-contrast`; not applied to this
+PR's measurement above.** One discarded warm-up run per side before the
+counted runs. It is not counted and does not set T2; the counted runs follow
+as before (interleaved, mobile ×7, desktop ×5).
+
+**Why.** T2 is the lowest main mobile score, so a single cold run sets it. In
+the `fix/danger-contrast` measurement T2 = 94 came from main's cold first run
+(TBT 204 ms: `design/reports/danger-contrast/main/lh-mobile-1.json.gz`,
+`audits.total-blocking-time`); main's other six runs were all 96
+(`main/lh-mobile-{2..7}.json.gz`). The branch passed either way,
+but the threshold measured the server's first request rather than the code.
+
+## Byte-identity verification (ruling, Sofia, 2026-10-19)
+
+**Effective now:** "Byte-identity of shipped output is verified on a fresh build
+of the final commit, as the last step after all changes."
+
+**Why.** In `fix/danger-contrast`, the review-cycle-4 self-test gave a case a name
+ending in Tailwind's zero-opacity utility class. Tailwind v4's automatic
+source detection scans `scripts/`, so from commit `1efcc33` the shipped CSS
+carried that utility as one extra 21-byte rule (`opacity: 0`). The byte-identity checks recorded above
+for review cycles 3 to 5 hashed build `kqenurahUwEBYzDtegTom`, made before
+that case existed, so none of them could see it. The case was renamed. The
+fresh build of the final commit is compared against the measured build under
+"`fix/danger-contrast` — byte-identity on the final commit" below.
+
+## `fix/danger-contrast` — byte-identity on the final commit (2026-10-19)
+
+The final commit's `.next/static`, from a fresh `rm -rf .next && pnpm build`
+made as the last step after all changes, must match
+`design/reports/danger-contrast/evidence/static-sha256-final.txt`: the 32
+files of the measured build `aeQ6ilct3Qm2x9O_9Mh2w`, build-ID directory
+excluded. That file is written before the build, so the build is checked
+against the record, not the record against the build. The result and the
+final build ID are reported on PR #25.
+

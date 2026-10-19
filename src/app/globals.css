@@ -16,13 +16,21 @@
   --color-hairline: #26262b;
   --color-hairline-bright: #3f3f46;
 
-  /* Status colours, used only by the pipeline diagram. Each is paired with a
-     glyph or caption so state is never carried by colour alone.
-     Against --color-bg: ok 11.1:1, danger 7.0:1, gate 11.6:1. Every text
-     colour also clears 4.5:1 over its own tinted fill — worst case is danger
-     text on the 15% danger fill at 5.8:1. */
+  /* Status colours: the pipeline diagrams, the quote checker on
+     /work/lifespan-extract and the blotquant inspector's figures. Each is
+     paired with a glyph, caption or word so state is never carried by colour
+     alone.
+     Against --color-bg: ok 11.1:1, danger 10.2:1, gate 11.6:1. Over a tinted
+     stage fill on --color-bg: danger text on the 15% danger fill 7.9:1. Over
+     the same fills against the worst underlay T10 measures: danger on 15%
+     4.66:1, gate on its 10% fill 5.75:1; a complete stage's label is fg, not
+     ok, at 6.81:1 on the 16% ok fill. As bare text there: ok 6.75:1, gate
+     7.05:1, danger 6.20:1.
+     Danger is #fca5a5, not #f87171 (CHARTER A11): against the worst underlay
+     T10 measures (`.ascii-field`) #f87171 was 4.25:1 as text and 3.54:1 on its
+     15% fill; #fca5a5 is 6.20:1 and 4.66:1. */
   --color-ok: #4ade80;
-  --color-danger: #f87171;
+  --color-danger: #fca5a5;
   /* Warm amber: the "a human has to look at this" hue. The pipeline diagram's
      human gate, the one node that is a checkpoint rather than a stage, and the
      blotquant inspector's QC-flagged bands and excluded ratios, which are
@@ -205,13 +213,21 @@ body {
  * 4.59:1, accent 5.5:1, fg 9.6:1. Below the hero glow's reach only one site
  * blob can sit under a point (`.site-glow`), which leaves more margin.
  *
- * Measured, not only derived (charter 17): an audit over every route at
- * 1440, 768 and 390px, every disclosure open, composited each of 1,782 visible
- * text nodes — SVG chart labels included — over that worst underlay at the cap
- * its own column gets, through every translucent fill beneath it. 0 below AA.
- * Tightest: muted body copy under the hero glows, 4.59:1. Tightest on a tinted
- * fill: the pipeline diagram's accent stage labels, 5.29:1. At 5% the tightest
- * drops to 4.51:1, which is why the cap is 4% and not 5%.
+ * Measured, not only derived (charter 17): `scripts/contrast-audit.mjs` (T10,
+ * method in BASELINE.md) over every route and the 404 page at 1440, 768 and
+ * 390px, in all 47 page states per width (every disclosure, tab and switch),
+ * composites each of 2,930 visible text nodes — SVG labels included — over
+ * that worst underlay at the cap its own column gets, through every fill
+ * hit-tested beneath it. 0 below AA
+ * (`design/reports/danger-contrast/branch/contrast-audit.txt`). Tightest:
+ * accent text on the blotquant inspector's 10% accent toggle fill, 4.570:1;
+ * muted copy with no fill beneath it, 4.589:1. The same audit with COLUMN_CAP
+ * set to 0.05 (a local edit, not committed; the committed samples re-scored at
+ * 0.05 give the same) puts 54 nodes below AA, tightest 4.499:1 — which is why
+ * the cap is 4% and not 5%.
+ * (#17 stated 1,782 nodes and 0 below AA from an uncommitted method that
+ * missed tab and switch states and sibling fills; its code had 58 below AA,
+ * fixed by CHARTER A11 and A12.)
  *
  * `contain: strict` keeps the canvas's repaints from invalidating layout or
  * paint outside it; `position: fixed` with zero insets means it takes no

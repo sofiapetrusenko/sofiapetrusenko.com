@@ -804,3 +804,76 @@ taste call.
   point still holds: nothing is hover-dependent, the ripple stays under the 4%
   column cap, and no resting state is lost when it fades. Every other
   pointer-only effect keeps rule 4's gate.
+
+## A11 — Rule 7: `--color-danger` is `#fca5a5`; its row gains the T10 worst-underlay bound
+
+> Ruling, Sofia, 2026-10-17: fix the colour, not the method — the worst-case
+> underlay T10 measures against stays as registered.
+
+**Ratified by Sofia, 2026-10-17.**
+
+Rule 7's table above is left as written for the record. Where its
+`--color-danger` row and this amendment disagree, this amendment binds:
+
+| Token | Ratio | Use |
+| --- | --- | --- |
+| `--color-danger` `#fca5a5` | 10.2:1 (7.9:1 as text on its own 15% fill); against the T10 worst underlay 6.20:1, and 4.66:1 on its own 15% fill there | pipeline status |
+
+**Why.** Against the worst underlay T10 measures (`.ascii-field` in
+`globals.css`: dot grid under both hero glows coincident, with the field glyph
+at its 4% column cap), the old `#f87171` was **4.25:1** as text — the
+quote-checker tab on `/work/lifespan-extract` and the failure simulation on
+`/work/media-automation-platform` — and **3.54:1** as the failed stage's label
+on its own 15% fill. Both shipped in #17 below AA. The 15%-fill-over-underlay
+pair is the binding one; `#faa0a0`, the least lightening that clears it, does
+so by 0.014, so the next step on the same Tailwind red scale is used instead.
+
+**Scope.** One token value (`globals.css`); every danger use — text, stroke,
+the 15% stage fill and the 22% switch track — follows it. No other token moves.
+The value that would break it: anything darker than `#faa0a0` on this hue.
+
+## A12 — Selected pipeline stages keep their label in `--color-fg`
+
+> Ruling, Sofia, 2026-10-17: fix the accent pair in `fix/danger-contrast`;
+> selected-stage labels in `--color-fg`, selection still shown by border and
+> fill.
+
+**Ratified by Sofia, 2026-10-17.**
+
+| Pair | Before | Now |
+| --- | --- | --- |
+| Selected stage label on its own 12% accent fill, against the T10 worst underlay | `--color-accent` `#38bdf8`, **4.40:1** | `--color-fg` `#e8e8ea`, **7.71:1** |
+
+**Why.** Once T10 hit-tests what is painted beneath each node, the selected
+stage's label in both pipeline diagrams (`PipelineDiagram`, `LifespanFunnel`)
+is accent text on a 12% accent fill over the worst underlay: 4.40:1, below AA.
+It shipped in #17. Dropping the fill to 8% instead (4.74:1) was compared side
+by side (`design/shots/accent-contrast/before-after.png`) and not chosen: it
+makes the selected box visibly fainter, and keeps accent text within 0.25 of
+the line.
+
+**Scope.** The selected stage's label colour in those two components, and
+nothing else. The selected stage keeps its 2px accent border and 12% accent
+fill; a selected planned stage's label is fg too (unselected planned stays
+muted). No token moves. The accent stays the colour of selection; it is no
+longer the colour of the selected label.
+
+## Superseding notes — 2026-10-19
+
+Ratified text is not edited. These notes supersede the figures named; the
+amendments themselves stand as written.
+
+### On A11
+
+> #faa0a0 is not the least lightening — #f9a0a0 clears at 4.5006:1 (found in
+> review cycle 2). Shipped value #fca5a5 unaffected.
+
+**Ratified by Sofia, 2026-10-19.**
+
+### On A9
+
+> #17's '1,782 nodes / 4.59:1' came from an uncommitted method. Superseded by
+> the committed T10 audit, which found 58 nodes below AA on main at 39fb47c
+> (see BASELINE).
+
+**Ratified by Sofia, 2026-10-19.**

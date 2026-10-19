@@ -124,6 +124,8 @@ function visualFor(
       struck: false,
     };
 
+  // The label stays fg: accent text on its own 12% fill is 4.40:1 over the
+  // worst underlay T10 measures (CHARTER A12). Border and fill carry selection.
   if (isSelected)
     return {
       stroke: TOKEN.accent,
@@ -132,7 +134,7 @@ function visualFor(
       dashed: false,
       fill: TOKEN.accent,
       fillOpacity: 0.12,
-      text: TOKEN.accent,
+      text: TOKEN.fg,
       struck: false,
     };
 

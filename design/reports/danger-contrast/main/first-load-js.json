@@ -1,0 +1,65 @@
+{
+  "buildId": "9cSYEmW-ULaHXwrJpQZ6s",
+  "unit": "bytes",
+  "shared": {
+    "chunkCount": 6,
+    "raw": 550028,
+    "gzip": 169121
+  },
+  "routes": [
+    {
+      "route": "/_global-error",
+      "chunkCount": 7,
+      "raw": 564407,
+      "gzip": 172768
+    },
+    {
+      "route": "/_not-found",
+      "chunkCount": 7,
+      "raw": 576701,
+      "gzip": 176362
+    },
+    {
+      "route": "/colophon",
+      "chunkCount": 8,
+      "raw": 585570,
+      "gzip": 179970
+    },
+    {
+      "route": "/",
+      "chunkCount": 8,
+      "raw": 588054,
+      "gzip": 180937
+    },
+    {
+      "route": "/notes/untrusted-llm-output",
+      "chunkCount": 8,
+      "raw": 585570,
+      "gzip": 179970
+    },
+    {
+      "route": "/work/blotquant",
+      "chunkCount": 9,
+      "raw": 1098662,
+      "gzip": 320525
+    },
+    {
+      "route": "/work/lifespan-extract",
+      "chunkCount": 9,
+      "raw": 1098662,
+      "gzip": 320525
+    },
+    {
+      "route": "/work/media-automation-platform",
+      "chunkCount": 9,
+      "raw": 1098662,
+      "gzip": 320525
+    },
+    {
+      "route": "/work/mira",
+      "chunkCount": 9,
+      "raw": 1098662,
+      "gzip": 320525
+    }
+  ]
+}
