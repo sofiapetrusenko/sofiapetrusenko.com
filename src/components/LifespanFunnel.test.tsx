@@ -23,6 +23,23 @@ describe("LifespanFunnel", () => {
     ).toBeInTheDocument();
   });
 
+  it("labels the selected stage in fg, planned or not (CHARTER A12)", () => {
+    const { container } = render(<LifespanFunnel />);
+
+    for (const name of [/^extract, planned$/i, /^record, built$/i]) {
+      fireEvent.click(screen.getByRole("button", { name }));
+      // Accent on the 12% accent fill is 4.40:1 over the worst underlay; the
+      // border and fill carry the selection instead.
+      const [rect, ...rest] = [
+        ...container.querySelectorAll("svg rect"),
+      ].filter((r) => r.getAttribute("fill-opacity") === "0.12");
+      expect(rest).toHaveLength(0);
+      expect(rect?.getAttribute("stroke")).toBe("var(--color-accent)");
+      const label = rect?.parentElement?.querySelector("text.pipe-label");
+      expect(label?.getAttribute("fill")).toBe("var(--color-fg)");
+    }
+  });
+
   it("opens a stage's detail and its cited excerpt on selection", () => {
     render(<LifespanFunnel />);
 

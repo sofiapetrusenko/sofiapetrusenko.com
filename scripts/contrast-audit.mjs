@@ -21,11 +21,16 @@
 // outside it). The glyph is composited in every stacking order — above both
 // glows, between them, below both — and the worst result is used.
 //
+// Settling. Before any text is sampled, every finite animation on the document
+// timeline has run to its end (bounded at 5 s; a timeout fails the run).
+// Scroll-driven and infinite animations are not waited for. A node none of
+// whose points could be hit-tested is unmeasured, and fails the audit.
+//
 // Usage (against a running production server):
 //   node scripts/contrast-audit.mjs http://localhost:3201 [--json out.json]
 //     [--routes /a,/b]   audit these paths instead of the site's routes (the
 //                        known-answer test, `contrast-audit.selftest.mjs`)
-// Exits 1 if any node is below AA. CHROME_PATH overrides the Chrome binary.
+// Exits 1 if any node is below AA or unmeasured. CHROME_PATH overrides the Chrome binary.
 //
 // Dev tooling only. Node stdlib only — drives Chrome over
 // --remote-debugging-pipe, so it adds no dependency.
@@ -36,6 +41,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // The last entry is any unknown path: the 404 page is audited too.
+// Audited on purpose: it must answer 404. Every other route must answer 200.
+const NOT_FOUND_ROUTE = "/this-page-does-not-exist";
 const ROUTES = [
   "/",
   "/colophon",
@@ -44,7 +51,7 @@ const ROUTES = [
   "/work/lifespan-extract",
   "/work/media-automation-platform",
   "/work/mira",
-  "/this-page-does-not-exist",
+  NOT_FOUND_ROUTE,
 ];
 const CONTROLS = '[role="tab"], button[aria-pressed], [role="switch"]';
 const WIDTHS = [1440, 768, 390];
@@ -107,6 +114,35 @@ const ratio = (x, y) => {
 // its fill. Pointer events are forced on while sampling so `pointer-events:
 // none` layers are still seen; nothing else about the page changes.
 async function collect() {
+  const frame = () =>
+    new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  let timedOut = false;
+  // Every finite animation on the document timeline runs to its end, so text
+  // is sampled where and as it rests, not mid-swap. Scroll-driven animations
+  // (the reveal) have no end to wait for; infinite ones never end. Reduced
+  // motion is not emulated: that is a different page state.
+  const ANIMATION_TIMEOUT = 5000;
+  const settled = async () => {
+    const finite = document
+      .getAnimations()
+      .filter(
+        (a) =>
+          a.timeline instanceof DocumentTimeline &&
+          a.playState === "running" &&
+          a.effect?.getComputedTiming().endTime !== Infinity,
+      );
+    if (finite.length === 0) return;
+    const done = await Promise.race([
+      Promise.all(finite.map((a) => a.finished.catch(() => {}))).then(
+        () => true,
+      ),
+      new Promise((r) => setTimeout(() => r(false), ANIMATION_TIMEOUT)),
+    ]);
+    if (!done) timedOut = true;
+    await frame();
+  };
+  await settled();
+
   // Computed colours arrive as rgb()/rgba(), or as color(srgb r g b / a) for
   // `color-mix(in srgb, …)` fills. Anything else is recorded, never skipped.
   const unparsed = [];
@@ -139,6 +175,29 @@ async function collect() {
     return o;
   };
   const SHAPES = new Set(["rect", "circle", "ellipse", "path", "polygon"]);
+  const describe = (e) =>
+    e.tagName.toLowerCase() +
+    (e.className && typeof e.className === "string"
+      ? "." + e.className.trim().split(/\s+/).slice(0, 3).join(".")
+      : "");
+  // Layers whose paint is already in the registered worst underlay, so their
+  // gradients are not read again here: the dot grid (layout.tsx), the site
+  // glows and the hero glows (`.page-glow`'s two pseudo-elements). Named one by
+  // one; anything else with a background-image or a painting pseudo-element
+  // fails the run.
+  const MODELLED =
+    'body > div.pointer-events-none.fixed.inset-0[aria-hidden="true"], .site-glow__blob';
+  // Pseudo-elements that paint, but never beneath their element's text:
+  // `.link-underline::after` is a 1px bar 3px below the text box, and
+  // `.spotlight-card::before` is masked to the card's 1px border ring.
+  const PSEUDO_MODELLED = [
+    [".page-glow", "::before"],
+    [".page-glow", "::after"],
+  ];
+  const PSEUDO_CLEAR = [
+    [".link-underline", "::after"],
+    [".spotlight-card", "::before"],
+  ];
   // The colour an element paints over its box at a point, with its effective
   // alpha (colour alpha × fill-opacity × every ancestor's opacity), or null.
   const paint = (e) => {
@@ -155,9 +214,31 @@ async function collect() {
       if (c) c[3] *= Number(s.fillOpacity);
     } else {
       c = rgba(s.backgroundColor);
+      // A gradient or image paints a colour the audit cannot read off one
+      // property: recorded, so the run fails, unless it is a modelled layer.
+      if (s.backgroundImage !== "none" && !e.matches(MODELLED)) {
+        unparsed.push(`${describe(e)} background-image ${s.backgroundImage}`);
+      }
     }
     if (c) c[3] *= groupOpacity(e);
     return c;
+  };
+  // Pseudo-elements are never returned by elementsFromPoint, so one that
+  // paints behind text would be missed: any that paints at all is recorded.
+  const pseudoPaint = (e) => {
+    for (const which of ["::before", "::after"]) {
+      const s = getComputedStyle(e, which);
+      if (s.content === "none" || s.content === "normal") continue;
+      const bg = rgba(s.backgroundColor);
+      if ((bg && bg[3] > 0) || s.backgroundImage !== "none") {
+        const named = [...PSEUDO_MODELLED, ...PSEUDO_CLEAR].some(
+          ([sel, w]) => w === which && e.matches(sel),
+        );
+        if (!named) {
+          unparsed.push(`${describe(e)}${which} paints a background`);
+        }
+      }
+    }
   };
   // The text node's line boxes as they are painted right now, in client
   // coordinates. Read live: the scroll-driven reveal moves content as it
@@ -223,11 +304,7 @@ async function collect() {
     out.push({
       key: key + "|" + n.data.trim(),
       text: n.data.trim().slice(0, 60),
-      selector:
-        el.tagName.toLowerCase() +
-        (el.className && typeof el.className === "string"
-          ? "." + el.className.trim().split(/\s+/).slice(0, 3).join(".")
-          : ""),
+      selector: describe(el),
       color,
       opacity,
       svg,
@@ -246,25 +323,32 @@ async function collect() {
   force.textContent =
     "*, *::before, *::after { pointer-events: auto !important; }";
   document.head.append(force);
-  const frame = () =>
-    new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   const points = (rects) =>
-    rects.slice(0, 3).flatMap((r) =>
+    rects.flatMap((r) =>
       [0.25, 0.5, 0.75].map((f) => ({
         x: r.left + (r.right - r.left) * f,
         y: (r.top + r.bottom) / 2,
       })),
     );
-  const inView = (p) =>
-    p.x >= 0 && p.x < innerWidth && p.y >= 0 && p.y < innerHeight;
+  // Inside the layout viewport, with a pixel's margin: a point on its last
+  // row hit-tests as empty.
+  const inView = (p) => {
+    const { clientWidth: w, clientHeight: h } = document.documentElement;
+    return p.x >= 1 && p.x < w - 1 && p.y >= 1 && p.y < h - 1;
+  };
   for (const node of [...out].sort((a, b) => a.docY - b.docY)) {
     node.samples = [];
     node.unsampled = 0;
     let pts = points(visibleRects(node.n, node.el));
-    if (!pts.every(inView)) {
-      const y = pts.length ? pts[0].y + scrollY : node.docY;
+    // The scroll-driven reveal moves text as the page scrolls, so one scroll
+    // can leave it off-centre or out of view: re-measure until it holds still.
+    for (let tries = 0; tries < 4 && !pts.every(inView); tries++) {
+      const y = pts.length
+        ? (pts[0].y + pts.at(-1).y) / 2 + scrollY
+        : node.docY;
       scrollTo(0, Math.max(0, y - innerHeight / 2));
       await frame();
+      await settled();
       pts = points(visibleRects(node.n, node.el));
     }
     for (const { x, y } of pts) {
@@ -276,10 +360,12 @@ async function collect() {
       }
       // Bottom-up, stopping below <body>: the page background is beneath the
       // decorative layers, so it is part of the underlay.
+      const beneath = stack
+        .slice(at)
+        .filter((e) => e !== document.body && e !== document.documentElement);
+      beneath.forEach(pseudoPaint);
       node.samples.push(
-        stack
-          .slice(at)
-          .filter((e) => e !== document.body && e !== document.documentElement)
+        beneath
           .map(paint)
           .filter((f) => f && f[3] > 0)
           .reverse(),
@@ -289,16 +375,9 @@ async function collect() {
   force.remove();
   scrollTo(0, 0);
   for (const node of out) {
-    // A node no point of which could be hit-tested falls back to its
-    // ancestors' fills, and says so.
-    if (node.samples.length === 0) {
-      const fills = [];
-      for (let e = node.el; e && e !== document.body; e = e.parentElement) {
-        const f = paint(e);
-        if (f && f[3] > 0) fills.push(f);
-      }
-      node.samples.push(fills.reverse());
-    }
+    // A node no point of which could be hit-tested has no measured underlay.
+    // There is no fallback: it is reported as unmeasured and fails the audit.
+    node.unmeasured = node.samples.length === 0;
     delete node.el;
     delete node.n;
     delete node.docY;
@@ -307,6 +386,7 @@ async function collect() {
     column: main ? { left: main.left, right: main.right } : null,
     viewport: document.documentElement.clientWidth,
     unparsed: [...new Set(unparsed)],
+    timedOut,
     nodes: out,
   };
 }
@@ -332,8 +412,21 @@ async function prepare(selector, index) {
   if (index >= 0) {
     const c = document.querySelectorAll(selector)[index];
     state = `${c.getAttribute("role") ?? "pressed"} "${c.textContent.trim().slice(0, 40)}"`;
-    c.click();
-    await settle();
+    // A click before the page has hydrated does nothing, so the state is
+    // checked, and the click repeated, until it holds. One that never does
+    // fails the run rather than audit the base state under this state's name.
+    const holds = () =>
+      c.getAttribute("role") === "switch"
+        ? c.getAttribute("aria-checked") === "true"
+        : active(c);
+    const start = performance.now();
+    while (!holds()) {
+      if (performance.now() - start > 5000) {
+        throw new Error(`control did not activate: ${state}`);
+      }
+      c.click();
+      await settle();
+    }
     openAll();
     await settle();
   }
@@ -436,13 +529,20 @@ function launch() {
       };
       listeners.push(l);
     });
+  const on = (method, sessionId, fn) => {
+    const l = (msg) => {
+      if (msg.method === method && msg.sessionId === sessionId) fn(msg.params);
+    };
+    listeners.push(l);
+    return () => listeners.splice(listeners.indexOf(l), 1);
+  };
   const close = async () => {
     const exited = new Promise((r) => proc.once("exit", r));
     proc.kill();
     await exited;
     rmSync(profile, { recursive: true, force: true });
   };
-  return { send, once, close };
+  return { send, once, on, close };
 }
 
 async function loadState(cdp, url, width, index) {
@@ -455,6 +555,17 @@ async function loadState(cdp, url, width, index) {
   });
   const s = (m, p) => cdp.send(m, p, sessionId);
   await s("Page.enable");
+  // The page audited must be the page meant: a failed navigation, an
+  // unexpected HTTP status or any uncaught exception in the page (a crashed
+  // render shows an error screen) fails the run rather than audit that screen
+  // under the route's name.
+  const thrown = [];
+  const off = cdp.on("Runtime.exceptionThrown", sessionId, (p) =>
+    thrown.push(
+      p.exceptionDetails.exception?.description ?? p.exceptionDetails.text,
+    ),
+  );
+  await s("Runtime.enable");
   await s("Emulation.setDeviceMetricsOverride", {
     width,
     height: HEIGHT,
@@ -462,20 +573,43 @@ async function loadState(cdp, url, width, index) {
     mobile: width < NARROW_PX,
   });
   const loaded = cdp.once("Page.loadEventFired", sessionId);
-  await s("Page.navigate", { url });
+  const nav = await s("Page.navigate", { url });
+  if (nav.errorText)
+    throw new Error(`${url}: navigation failed, ${nav.errorText}`);
   await loaded;
-  const prepared = await s("Runtime.evaluate", {
-    expression: `(${prepare})(${JSON.stringify(CONTROLS)}, ${index})`,
-    awaitPromise: true,
-    returnByValue: true,
-  });
-  const { result } = await s("Runtime.evaluate", {
-    expression: `(${collect})()`,
-    awaitPromise: true,
-    returnByValue: true,
-  });
+  // An exception in the page is a failed run, never an empty result.
+  const run = async (expression) => {
+    const r = await s("Runtime.evaluate", {
+      expression,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    if (r.exceptionDetails) {
+      throw new Error(
+        `${url} @${width}: ${r.exceptionDetails.exception?.description ?? r.exceptionDetails.text}`,
+      );
+    }
+    return r.result.value;
+  };
+  const status = await run(
+    `performance.getEntriesByType("navigation")[0].responseStatus`,
+  );
+  const expected = new URL(url).pathname === NOT_FOUND_ROUTE ? 404 : 200;
+  if (status !== expected) {
+    throw new Error(`${url}: HTTP ${status}, expected ${expected}`);
+  }
+  const prepared = await run(
+    `(${prepare})(${JSON.stringify(CONTROLS)}, ${index})`,
+  );
+  const collected = await run(`(${collect})()`);
+  off();
   await cdp.send("Target.closeTarget", { targetId });
-  return { ...prepared.result.value, ...result.value };
+  if (thrown.length > 0) {
+    throw new Error(
+      `${url} @${width} [${prepared.state}]: uncaught exception in the page: ${thrown[0]}`,
+    );
+  }
+  return { ...prepared, ...collected };
 }
 
 /**
@@ -497,14 +631,26 @@ async function auditView(cdp, url, width) {
         `${url} @${width} [${page.state}]: unparsed colours ${page.unparsed.join(", ")}`,
       );
     }
+    if (page.timedOut) {
+      throw new Error(
+        `${url} @${width} [${page.state}]: animations still running after 5 s`,
+      );
+    }
     for (const n of page.nodes) {
       const node = {
         ...n,
         state: page.state,
         ...evaluateNode(n, page.column, page.viewport),
       };
+      // An unmeasured state outranks any measured one: it is a failure of
+      // the audit, not a ratio.
       const seen = byKey.get(n.key);
-      if (!seen || node.ratio - node.min < seen.ratio - seen.min) {
+      if (
+        !seen ||
+        (node.unmeasured && !seen.unmeasured) ||
+        (node.unmeasured === seen.unmeasured &&
+          node.ratio - node.min < seen.ratio - seen.min)
+      ) {
         byKey.set(n.key, node);
       }
     }
@@ -536,9 +682,12 @@ const all = report.views.flatMap((v) =>
   v.nodes.map((n) => ({ ...n, route: v.route, width: v.width })),
 );
 const failing = all.filter((n) => n.ratio < n.min);
-const tightest = [...all].sort(
-  (a, b) => a.ratio - a.min - (b.ratio - b.min),
-)[0];
+const unmeasured = all.filter((n) => n.unmeasured);
+// Measured, but some sample points hit nothing: scored on fewer points.
+const partial = all.filter((n) => !n.unmeasured && n.unsampled > 0);
+const tightest = all
+  .filter((n) => !n.unmeasured)
+  .sort((a, b) => a.ratio - a.min - (b.ratio - b.min))[0];
 
 console.log("| route | 1440 | 768 | 390 | states (per width) |");
 console.log("| --- | --- | --- | --- | --- |");
@@ -565,9 +714,26 @@ for (const n of failing) {
     `  FAIL ${n.ratio.toFixed(3)}:1 < ${n.min} — ${n.route} @${n.width} [${n.state}] ${n.selector} "${n.text}"`,
   );
 }
+console.log(`partially sampled: ${partial.length}`);
+for (const n of partial) {
+  console.log(
+    `  PARTIAL ${n.unsampled} point(s) unsampled — ${n.route} @${n.width} [${n.state}] ${n.selector} "${n.text}"`,
+  );
+}
+console.log(`unmeasured: ${unmeasured.length}`);
+for (const n of unmeasured) {
+  console.log(
+    `  AUDIT FAIL no point hit-tested — ${n.route} @${n.width} [${n.state}] ${n.selector} "${n.text}"`,
+  );
+}
 if (jsonOut)
   writeFileSync(
     jsonOut,
-    JSON.stringify({ ...report, failing: failing.length }),
+    JSON.stringify({
+      ...report,
+      failing: failing.length,
+      unmeasured: unmeasured.length,
+      partial: partial.length,
+    }),
   );
-if (failing.length > 0) process.exitCode = 1;
+if (failing.length > 0 || unmeasured.length > 0) process.exitCode = 1;

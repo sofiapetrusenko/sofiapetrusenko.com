@@ -52,6 +52,48 @@
         margin: 0;
         color: rgb(255, 255, 255);
       }
+      /* Panel b swaps in slowly: sampled mid-animation it is off to the side
+         and faded, so its text would be missed or measured too dim. */
+      .swap-in {
+        animation: swap-in 1500ms ease-out;
+      }
+      @keyframes swap-in {
+        from {
+          opacity: 0.2;
+          transform: translateX(320px);
+        }
+      }
+      /* Inside <main>'s horizontal extent, so the column cap applies. */
+      .edge {
+        position: absolute;
+        left: max(20px, calc(50% - 280px));
+        margin: 0;
+        line-height: 20px;
+      }
+      /* Never finishes: the audit must not wait on it. */
+      .spinner {
+        width: 8px;
+        height: 8px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          rotate: 1turn;
+        }
+      }
+      /* Scroll-driven rise, like the site's reveal: where the text sits
+         depends on where the page is scrolled. */
+      .reveal {
+        margin-top: 1600px;
+        animation: rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 50%;
+      }
+      @keyframes rise {
+        from {
+          translate: 0 400px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -96,6 +138,32 @@
         ></div>
         <p style="position: relative; color: #e8e8ea">
           CASE-fail-html-sibling-fill
+        </p>
+      </div>
+      <!-- A fill under the fifth line only: every line box is sampled, not
+           just the first three. 20px lines; the fill covers line 5. -->
+      <div style="position: relative; width: 220px">
+        <div
+          style="
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.6);
+          "
+        ></div>
+        <p
+          style="
+            position: relative;
+            margin: 0;
+            line-height: 20px;
+            color: #e8e8ea;
+          "
+        >
+          CASE-fail-line5 one two three four five six seven eight nine ten
+          eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen
+          nineteen twenty twenty-one twenty-two twenty-three twenty-four
         </p>
       </div>
       <span class="sr-only" style="color: rgb(20, 20, 20)"
@@ -143,7 +211,21 @@
       <!-- Switch: the failing text exists only when it is on. -->
       <button role="switch" aria-checked="false">CASE-pass-switch</button>
       <div id="switch-panel"></div>
+
+      <div class="spinner"></div>
+      <p class="reveal" style="color: rgb(161, 161, 161)">CASE-pass-reveal</p>
+      <div style="height: 1200px"></div>
     </main>
+
+    <!-- Bottom-row case. Scrolling to centre the anchor leaves the edge case's
+         sample points within the viewport's last pixel row (y 899.5 of 900),
+         where elementsFromPoint finds nothing. -->
+    <p class="edge" style="top: 6000px; color: rgb(161, 161, 161)">
+      CASE-pass-edge-anchor
+    </p>
+    <p class="edge" style="top: 6449.5px; color: rgb(161, 161, 161)">
+      CASE-pass-edge-last-row
+    </p>
     <script>
       const P = (text, color) => `<p style="color: ${color}">${text}</p>`;
       const pass = "rgb(161, 161, 161)";
@@ -156,7 +238,7 @@
 
       const pressedPanels = {
         a: P("CASE-pass-pressed-panel-a", pass),
-        b: P("CASE-fail-pressed-panel-b", fail),
+        b: `<div class="swap-in">${P("CASE-fail-pressed-panel-b", fail)}${P("CASE-pass-anim-panel", pass)}</div>`,
       };
       const pressed = document.querySelectorAll("[aria-pressed]");
       const showPressed = (key) => {
@@ -164,8 +246,12 @@
           b.setAttribute("aria-pressed", String(b.dataset.panel === key));
         document.getElementById("pressed-panel").innerHTML = pressedPanels[key];
       };
-      for (const b of pressed)
-        b.addEventListener("click", () => showPressed(b.dataset.panel));
+      // Listeners attach late, like a page that hydrates after load: an
+      // early click does nothing.
+      setTimeout(() => {
+        for (const b of pressed)
+          b.addEventListener("click", () => showPressed(b.dataset.panel));
+      }, 1000);
       showPressed("a");
 
       const rolePanels = {

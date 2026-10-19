@@ -27,23 +27,31 @@ const read = (f) => {
   );
 };
 
-const failedRequests = (r) =>
-  (r.audits["network-requests"]?.details?.items ?? []).filter(
-    (i) => !(i.statusCode > 0) || i.statusCode >= 400,
-  );
+// A report whose network-requests audit is missing or errored cannot show
+// that no request failed, so it is rejected like a run with a failure.
+const failedRequests = (r) => {
+  const items = r.audits["network-requests"]?.details?.items;
+  if (!Array.isArray(items)) {
+    return [{ statusCode: undefined, url: "network-requests audit missing" }];
+  }
+  return items.filter((i) => !(i.statusCode > 0) || i.statusCode >= 400);
+};
 
 const args = process.argv.slice(2);
 const tolerated = new Set();
 for (let i; (i = args.indexOf("--tolerate-404")) >= 0;) {
   const path = args.splice(i, 2)[1];
-  if (!path?.startsWith("/")) {
+  // A report file in place of the path means the path was forgotten.
+  if (!path?.startsWith("/") || /\.json(\.gz)?$/.test(path)) {
     console.error("--tolerate-404 needs a URL path starting with /");
     process.exit(2);
   }
   tolerated.add(path);
 }
 const isTolerated = (i) =>
-  i.statusCode === 404 && tolerated.has(new URL(i.url).pathname);
+  i.statusCode === 404 &&
+  URL.canParse(i.url) &&
+  tolerated.has(new URL(i.url).pathname);
 const files = args;
 const rows = files.map((f) => {
   const r = read(f);

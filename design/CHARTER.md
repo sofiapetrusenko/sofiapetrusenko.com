@@ -832,3 +832,28 @@ so by 0.014, so the next step on the same Tailwind red scale is used instead.
 the 15% stage fill and the 22% switch track — follows it. No other token moves.
 The value that would break it: anything darker than `#faa0a0` on this hue.
 
+## A12 — Selected pipeline stages keep their label in `--color-fg`
+
+> Ruling, Sofia, 2026-10-17: fix the accent pair in `fix/danger-contrast`;
+> selected-stage labels in `--color-fg`, selection still shown by border and
+> fill.
+
+**Ratified by Sofia, 2026-10-17.**
+
+| Pair | Before | Now |
+| --- | --- | --- |
+| Selected stage label on its own 12% accent fill, against the T10 worst underlay | `--color-accent` `#38bdf8`, **4.40:1** | `--color-fg` `#e8e8ea`, **7.71:1** |
+
+**Why.** Once T10 hit-tests what is painted beneath each node, the selected
+stage's label in both pipeline diagrams (`PipelineDiagram`, `LifespanFunnel`)
+is accent text on a 12% accent fill over the worst underlay: 4.40:1, below AA.
+It shipped in #17. Dropping the fill to 8% instead (4.74:1) was compared side
+by side (`design/shots/accent-contrast/before-after.png`) and not chosen: it
+makes the selected box visibly fainter, and keeps accent text within 0.25 of
+the line.
+
+**Scope.** The selected stage's label colour in those two components, and
+nothing else. The selected stage keeps its 2px accent border and 12% accent
+fill; a selected planned stage's label is fg too (unselected planned stays
+muted). No token moves. The accent stays the colour of selection; it is no
+longer the colour of the selected label.
