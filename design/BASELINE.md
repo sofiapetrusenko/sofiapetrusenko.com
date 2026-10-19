@@ -242,6 +242,58 @@ which exits non-zero if any node is below AA.
   text box and `.spotlight-card::before` is masked to the card's 1 px border,
   so neither paints beneath glyphs. Points that hit nothing on a node that is
   otherwise measured are listed as `PARTIAL`.
+- **Paint above text is detected and fails (ruling, Sofia, 2026-10-19):**
+  every element above the text in each sample point's paint stack is read. One
+  that paints any of the following makes the node *covered*:
+  - a background colour or a `background-image`, including on an outer
+    `<svg>` or a `<foreignObject>`;
+  - an SVG fill on a basic shape (`rect`, `circle`, `ellipse`, `path`,
+    `polygon`, `polyline`) or on SVG text;
+  - an SVG `<use>` or `<image>`, which counts as painting whatever it holds;
+  - replaced content (`canvas`, `img`, `video`, `iframe`, `object`, `embed`);
+  - a `::before`/`::after` that paints a background, other than the two named
+    clear above.
+
+  **Not detected** (charter rule 17: the claim is this list, not "anything
+  above"):
+  - borders, outlines and `box-shadow` of an element above;
+  - SVG strokes (the diagrams' `<line>`s and the scroll-cue chevron are
+    stroke-only);
+  - the glyphs and `text-shadow` of an overlapping element;
+  - `filter`, `backdrop-filter` and `mix-blend-mode`;
+  - pseudo-elements that paint only `content` text or borders;
+  - anything away from the three sample points on each line box's midline;
+  - any viewport other than 1440, 768 and 390 px wide by 900 px tall
+    (`HEIGHT` in the audit), and fixed or scroll-dependent overlays at any
+    scroll offset other than the one each node is sampled at. The scroll cue
+    shows only at `scrollY` ≤ 24, so at other heights it lies over other text
+    (at 1280×720 its fade starts at y = 580, above the hero links at 651–689:
+    `design/drafts/issue-scroll-cue-overlay.probe.txt`), and T10 does not see it.
+
+  Whether to extend detection to any of these is open for a ruling. Paint above is never composited into the ratio. A
+  covered node fails the run unless it is an entry in the exclusion list below,
+  matched by route, width, selector, text and the one element painting above
+  it. An entry that matches no node in a view the run audited fails the run,
+  so the list cannot outlive what it excuses. The audit reads the list from
+  this file, between the two markers.
+
+  **T10 paint-above exclusions** (exactly one entry, ruling Sofia,
+  2026-10-19). The scroll cue's fade (`ScrollCue.tsx`, `.scroll-cue__fade`:
+  a 140 px `linear-gradient` from `--color-bg` to transparent, fixed to the
+  viewport bottom) lies over the "Selected work" heading at 768 px while the
+  page is at the top (`scrollY` ≤ 24, i.e. at page load); it disappears after
+  24 px of scroll. The audit scores the heading 4.589:1 on what is beneath it;
+  composited with the fade (alpha 0.362 at the heading's midline) it is
+  2.797:1 over the worst underlay and 3.696:1 on plain `--color-bg`
+  (`evidence/scroll-cue-fade-composite.json`, from the `.mjs` beside it, on
+  build `kqenurahUwEBYzDtegTom`). It is on main at `39fb47c` too.
+
+<!-- T10 paint-above exclusions: begin -->
+| route | width | selector | text | paint above | issue |
+| --- | --- | --- | --- | --- | --- |
+| `/` | 768 | `h2.text-muted.mb-10.flex` | "Selected work" | `div.scroll-cue__fade.pointer-events-none.absolute` | draft `design/drafts/issue-scroll-cue-overlay.md` (not filed) |
+<!-- T10 paint-above exclusions: end -->
+
 - **The page audited is the page meant:** a failed navigation, an HTTP status
   other than 200 (404 for the 404 route, which must be a real 404), or any
   uncaught exception in the page (`Runtime.exceptionThrown`) fails the run.
@@ -295,15 +347,36 @@ which exits non-zero if any node is below AA.
   a 1.5 s slide-and-fade, text moved by a scroll-driven animation, text whose
   sample points land on the viewport's last pixel row, and a tab group whose
   listeners attach 1 s after load) and cases that must be excluded (`sr-only`,
-  off-page). An infinite animation runs throughout. A fill under the fifth
+  off-page). Four cases sit under paint above their text (a background colour, a
+  gradient, an outer `<svg>`'s background, a filled `<polyline>`). Three must
+  be reported covered in every view. The fourth is listed in the fixture's own
+  exclusion table (`scripts/fixtures/contrast-audit.exclusions.md`, passed with
+  `--exclusions`) at 768 px only, so it must be excluded there and covered at
+  1440 and 390. Three more pages produce reports and have no contrast
+  failure, so paint above alone decides the exit code:
+  - one has a listed node and four nodes each differing from the entry in one
+    matched field (selector, text, a second element above, route). The run
+    must exit 1, with exactly the listed node excluded.
+  - one is listed at every width. The run must exit 0.
+  - one has a node under each further kind of paint read above text (SVG
+    text, `<use>`, `<image>`, a `<foreignObject>` background, a `url()` fill,
+    `<img>`, `<canvas>`, a painting `::before`), each of which must be
+    reported with that element and kind, and a node under an `opacity: 0`
+    overlay, which must not be covered. The run must exit 1.
+
+  An infinite animation runs throughout. A fill under the fifth
   line box only of a long paragraph must fail. The audit must report exactly
-  the seeded failures and no unmeasured node. Five further pages must make the
+  the seeded failures and no unmeasured node. Nine further pages must make the
   run fail, each with its reason: a gradient fill behind text, a `::before`
-  fill behind text, an HTTP 500, an uncaught exception, and a 404 route that
+  fill behind text, a gradient on an ancestor, a gradient on a sibling painted
+  underneath, a painting `::before` on an ancestor, an HTTP 500, an uncaught
+  exception, an exclusion entry that matches nothing, and a 404 route that
   answers 200. Each of hit-testing, sampling every line box, the animation
   wait, the viewport margin, the activation check, the background-image check,
-  the pseudo-element check, the status check and the exception check has a
-  negative control: removing it makes the self-test fail.
+  the pseudo-element check, the status check, the exception check, each kind of
+  paint read above text and its `opacity: 0` guard, each of the exclusion's five
+  match fields, the stale-entry check, and the exit code's response to covered
+  and to excluded nodes has a negative control: removing it makes the self-test fail.
 - **Self-test stability (ruling, Sofia, 2026-10-17):** before the self-test
   gates anything it must run clean repeatedly with full output kept. One
   file-level failure was seen in 9 runs during development; its output was not
@@ -315,7 +388,11 @@ which exits non-zero if any node is below AA.
   and, after the review-cycle-1 changes, `selftest-runs-final-1-20.log.gz`
   (20/20). Extended again in review cycle 2 (the background-image and
   pseudo-element checks must reach ancestors and siblings beneath the text):
-  `selftest-runs-cycle2-1-20.log.gz` (20/20 clean, 24 tests each).
+  `selftest-runs-cycle2-1-20.log.gz` (20/20 clean, 24 tests each). Extended
+  in review cycle 3 (paint above text, the exclusion list):
+  `selftest-runs-cycle3-1-20.log.gz` (20/20 clean, 30 tests each). Extended in review cycle 4 (every kind of paint read above
+  text, the `opacity: 0` guard): `selftest-runs-cycle4-1-20.log.gz` (20/20
+  clean, 31 tests each).
 
 
 ## `fix/danger-contrast` — measurement (2026-10-17)
@@ -372,6 +449,13 @@ each: `evidence/static-sha256.txt`; a later rebuild in review cycle 2 matched
 again), so the Lighthouse
 and First Load JS figures above measure the same shipped code. The audit run
 before review (`contrast-audit.pre-review.{json,txt}`) gave the same counts.
+Taken again in review cycle 3 with paint-above detection, on fresh server
+processes (main `9cSYEmW-ULaHXwrJpQZ6s`; branch `kqenurahUwEBYzDtegTom`, its
+`.next/static` again byte-identical to the measured build, 32 of 32 files):
+both sides 2,930 nodes, the same below-AA counts, 0 covered, 1 excluded (the
+one entry above), 0 partially sampled, 0 unmeasured. Those reports are
+`contrast-audit.{json,txt}`; the cycle-1 audit's are kept as
+`contrast-audit.cycle1.{json,txt}`.
 
 - **Main: 58 below AA** — the same 58 as the reference: 24 `--color-danger`
   (21 text at 4.252:1 on `/work/lifespan-extract` and
@@ -393,3 +477,17 @@ before review (`contrast-audit.pre-review.{json,txt}`) gave the same counts.
 | T8 | each `/work/[slug]` ≤ 314.09 kB | 313.01 kB | pass |
 | T9 | shared ≤ 167.16 kB | 165.16 kB | pass |
 | T10 | 0 below AA | 0 (main 58) | pass |
+
+## Protocol — warm-up run (ruling, Sofia, 2026-10-19)
+
+**Effective from the next PR after `fix/danger-contrast`; not applied to this
+PR's measurement above.** One discarded warm-up run per side before the
+counted runs. It is not counted and does not set T2; the counted runs follow
+as before (interleaved, mobile ×7, desktop ×5).
+
+**Why.** T2 is the lowest main mobile score, so a single cold run sets it. In
+the `fix/danger-contrast` measurement T2 = 94 came from main's cold first run
+(TBT 204 ms: `design/reports/danger-contrast/main/lh-mobile-1.json.gz`,
+`audits.total-blocking-time`); main's other six runs were all 96
+(`main/lh-mobile-{2..7}.json.gz`). The branch passed either way,
+but the threshold measured the server's first request rather than the code.

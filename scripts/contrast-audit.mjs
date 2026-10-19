@@ -26,19 +26,33 @@
 // Scroll-driven and infinite animations are not waited for. A node none of
 // whose points could be hit-tested is unmeasured, and fails the audit.
 //
+// Paint above. What is painted on top of a node's text is never composited:
+// a node under an element that paints one of the kinds `paintsAbove` reads is
+// reported as covered, and fails the audit, unless it is an entry in the
+// exclusion list recorded in design/BASELINE.md ("T10 paint-above
+// exclusions"). An entry that matches no node in a view the run audited fails
+// the run too, so the list cannot go stale. Not detected, and listed in
+// BASELINE.md: borders, outlines and box-shadows; SVG strokes; the glyphs and
+// text-shadow of an overlapping element; filter, backdrop-filter and blend
+// modes; pseudo-elements painting only content text or borders; and anything
+// away from the sample points.
+//
 // Usage (against a running production server):
 //   node scripts/contrast-audit.mjs http://localhost:3201 [--json out.json]
 //     [--routes /a,/b]   audit these paths instead of the site's routes (the
 //                        known-answer test, `contrast-audit.selftest.mjs`)
-// Exits 1 if any node is below AA or unmeasured. CHROME_PATH overrides the Chrome binary.
+//     [--exclusions f]   read the paint-above exclusions from this file
+//                        instead of design/BASELINE.md (the known-answer test)
+// Exits 1 if any node is below AA, unmeasured or covered. CHROME_PATH overrides the Chrome binary.
 //
 // Dev tooling only. Node stdlib only — drives Chrome over
 // --remote-debugging-pipe, so it adds no dependency.
 
 import { spawn } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // The last entry is any unknown path: the 404 page is audited too.
 // Audited on purpose: it must answer 404. Every other route must answer 200.
@@ -104,8 +118,8 @@ const ratio = (x, y) => {
 };
 
 // Runs in the page. Returns every visible text node with its colour, what is
-// painted beneath it at each sample point (bottom-up), and its horizontal
-// extent.
+// painted beneath it at each sample point (bottom-up), what paints above it,
+// and its horizontal extent.
 //
 // What is beneath a node is hit-tested, not inferred from its ancestors: at up
 // to three points across each of its line boxes, `elementsFromPoint` gives the
@@ -240,6 +254,43 @@ async function collect() {
       }
     }
   };
+  // What an element on top of the text paints, or null: a fill, a gradient
+  // or image, an SVG shape, replaced content, or a painting pseudo-element.
+  // None of it is composited; the node is reported as covered instead.
+  const REPLACED = new Set(["canvas", "img", "video", "iframe", "object", "embed"]);
+  // SVG elements that paint a fill: the basic shapes, and text. `<use>` and
+  // `<image>` draw content the hit-test does not descend into, so they count
+  // as painting whatever they hold.
+  const SVG_FILLED = new Set([...SHAPES, "polyline", "text", "tspan", "textPath"]);
+  const SVG_CONTENT = new Set(["use", "image"]);
+  const paintsAbove = (e) => {
+    if (groupOpacity(e) === 0) return null;
+    const s = getComputedStyle(e);
+    const tag = e.tagName.toLowerCase();
+    if (e instanceof SVGElement && SVG_CONTENT.has(tag)) return tag;
+    if (e instanceof SVGElement && SVG_FILLED.has(e.tagName)) {
+      if (s.fill === "none" || Number(s.fillOpacity) === 0) return null;
+      if (s.fill.startsWith("url(")) return "fill " + s.fill;
+      const c = rgba(s.fill);
+      return c && c[3] > 0 ? "fill" : null;
+    }
+    // Any other SVG element paints only through CSS backgrounds, which only
+    // the outer <svg> and <foreignObject> have; for the rest they read as none.
+    if (REPLACED.has(tag)) return tag;
+    const bg = rgba(s.backgroundColor);
+    if (bg && bg[3] > 0) return "background-color";
+    if (s.backgroundImage !== "none") return "background-image";
+    for (const which of ["::before", "::after"]) {
+      const p = getComputedStyle(e, which);
+      if (p.content === "none" || p.content === "normal") continue;
+      const pb = rgba(p.backgroundColor);
+      if (!((pb && pb[3] > 0) || p.backgroundImage !== "none")) continue;
+      if (PSEUDO_CLEAR.some(([sel, w]) => w === which && e.matches(sel)))
+        continue;
+      return which + " background";
+    }
+    return null;
+  };
   // The text node's line boxes as they are painted right now, in client
   // coordinates. Read live: the scroll-driven reveal moves content as it
   // scrolls, so a box measured at one scroll offset is wrong at another.
@@ -339,6 +390,7 @@ async function collect() {
   for (const node of [...out].sort((a, b) => a.docY - b.docY)) {
     node.samples = [];
     node.unsampled = 0;
+    const above = new Map();
     let pts = points(visibleRects(node.n, node.el));
     // The scroll-driven reveal moves text as the page scrolls, so one scroll
     // can leave it off-centre or out of view: re-measure until it holds still.
@@ -364,6 +416,10 @@ async function collect() {
         .slice(at)
         .filter((e) => e !== document.body && e !== document.documentElement);
       beneath.forEach(pseudoPaint);
+      for (const e of stack.slice(0, at)) {
+        const paints = paintsAbove(e);
+        if (paints) above.set(describe(e) + "|" + paints, { element: describe(e), paints });
+      }
       node.samples.push(
         beneath
           .map(paint)
@@ -371,6 +427,7 @@ async function collect() {
           .reverse(),
       );
     }
+    node.above = [...above.values()];
   }
   force.remove();
   scrollTo(0, 0);
@@ -625,6 +682,8 @@ async function auditView(cdp, url, width) {
     pages[p] = await loadState(cdp, url, width, pages[p]);
   }
   const byKey = new Map();
+  // Paint above a node in any state is kept, whichever state scores worst.
+  const aboveByKey = new Map();
   for (const page of pages) {
     if (page.unparsed.length > 0) {
       throw new Error(
@@ -637,6 +696,12 @@ async function auditView(cdp, url, width) {
       );
     }
     for (const n of page.nodes) {
+      const prior = aboveByKey.get(n.key) ?? [];
+      for (const a of n.above) {
+        if (!prior.some((p) => p.element === a.element && p.paints === a.paints))
+          prior.push({ ...a, state: page.state });
+      }
+      aboveByKey.set(n.key, prior);
       const node = {
         ...n,
         state: page.state,
@@ -655,7 +720,39 @@ async function auditView(cdp, url, width) {
       }
     }
   }
-  return { states: pages.length, nodes: [...byKey.values()] };
+  const nodes = [...byKey.values()].map((n) => ({
+    ...n,
+    above: aboveByKey.get(n.key),
+  }));
+  return { states: pages.length, nodes };
+}
+
+// The paint-above exclusion list: the one table between the two markers in
+// `file`. Each row names a route, a width, the node's selector and text, the
+// one element allowed to paint above it, and the issue that tracks it.
+const EXCLUSIONS_BEGIN = "<!-- T10 paint-above exclusions: begin -->";
+const EXCLUSIONS_END = "<!-- T10 paint-above exclusions: end -->";
+function readExclusions(file) {
+  const text = readFileSync(file, "utf8");
+  const begin = text.split(EXCLUSIONS_BEGIN);
+  if (begin.length !== 2 || begin[1].split(EXCLUSIONS_END).length !== 2) {
+    throw new Error(`${file}: expected one paint-above exclusion table`);
+  }
+  const rows = begin[1]
+    .split(EXCLUSIONS_END)[0]
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith("|"))
+    .slice(2);
+  const unquote = (c) => c.trim().replace(/^`(.*)`$/, "$1").replace(/^"(.*)"$/, "$1");
+  return rows.map((l) => {
+    const cells = l.slice(1, -1).split("|").map(unquote);
+    const [route, width, selector, text, element, issue] = cells;
+    if (cells.length !== 6 || !WIDTHS.includes(Number(width)) || !issue) {
+      throw new Error(`${file}: malformed paint-above exclusion: ${l}`);
+    }
+    return { route, width: Number(width), selector, text, element, issue };
+  });
 }
 
 const args = process.argv.slice(2);
@@ -663,6 +760,12 @@ const jsonAt = args.indexOf("--json");
 const jsonOut = jsonAt >= 0 ? args.splice(jsonAt, 2)[1] : null;
 const routesAt = args.indexOf("--routes");
 const routes = routesAt >= 0 ? args.splice(routesAt, 2)[1].split(",") : ROUTES;
+const exclusionsAt = args.indexOf("--exclusions");
+const exclusionsFile =
+  exclusionsAt >= 0
+    ? args.splice(exclusionsAt, 2)[1]
+    : join(dirname(fileURLToPath(import.meta.url)), "../design/BASELINE.md");
+const exclusions = readExclusions(exclusionsFile);
 const base = (args[0] ?? "http://localhost:3000").replace(/\/$/, "");
 
 const cdp = launch();
@@ -685,6 +788,31 @@ const failing = all.filter((n) => n.ratio < n.min);
 const unmeasured = all.filter((n) => n.unmeasured);
 // Measured, but some sample points hit nothing: scored on fewer points.
 const partial = all.filter((n) => !n.unmeasured && n.unsampled > 0);
+// Covered: something paints above the text. Excluded only by an entry naming
+// this exact node, view and element; anything else above it still covers it.
+const exclusionFor = (n) =>
+  exclusions.find(
+    (x) =>
+      x.route === n.route &&
+      x.width === n.width &&
+      x.selector === n.selector &&
+      x.text === n.text &&
+      n.above.every((a) => a.element === x.element),
+  );
+const excluded = all.filter((n) => n.above.length > 0 && exclusionFor(n));
+const covered = all.filter((n) => n.above.length > 0 && !exclusionFor(n));
+const stale = exclusions.filter(
+  (x) =>
+    routes.includes(x.route) &&
+    !excluded.some((n) => exclusionFor(n) === x),
+);
+if (stale.length > 0) {
+  throw new Error(
+    `paint-above exclusion matched nothing: ${stale
+      .map((x) => `${x.route} @${x.width} ${x.selector} "${x.text}"`)
+      .join("; ")}`,
+  );
+}
 const tightest = all
   .filter((n) => !n.unmeasured)
   .sort((a, b) => a.ratio - a.min - (b.ratio - b.min))[0];
@@ -720,6 +848,19 @@ for (const n of partial) {
     `  PARTIAL ${n.unsampled} point(s) unsampled — ${n.route} @${n.width} [${n.state}] ${n.selector} "${n.text}"`,
   );
 }
+console.log(`covered (paint above text): ${covered.length}`);
+for (const n of covered) {
+  const by = n.above.map((a) => `${a.element} (${a.paints}) [${a.state}]`);
+  console.log(
+    `  COVERED — ${n.route} @${n.width} ${n.selector} "${n.text}" under ${by.join(", ")}`,
+  );
+}
+console.log(`excluded (BASELINE.md): ${excluded.length}`);
+for (const n of excluded) {
+  console.log(
+    `  EXCLUDED — ${n.route} @${n.width} ${n.selector} "${n.text}" under ${n.above[0].element}: ${exclusionFor(n).issue}`,
+  );
+}
 console.log(`unmeasured: ${unmeasured.length}`);
 for (const n of unmeasured) {
   console.log(
@@ -734,6 +875,11 @@ if (jsonOut)
       failing: failing.length,
       unmeasured: unmeasured.length,
       partial: partial.length,
+      covered: covered.length,
+      excluded: excluded.length,
+      coveredNodes: covered.map(({ route, width, selector, text }) => ({ route, width, selector, text })),
+      excludedNodes: excluded.map(({ route, width, selector, text }) => ({ route, width, selector, text })),
     }),
   );
-if (failing.length > 0 || unmeasured.length > 0) process.exitCode = 1;
+if (failing.length > 0 || unmeasured.length > 0 || covered.length > 0)
+  process.exitCode = 1;

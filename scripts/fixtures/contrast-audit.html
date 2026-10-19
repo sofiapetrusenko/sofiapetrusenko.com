@@ -166,6 +166,56 @@
           nineteen twenty twenty-one twenty-two twenty-three twenty-four
         </p>
       </div>
+      <!-- Paint above text: an overlay drawn on top of the text, never
+           composited. One is covered in every view; the other is listed in
+           contrast-audit.exclusions.md at 768 px only, so it is excluded
+           there and covered at 1440 and 390. Both pass on contrast alone. -->
+      <div style="position: relative">
+        <p style="margin: 0; color: #e8e8ea">CASE-above-covered</p>
+        <div
+          class="cover"
+          style="
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 13, 15, 0.6);
+          "
+        ></div>
+      </div>
+      <div style="position: relative">
+        <p style="margin: 0; color: #e8e8ea">CASE-above-excluded</p>
+        <div
+          class="cover-listed"
+          style="
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, #0d0d0f, transparent);
+          "
+        ></div>
+      </div>
+      <!-- SVG painting above text: an outer <svg>'s own background, and a
+           filled <polyline>. Both covered in every view. -->
+      <div style="position: relative">
+        <p style="margin: 0; color: #e8e8ea">CASE-above-svg-background</p>
+        <svg
+          style="
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 13, 15, 0.6);
+          "
+        ></svg>
+      </div>
+      <div style="position: relative">
+        <p style="margin: 0; color: #e8e8ea">CASE-above-polyline</p>
+        <svg
+          style="position: absolute; inset: 0; width: 100%; height: 100%"
+          viewBox="0 0 10 10"
+          preserveAspectRatio="none"
+        >
+          <polyline points="0,0 10,0 10,10 0,10" fill="rgba(13,13,15,0.6)" />
+        </svg>
+      </div>
       <span class="sr-only" style="color: rgb(20, 20, 20)"
         >CASE-excluded-sr-only</span
       >

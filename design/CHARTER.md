@@ -857,3 +857,23 @@ nothing else. The selected stage keeps its 2px accent border and 12% accent
 fill; a selected planned stage's label is fg too (unselected planned stays
 muted). No token moves. The accent stays the colour of selection; it is no
 longer the colour of the selected label.
+
+## Superseding notes — 2026-10-19
+
+Ratified text is not edited. These notes supersede the figures named; the
+amendments themselves stand as written.
+
+### On A11
+
+> #faa0a0 is not the least lightening — #f9a0a0 clears at 4.5006:1 (found in
+> review cycle 2). Shipped value #fca5a5 unaffected.
+
+**Ratified by Sofia, 2026-10-19.**
+
+### On A9
+
+> #17's '1,782 nodes / 4.59:1' came from an uncommitted method. Superseded by
+> the committed T10 audit, which found 58 nodes below AA on main at 39fb47c
+> (see BASELINE).
+
+**Ratified by Sofia, 2026-10-19.**

@@ -13,4 +13,7 @@ text nodes: 2930
 below AA:   0
 tightest:   4.570:1 (min 4.5) — /work/blotquant @1440 button.cursor-pointer.rounded-sm.border "profile_smoothing_px"
 partially sampled: 0
+covered (paint above text): 0
+excluded (BASELINE.md): 1
+  EXCLUDED — / @768 h2.text-muted.mb-10.flex "Selected work" under div.scroll-cue__fade.pointer-events-none.absolute: draft `design/drafts/issue-scroll-cue-overlay.md` (not filed)
 unmeasured: 0

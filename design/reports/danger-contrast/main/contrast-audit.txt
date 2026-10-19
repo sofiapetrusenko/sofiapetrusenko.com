@@ -71,4 +71,7 @@ tightest:   3.537:1 (min 4.5) — /work/media-automation-platform @1440 text "Me
   FAIL 4.402:1 < 4.5 — /work/media-automation-platform @390 [pressed "Upload"] text "Upload"
   FAIL 4.252:1 < 4.5 — /work/media-automation-platform @390 [switch "Simulate failure"] span "Metadata & SEO"
 partially sampled: 0
+covered (paint above text): 0
+excluded (BASELINE.md): 1
+  EXCLUDED — / @768 h2.text-muted.mb-10.flex "Selected work" under div.scroll-cue__fade.pointer-events-none.absolute: draft `design/drafts/issue-scroll-cue-overlay.md` (not filed)
 unmeasured: 0
