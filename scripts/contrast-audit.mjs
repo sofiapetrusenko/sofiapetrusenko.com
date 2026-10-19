@@ -257,11 +257,24 @@ async function collect() {
   // What an element on top of the text paints, or null: a fill, a gradient
   // or image, an SVG shape, replaced content, or a painting pseudo-element.
   // None of it is composited; the node is reported as covered instead.
-  const REPLACED = new Set(["canvas", "img", "video", "iframe", "object", "embed"]);
+  const REPLACED = new Set([
+    "canvas",
+    "img",
+    "video",
+    "iframe",
+    "object",
+    "embed",
+  ]);
   // SVG elements that paint a fill: the basic shapes, and text. `<use>` and
   // `<image>` draw content the hit-test does not descend into, so they count
   // as painting whatever they hold.
-  const SVG_FILLED = new Set([...SHAPES, "polyline", "text", "tspan", "textPath"]);
+  const SVG_FILLED = new Set([
+    ...SHAPES,
+    "polyline",
+    "text",
+    "tspan",
+    "textPath",
+  ]);
   const SVG_CONTENT = new Set(["use", "image"]);
   const paintsAbove = (e) => {
     if (groupOpacity(e) === 0) return null;
@@ -418,7 +431,11 @@ async function collect() {
       beneath.forEach(pseudoPaint);
       for (const e of stack.slice(0, at)) {
         const paints = paintsAbove(e);
-        if (paints) above.set(describe(e) + "|" + paints, { element: describe(e), paints });
+        if (paints)
+          above.set(describe(e) + "|" + paints, {
+            element: describe(e),
+            paints,
+          });
       }
       node.samples.push(
         beneath
@@ -698,7 +715,9 @@ async function auditView(cdp, url, width) {
     for (const n of page.nodes) {
       const prior = aboveByKey.get(n.key) ?? [];
       for (const a of n.above) {
-        if (!prior.some((p) => p.element === a.element && p.paints === a.paints))
+        if (
+          !prior.some((p) => p.element === a.element && p.paints === a.paints)
+        )
           prior.push({ ...a, state: page.state });
       }
       aboveByKey.set(n.key, prior);
@@ -744,7 +763,11 @@ function readExclusions(file) {
     .map((l) => l.trim())
     .filter((l) => l.startsWith("|"))
     .slice(2);
-  const unquote = (c) => c.trim().replace(/^`(.*)`$/, "$1").replace(/^"(.*)"$/, "$1");
+  const unquote = (c) =>
+    c
+      .trim()
+      .replace(/^`(.*)`$/, "$1")
+      .replace(/^"(.*)"$/, "$1");
   return rows.map((l) => {
     const cells = l.slice(1, -1).split("|").map(unquote);
     const [route, width, selector, text, element, issue] = cells;
@@ -803,8 +826,7 @@ const excluded = all.filter((n) => n.above.length > 0 && exclusionFor(n));
 const covered = all.filter((n) => n.above.length > 0 && !exclusionFor(n));
 const stale = exclusions.filter(
   (x) =>
-    routes.includes(x.route) &&
-    !excluded.some((n) => exclusionFor(n) === x),
+    routes.includes(x.route) && !excluded.some((n) => exclusionFor(n) === x),
 );
 if (stale.length > 0) {
   throw new Error(
@@ -877,8 +899,18 @@ if (jsonOut)
       partial: partial.length,
       covered: covered.length,
       excluded: excluded.length,
-      coveredNodes: covered.map(({ route, width, selector, text }) => ({ route, width, selector, text })),
-      excludedNodes: excluded.map(({ route, width, selector, text }) => ({ route, width, selector, text })),
+      coveredNodes: covered.map(({ route, width, selector, text }) => ({
+        route,
+        width,
+        selector,
+        text,
+      })),
+      excludedNodes: excluded.map(({ route, width, selector, text }) => ({
+        route,
+        width,
+        selector,
+        text,
+      })),
     }),
   );
 if (failing.length > 0 || unmeasured.length > 0 || covered.length > 0)

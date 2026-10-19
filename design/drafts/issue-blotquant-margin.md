@@ -9,10 +9,10 @@ A pressed toggle button (`button.cursor-pointer.rounded-sm.border`) has
 underlay (`scripts/contrast-audit.mjs`; method in `design/BASELINE.md`, "T10
 method") that is **4.570:1**, for **54 nodes**:
 
-| Route | Nodes per width | Total | Buttons |
-| --- | --- | --- | --- |
-| `/work/blotquant` | 13 | 39 | the inspector's parameter buttons, e.g. `profile_smoothing_px`, `band.baseline_percentile` |
-| `/work/lifespan-extract` | 5 | 15 | `records`, `quote checker`, `decrease`, `increase`, `no_effect` |
+| Route                    | Nodes per width | Total | Buttons                                                                                    |
+| ------------------------ | --------------- | ----- | ------------------------------------------------------------------------------------------ |
+| `/work/blotquant`        | 13              | 39    | the inspector's parameter buttons, e.g. `profile_smoothing_px`, `band.baseline_percentile` |
+| `/work/lifespan-extract` | 5               | 15    | `records`, `quote checker`, `decrease`, `increase`, `no_effect`                            |
 
 Source: `design/reports/danger-contrast/branch/contrast-audit.json`, which
 covers every node at 4.570 across 1440, 768 and 390 px. Each node is counted
@@ -26,6 +26,7 @@ at 10% rather than 12%.
 ### Why it matters
 
 It passes today, but nothing guards the margin:
+
 - With a 5% glyph cap, the same audit already puts these buttons at
   4.499:1.
 - Raising the fill to 12% gives 4.40:1, which is exactly A12's failure.

@@ -7,10 +7,32 @@ review loop closed (PR #25), after five cycles. None of them changes a
 T10 result on the current site. Item 3 has a ruling and must be implemented
 before the next PR's measurement.
 
+### First, in the next PR (#21): limit Tailwind's source scanning
+
+**Ruling (Sofia, 2026-10-19):** this is the first item of the next PR, #21.
+Restrict Tailwind's source scanning to exclude `scripts/` and `design/`, for
+example with `@source not` in `src/app/globals.css`.
+
+**Why.** Tailwind v4 detects sources automatically and scans every file git
+does not ignore, including the audit scripts, their fixtures, the drafts and
+the committed Lighthouse JSON. Any string there that reads as a class name
+becomes shipped CSS.
+
+- In PR #25, from commit `1efcc33`, a self-test case name added one 21-byte
+  rule, Tailwind's zero-opacity utility (`opacity: 0`). The case was renamed.
+- Tailwind's own scanner finds four more such utilities in the measured build
+  that come only from `scripts/` and `design/`: `.backdrop-filter`,
+  `.contents`, `.isolate`, and an invalid `.\[xml\:lang\]{xml:lang}` taken
+  from a Lighthouse report. `src/` uses none of them.
+
+So this change removes those four rules from shipped CSS. It cannot be checked
+for byte-identity; it needs its own CSS diff and a full measurement.
+
 ### 1. Paint-above detection scope (needs a ruling)
 
 `design/BASELINE.md` ("T10 method", "Not detected") lists what paint-above
 detection does not read:
+
 - borders, outlines and `box-shadow`;
 - SVG strokes;
 - the glyphs and `text-shadow` of an overlapping element;
@@ -37,6 +59,7 @@ Their reports go in a `warmup/` subfolder and are never counted by
 `scripts/lh-summary.mjs`. Implement this before the next PR's measurement.
 
 To do:
+
 - Record the form factors and the `warmup/` location in BASELINE ("Protocol
   — warm-up run").
 - Make `lh-summary.mjs` refuse any report path under `warmup/`, so a glob
@@ -66,6 +89,7 @@ default routes, reject any entry whose route is not in `ROUTES`.
   there sees it.
 
 Consider:
+
 - matching on `paints`, or on a hash of the computed background;
 - a dedicated paint-above pass at scroll 0 over every node in view;
 - recording `scrollY` with each sample.

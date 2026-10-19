@@ -491,3 +491,28 @@ the `fix/danger-contrast` measurement T2 = 94 came from main's cold first run
 `audits.total-blocking-time`); main's other six runs were all 96
 (`main/lh-mobile-{2..7}.json.gz`). The branch passed either way,
 but the threshold measured the server's first request rather than the code.
+
+## Byte-identity verification (ruling, Sofia, 2026-10-19)
+
+**Effective now:** "Byte-identity of shipped output is verified on a fresh build
+of the final commit, as the last step after all changes."
+
+**Why.** In `fix/danger-contrast`, the review-cycle-4 self-test gave a case a name
+ending in Tailwind's zero-opacity utility class. Tailwind v4's automatic
+source detection scans `scripts/`, so from commit `1efcc33` the shipped CSS
+carried that utility as one extra 21-byte rule (`opacity: 0`). The byte-identity checks recorded above
+for review cycles 3 to 5 hashed build `kqenurahUwEBYzDtegTom`, made before
+that case existed, so none of them could see it. The case was renamed. The
+fresh build of the final commit is compared against the measured build under
+"`fix/danger-contrast` — byte-identity on the final commit" below.
+
+## `fix/danger-contrast` — byte-identity on the final commit (2026-10-19)
+
+The final commit's `.next/static`, from a fresh `rm -rf .next && pnpm build`
+made as the last step after all changes, must match
+`design/reports/danger-contrast/evidence/static-sha256-final.txt`: the 32
+files of the measured build `aeQ6ilct3Qm2x9O_9Mh2w`, build-ID directory
+excluded. That file is written before the build, so the build is checked
+against the record, not the record against the build. The result and the
+final build ID are reported on PR #25.
+

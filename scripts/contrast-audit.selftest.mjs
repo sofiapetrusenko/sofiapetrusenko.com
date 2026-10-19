@@ -85,7 +85,8 @@ const REFUSED = {
   "/refuse-stale-exclusion": {
     status: 200,
     html: page(`<p>CASE-refuse-stale-exclusion</p>`),
-    error: /paint-above exclusion matched nothing: \/refuse-stale-exclusion @1440/,
+    error:
+      /paint-above exclusion matched nothing: \/refuse-stale-exclusion @1440/,
   },
   // The 404 route must really be a 404.
   "/this-page-does-not-exist": {
@@ -134,7 +135,9 @@ const KINDS = [
   ],
   [
     "CASE-kind-image",
-    svg(`<image href="${PNG}" width="100%" height="100%" preserveAspectRatio="none"/>`),
+    svg(
+      `<image href="${PNG}" width="100%" height="100%" preserveAspectRatio="none"/>`,
+    ),
     "image",
     "image",
   ],
@@ -182,7 +185,7 @@ const ABOVE = {
   "/fixture-above-kinds": page(
     KINDS.map(([text, overlay]) => over(text, overlay)).join("") +
       over(
-        "CASE-kind-opacity-0",
+        "CASE-kind-zero-alpha-overlay",
         `<div style="${FILL};background:rgba(13,13,15,.6);opacity:0"></div>`,
       ),
     `<style>.pseudo-cover::before{content:"";position:absolute;inset:0;background:rgba(13,13,15,.6)}</style>`,
@@ -313,20 +316,25 @@ for (const view of report.views) {
       "CASE-above-polyline",
       "CASE-above-svg-background",
     ]);
-    assert.deepEqual(r["CASE-above-svg-background"].above.map((a) => a.element), [
-      "svg",
-    ]);
-    assert.deepEqual(r["CASE-above-polyline"].above.map((a) => a.element), [
-      "polyline",
-    ]);
-    assert.deepEqual(r["CASE-above-covered"].above.map((a) => a.element), [
-      "div.cover",
-    ]);
-    assert.deepEqual(r["CASE-above-excluded"].above.map((a) => a.paints), [
-      "background-image",
-    ]);
+    assert.deepEqual(
+      r["CASE-above-svg-background"].above.map((a) => a.element),
+      ["svg"],
+    );
+    assert.deepEqual(
+      r["CASE-above-polyline"].above.map((a) => a.element),
+      ["polyline"],
+    );
+    assert.deepEqual(
+      r["CASE-above-covered"].above.map((a) => a.element),
+      ["div.cover"],
+    );
+    assert.deepEqual(
+      r["CASE-above-excluded"].above.map((a) => a.paints),
+      ["background-image"],
+    );
     for (const n of cases) {
-      if (!n.text.startsWith("CASE-above-")) assert.deepEqual(n.above, [], n.text);
+      if (!n.text.startsWith("CASE-above-"))
+        assert.deepEqual(n.above, [], n.text);
     }
   });
 
@@ -411,7 +419,7 @@ test("paint above alone fails the run; an exclusion matches on every field", asy
   }
 });
 
-test("every kind of paint above is read; an opacity-0 overlay is not", async () => {
+test("every kind of paint above is read; an overlay with no opacity is not", async () => {
   const run = await runAudit("/fixture-above-kinds");
   assert.ok(run.report, run.stderr);
   assert.equal(run.code, 1);
@@ -421,14 +429,22 @@ test("every kind of paint above is read; an opacity-0 overlay is not", async () 
     const byText = Object.fromEntries(view.nodes.map((n) => [n.text, n]));
     for (const [text, , element, paints] of KINDS) {
       const above = byText[text]?.above ?? [];
-      assert.equal(above.length, 1, `@${view.width} ${text}: ${JSON.stringify(above)}`);
+      assert.equal(
+        above.length,
+        1,
+        `@${view.width} ${text}: ${JSON.stringify(above)}`,
+      );
       assert.equal(above[0].element, element, `@${view.width} ${text}`);
       assert.ok(
         above[0].paints.startsWith(paints),
         `@${view.width} ${text}: ${above[0].paints}`,
       );
     }
-    assert.deepEqual(byText["CASE-kind-opacity-0"].above, [], `@${view.width}`);
+    assert.deepEqual(
+      byText["CASE-kind-zero-alpha-overlay"].above,
+      [],
+      `@${view.width}`,
+    );
   }
   assert.equal(run.report.covered, KINDS.length * 3);
 });

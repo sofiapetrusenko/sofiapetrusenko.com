@@ -39,12 +39,12 @@ viewport intercepts clicks meant for anything under it.
 Measured on the `fix/danger-contrast` build: `elementFromPoint` at each link's
 visible centre inside the band, at scroll 0, after load.
 
-| Viewport | Links whose click lands on `.scroll-cue` |
-| --- | --- |
-| 1280×720 | hero GitHub, LinkedIn, Email, CV (PDF) |
-| 390×667 | hero GitHub, LinkedIn, Email |
-| 768×900 | `lifespan-extract` card link (partly in view) |
-| 1440×900, 1440×800, 768×1024, 390×844, 375×667 | none |
+| Viewport                                       | Links whose click lands on `.scroll-cue`      |
+| ---------------------------------------------- | --------------------------------------------- |
+| 1280×720                                       | hero GitHub, LinkedIn, Email, CV (PDF)        |
+| 390×667                                        | hero GitHub, LinkedIn, Email                  |
+| 768×900                                        | `lifespan-extract` card link (partly in view) |
+| 1440×900, 1440×800, 768×1024, 390×844, 375×667 | none                                          |
 
 Probe: `design/drafts/issue-scroll-cue-overlay.probe.mjs`; its output is in
 `design/drafts/issue-scroll-cue-overlay.probe.txt`. It is a scratch

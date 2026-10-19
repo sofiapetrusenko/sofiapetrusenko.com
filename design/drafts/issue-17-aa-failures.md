@@ -11,7 +11,7 @@ T10 worst-case underlay
 `fix/danger-contrast` (PR #25).
 
 One more node is below AA on `39fb47c` but is not among the 58: "Selected
-work" on `/` at 768 px. The scroll-cue fade is painted *above* it at page load.
+work" on `/` at 768 px. The scroll-cue fade is painted _above_ it at page load.
 T10 scores it on what is beneath it (4.589:1). With the fade composited it is
 2.797:1. The audit now detects paint above text. This node is the one
 recorded exclusion in BASELINE, tracked in its own follow-up issue (#21), and is not fixed by `fix/danger-contrast`.
@@ -24,16 +24,16 @@ width, at 1440/768/390 px, 0 unmeasured, 0 covered by paint above, 1 excluded
 
 ### Pair 1 — `--color-danger` `#f87171`: 24 nodes
 
-| Use | Ratio | Nodes | Where |
-| --- | --- | --- | --- |
-| Danger text over the worst underlay | 4.252:1 | 21 | `/work/lifespan-extract` quote-checker tab (5 per width); `/work/media-automation-platform` failure simulation (2 per width) |
-| Failed stage's SVG label on its own 15% danger fill | 3.537:1 | 3 | `/work/media-automation-platform`, failure simulation on (1 per width) |
+| Use                                                 | Ratio   | Nodes | Where                                                                                                                        |
+| --------------------------------------------------- | ------- | ----- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Danger text over the worst underlay                 | 4.252:1 | 21    | `/work/lifespan-extract` quote-checker tab (5 per width); `/work/media-automation-platform` failure simulation (2 per width) |
+| Failed stage's SVG label on its own 15% danger fill | 3.537:1 | 3     | `/work/media-automation-platform`, failure simulation on (1 per width)                                                       |
 
 ### Pair 2 — selected stage label, `--color-accent` on its own 12% accent fill: 34 nodes
 
-| Use | Ratio | Nodes | Where |
-| --- | --- | --- | --- |
-| Selected pipeline stage label | 4.402:1 | 34 | `/work/media-automation-platform` (7 per width); `/work/lifespan-extract` (5 at 1440 and 768, 3 at 390) |
+| Use                           | Ratio   | Nodes | Where                                                                                                   |
+| ----------------------------- | ------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| Selected pipeline stage label | 4.402:1 | 34    | `/work/media-automation-platform` (7 per width); `/work/lifespan-extract` (5 at 1440 and 768, 3 at 390) |
 
 The nodes are counted once each, at their worst state; the states come from
 pressing each stage button and turning on the failure switch.
