@@ -4,7 +4,7 @@ export const profile = {
   name: "Sofia Petrusenko",
   headline: "Scientist studying ageing. Engineer building LLM systems.",
   summary:
-    "Research training in ageing biology — autophagy, proteostasis and longevity — across the UK, Portugal, Germany and Ukraine. Today I apply the same experimental discipline to markets: high-frequency data pipelines, reconciliation across inconsistent sources, and probabilistic modelling of how prices are formed — measured, tested and running in production.",
+    "Research training in ageing biology across the UK, Portugal, Germany and Ukraine, focused on autophagy, proteostasis and longevity. Today I apply the same experimental discipline to markets: high-frequency data pipelines, reconciliation across inconsistent sources, and probabilistic modelling of how prices are formed. All of it is tested and running in production.",
   location: "Cascais, Portugal",
   availability:
     "Hiring early. Engineers and operators who'd rather build than wait — say hello.",

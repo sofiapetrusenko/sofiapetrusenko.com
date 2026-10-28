@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sofia Petrusenko — AI & Longevity",
     description:
-      "Production LLM systems, longevity research tooling, end-to-end engineering.",
+      "Scientist studying ageing. Engineer building LLM systems: real-time data pipelines, cross-source reconciliation and probabilistic modelling.",
     url: "https://sofiapetrusenko.dev",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },

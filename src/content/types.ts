@@ -110,19 +110,6 @@ export type PipelineStage = {
   failure: string;
 };
 
-export type Note = {
-  /** url-safe id */
-  slug: string;
-  title: string;
-  /** one line, shown on the home page card */
-  teaser: string;
-  /** ISO yyyy-mm-dd, rendered verbatim in mono */
-  date: string;
-  readingMinutes: number;
-  /** markdown; see `parseMarkdown` for the supported subset */
-  body: string;
-};
-
 /** One node in the colophon's process strip. */
 export type ProcessStep = {
   id: string;

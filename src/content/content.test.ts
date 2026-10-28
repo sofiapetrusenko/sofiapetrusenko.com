@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   education,
   isCurrentRole,
-  notes,
   profile,
   projects,
   roles,
@@ -81,17 +80,6 @@ function textFields(): Field[] {
     if (role.summary !== undefined) {
       fields.push({ path: `${at}.summary`, value: role.summary });
     }
-  }
-
-  for (const note of notes) {
-    const at = `notes[${note.slug}]`;
-    fields.push(
-      { path: `${at}.slug`, value: note.slug },
-      { path: `${at}.title`, value: note.title },
-      { path: `${at}.teaser`, value: note.teaser },
-      { path: `${at}.date`, value: note.date },
-      { path: `${at}.body`, value: note.body },
-    );
   }
 
   for (const entry of education) {
@@ -206,19 +194,6 @@ describe("content", () => {
   it("uses only known role kinds", () => {
     for (const role of roles) {
       expect(["engineering", "research"]).toContain(role.kind);
-    }
-  });
-
-  it("gives every note a unique slug", () => {
-    const slugs = notes.map((note) => note.slug);
-    expect(slugs).toStrictEqual([...new Set(slugs)]);
-  });
-
-  it("dates every note as ISO yyyy-mm-dd with a positive reading time", () => {
-    for (const note of notes) {
-      expect(note.date, note.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(Number.isNaN(Date.parse(note.date)), note.slug).toBe(false);
-      expect(note.readingMinutes, note.slug).toBeGreaterThan(0);
     }
   });
 

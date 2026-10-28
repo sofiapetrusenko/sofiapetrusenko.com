@@ -5,7 +5,6 @@ export type {
   Colophon,
   Education,
   Link,
-  Note,
   PipelineStage,
   ProcessStep,
   Profile,
@@ -13,7 +12,6 @@ export type {
   Role,
 } from "./types";
 
-export { notes, getNote } from "./notes";
 export { colophon } from "./colophon";
 
 export { profile } from "./profile";

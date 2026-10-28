@@ -13,7 +13,7 @@ export const roles = [
     kind: "engineering",
     period: "2026 – present",
     summary:
-      "Real-time data intelligence: ingestion pipelines, cross-source reconciliation and statistical modelling, built end-to-end. In production; name to be announced.",
+      "Real-time data intelligence: ingestion pipelines, cross-source reconciliation and statistical modelling, built end-to-end. In production.",
     undisclosed: true,
   },
   {

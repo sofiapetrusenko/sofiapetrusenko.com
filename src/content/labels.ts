@@ -12,8 +12,6 @@ export const labels = {
   approach: "Approach",
   links: "Links",
   viewCaseStudy: "View case study",
-  notes: "Notes",
-  readingTimeSuffix: "min read",
   colophon: "colophon",
   colophonTitle: "Colophon",
   process: "Process",

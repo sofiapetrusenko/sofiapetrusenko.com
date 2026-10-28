@@ -60,7 +60,6 @@ const NOT_FOUND_ROUTE = "/this-page-does-not-exist";
 const ROUTES = [
   "/",
   "/colophon",
-  "/notes/untrusted-llm-output",
   "/work/blotquant",
   "/work/lifespan-extract",
   "/work/media-automation-platform",
