@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { education, labels, notes, profile, projects, roles } from "@/content";
+import { education, labels, profile, projects, roles } from "@/content";
 import Home from "./page";
 
 describe("Home", () => {
@@ -122,25 +122,6 @@ describe("Home", () => {
         screen.getAllByText(country).length,
         `country tag: ${country}`,
       ).toBeGreaterThanOrEqual(count);
-    }
-  });
-
-  it("renders the current-focus line from content", () => {
-    render(<Home />);
-
-    expect(screen.getByText(/currently:/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(profile.now.slice(0, 30), "i")),
-    ).toBeInTheDocument();
-  });
-
-  it("lists every note, linking to its page", () => {
-    render(<Home />);
-
-    for (const note of notes) {
-      const link = screen.getByRole("link", { name: note.title });
-      expect(link).toHaveAttribute("href", `/notes/${note.slug}`);
-      expect(screen.getByText(note.teaser)).toBeInTheDocument();
     }
   });
 

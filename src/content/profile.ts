@@ -4,10 +4,8 @@ export const profile = {
   name: "Sofia Petrusenko",
   headline: "Scientist studying ageing. Engineer building LLM systems.",
   summary:
-    "I work at the intersection of ageing biology and applied AI. Research training in autophagy, proteostasis and longevity across the UK, Portugal, Germany and Ukraine — now building production LLM systems end-to-end: orchestration pipelines, retrieval-based memory, deployment.",
+    "Research training in ageing biology — autophagy, proteostasis and longevity — across the UK, Portugal, Germany and Ukraine. Today I apply the same experimental discipline to markets: high-frequency data pipelines, reconciliation across inconsistent sources, and probabilistic modelling of how prices are formed — measured, tested and running in production.",
   location: "Cascais, Portugal",
-  /** What's in flight now, rendered as a shell-prompt line under the location. */
-  now: "building my company · lifespan-extract & blotquant on the side · learning português",
   availability:
     "Hiring early. Engineers and operators who'd rather build than wait — say hello.",
   email: "sofia.petrusenko988@gmail.com",

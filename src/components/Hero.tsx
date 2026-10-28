@@ -1,4 +1,4 @@
-import { labels, profile } from "@/content";
+import { profile } from "@/content";
 import { LinkList } from "./LinkList";
 import { PageGlow } from "./PageGlow";
 
@@ -22,13 +22,6 @@ export function Hero() {
       </p>
       <p className="text-muted mt-8 font-mono text-xs tracking-wider">
         {profile.location}
-      </p>
-      {/* Shell-prompt line: quiet, static, no cursor and no typing effect. */}
-      <p className="text-muted mt-3 font-mono text-xs break-words">
-        <span className="text-accent">
-          {labels.promptSymbol} {labels.promptCurrently}
-        </span>{" "}
-        {profile.now}
       </p>
       <div className="mt-10">
         <LinkList links={[...profile.links, profile.cv]} variant="pill" />

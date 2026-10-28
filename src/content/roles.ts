@@ -13,7 +13,7 @@ export const roles = [
     kind: "engineering",
     period: "2026 – present",
     summary:
-      "Building a company from zero to production — product, engineering and go-to-market. Currently in production; name to be announced.",
+      "Real-time data intelligence: ingestion pipelines, cross-source reconciliation and statistical modelling, built end-to-end. In production; name to be announced.",
     undisclosed: true,
   },
   {
@@ -30,7 +30,7 @@ export const roles = [
     /* A dated line rather than a role write-up: adjacent contract work, kept
        separate from the engineering entry above instead of folded into it. */
     org: "Independent",
-    title: "Paid acquisition & performance marketing (contract)",
+    title: "Paid acquisition & affiliate marketing",
     location: "Cascais, Portugal (remote)",
     country: "Portugal",
     kind: "engineering",

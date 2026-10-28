@@ -144,8 +144,6 @@ export type Profile = {
   /** 2-3 sentences */
   summary: string;
   location: string;
-  /** current focus, one line, rendered after a shell-style prompt */
-  now: string;
   /** one-line call to action shown above the contact links */
   availability: string;
   email: string;

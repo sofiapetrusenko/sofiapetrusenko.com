@@ -22,9 +22,6 @@ export const labels = {
   pipeline: "Pipeline",
   pipelineHint:
     "Select a stage for what it does, the artifact it writes and how it fails.",
-  /* Shell-prompt chrome for the hero's "currently" line. */
-  promptSymbol: "$",
-  promptCurrently: "currently:",
   /* Caption under the redaction bar of a role whose org is undisclosed. The
      marker is its own string so the component holds no copy at all. */
   buildingSymbol: "▸",
