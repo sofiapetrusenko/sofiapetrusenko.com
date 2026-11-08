@@ -1,4 +1,3 @@
-import NextLink from "next/link";
 import { labels, profile } from "@/content";
 import { LinkList } from "./LinkList";
 import { SectionLabel } from "./Section";
@@ -19,13 +18,10 @@ export function Contact() {
       <div className="mt-8">
         <LinkList links={profile.links} />
       </div>
-      {/* The colophon is linked from here only. */}
-      <NextLink
-        href="/colophon"
-        className="link-underline text-muted hover:text-accent mt-10 inline-block font-mono text-xs tracking-wider transition-colors duration-150 ease-out"
-      >
-        {labels.colophon}
-      </NextLink>
+      {/*
+        The colophon page still exists at /colophon but is linked from nowhere.
+        Restoring the footer link brings it back.
+      */}
     </footer>
   );
 }

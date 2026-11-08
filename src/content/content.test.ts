@@ -69,8 +69,11 @@ function textFields(): Field[] {
 
   for (const [i, role] of roles.entries()) {
     const at = `roles[${i}]`;
+    // `null` org is a deliberate "not named"; a string org must still be real.
+    if (role.org !== null) {
+      fields.push({ path: `${at}.org`, value: role.org });
+    }
     fields.push(
-      { path: `${at}.org`, value: role.org },
       { path: `${at}.title`, value: role.title },
       { path: `${at}.location`, value: role.location },
       { path: `${at}.country`, value: role.country },
@@ -156,25 +159,28 @@ describe("content", () => {
     expect(empty).toStrictEqual([]);
   });
 
-  it("marks exactly one role as current, and it is the most recent", () => {
+  it("puts every current role at the top, ahead of all closed ones", () => {
     const current = roles.filter(isCurrentRole);
-    expect(current).toHaveLength(1);
-    expect(current[0]).toBe(roles[0]);
+    expect(current.length).toBeGreaterThan(0);
+    expect(roles.slice(0, current.length)).toStrictEqual(current);
   });
 
-  it("withholds at most one org, and only on the current role", () => {
+  it("withholds at most one org, and always behind a placeholder", () => {
     // An invariant, so it holds at zero too. That the flag is actually set on
     // one role today is anchored in `page.test.tsx`, which throws if it is not.
+    // The role may be closed: a past venture can stay unnamed.
     const undisclosed = allRoles.filter((role) => role.undisclosed === true);
 
     expect(undisclosed.length).toBeLessThanOrEqual(1);
     for (const role of undisclosed) {
-      expect(isCurrentRole(role), role.period).toBe(true);
+      // The bar stands in front of the org string, so there must be one.
+      expect(role.org, role.period).not.toBeNull();
     }
   });
 
   it("does not treat a closed period as current", () => {
-    for (const role of roles.slice(1)) {
+    const leading = roles.filter(isCurrentRole).length;
+    for (const role of roles.slice(leading)) {
       expect(isCurrentRole(role), role.period).toBe(false);
     }
   });
@@ -185,8 +191,14 @@ describe("content", () => {
       ...education.map((e) => e.country),
     ];
     expect(countries.every((c) => c.trim() !== "")).toBe(true);
-    // The four the site claims in the profile summary.
-    expect(new Set(countries)).toStrictEqual(
+    // The profile summary claims research training across exactly these four,
+    // so research roles plus degrees must cover them and nothing else.
+    // Engineering roles are free to add others (a US employer, say).
+    const research = [
+      ...roles.filter((r) => r.kind === "research").map((r) => r.country),
+      ...education.map((e) => e.country),
+    ];
+    expect(new Set(research)).toStrictEqual(
       new Set(["Portugal", "UK", "Germany", "Ukraine"]),
     );
   });
@@ -208,8 +220,9 @@ describe("content", () => {
     }
   });
 
-  it("points the CV at a same-origin file served from public/", () => {
+  it("offers the CV on request by email, never as a public file", () => {
     // Deliberately outside `profile.links`, which is asserted absolute above.
-    expect(profile.cv.href).toMatch(/^\/[\w.-]+\.pdf$/);
+    expect(profile.cv.href.startsWith(`mailto:${profile.email}?`)).toBe(true);
+    expect(profile.cv.href).not.toMatch(/\.pdf/i);
   });
 });

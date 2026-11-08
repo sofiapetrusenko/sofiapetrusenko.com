@@ -86,7 +86,8 @@ describe("Home", () => {
     const { container } = render(<Home />);
 
     const role = roles.find((entry) => entry.undisclosed);
-    if (!role) throw new Error("expected one undisclosed role");
+    if (!role || role.org === null)
+      throw new Error("expected one undisclosed role with a placeholder org");
 
     // The org string reaches the a11y tree, and appears nowhere else on the page.
     const matches = screen.getAllByText(role.org);
@@ -125,13 +126,12 @@ describe("Home", () => {
     }
   });
 
-  it("links the colophon from the footer", () => {
+  it("does not link the colophon from the page", () => {
     render(<Home />);
 
-    expect(screen.getByRole("link", { name: /^colophon$/i })).toHaveAttribute(
-      "href",
-      "/colophon",
-    );
+    expect(
+      screen.queryByRole("link", { name: /^colophon$/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("gives every project card an explicit call to action", () => {

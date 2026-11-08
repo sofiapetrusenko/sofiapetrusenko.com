@@ -4,10 +4,9 @@ import type { Role } from "@/content";
 
 /**
  * The pulse rule has two halves — a current role rings, an undisclosed one does
- * not — and real content can only exercise one of them, because the site's only
- * current role *is* the undisclosed one. These three entries are the smallest
- * set that reaches both: current and undisclosed, current and disclosed, and
- * closed.
+ * not — and real content may not exercise both at once. These three entries
+ * are the smallest set that reaches both: current and undisclosed, current
+ * and disclosed, and closed.
  *
  * Hoisted because `vi.mock` is itself hoisted above the imports, so a fixture
  * declared normally would not exist yet when the factory runs.
