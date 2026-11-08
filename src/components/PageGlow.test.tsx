@@ -95,9 +95,10 @@ describe("PageGlow", () => {
     expect(layout).toMatch(/fixed inset-0 -z-10/);
     expect(layout).not.toMatch(/animation|data-/);
 
-    // And the closed list stays closed: exactly two elements on the whole site
-    // are driven by a scroll timeline — the reveal wrapper and this glow.
+    // And the closed list stays closed: exactly four rules on the whole site
+    // are driven by a scroll timeline — the reveal wrapper, this glow, and the
+    // hero scene's letters and lift (charter A13).
     const scrollDriven = css.match(/^\s*animation-timeline:/gm) ?? [];
-    expect(scrollDriven).toHaveLength(2);
+    expect(scrollDriven).toHaveLength(4);
   });
 });

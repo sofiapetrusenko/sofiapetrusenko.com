@@ -877,3 +877,63 @@ amendments themselves stand as written.
 > (see BASELINE).
 
 **Ratified by Sofia, 2026-10-19.**
+
+## A13 — The hero becomes a scene: a warp field and a dissolving name
+
+> Instruction, Sofia, 2026-11-08, after three rounds on the `Token Warp`
+> prototype: scrolling should feel like moving forward into the page; the
+> background in the hero dense with letters, digits and tokens; no tap ring;
+> everything below the hero exactly as it is.
+
+**Proposed — awaiting Sofia's ratification at merge.**
+
+- **Rule 2a** gains one row: the hero warp (`warp/WarpField.tsx`, drawn by
+  `warp/warp.worker.ts`), home hero **only**. It drifts toward the reader at
+  0.06 depth/s on an idle page, which is new unprompted *movement* (the site
+  field moves nothing). It stops painting once the hero has been scrolled past.
+- **Rule 2b** gains two rows, home hero only: `.hero-letter` (each letter of
+  the name flies out over `contain 10% → 38%` of the scene plus a per-letter
+  delay of up to 12%, gone by the midpoint of its flight) and `.hero-lift` (the
+  headline and everything under it rise 1.656 name-sizes over
+  `contain 25% → 55%`). The warp's camera speed is also scroll-prompted: scroll
+  velocity, multiplied up to 3.8× through the dissolve.
+- **Rule 3**: the scene's stretch (280svh), the sticky stage, both animations
+  and the letters' opacity 0 exist only inside `no-preference` and
+  `@supports (animation-timeline: view())`. Outside them the hero is the
+  ordinary hero. The worker does not start either: it checks the same two
+  conditions.
+- **Rule 6**: the `<h1>` never starts hidden and is never scrambled. Its name
+  reaches assistive tech from one visually hidden span; the per-letter spans are
+  `aria-hidden` presentation, and they only leave when the reader scrolls.
+- **Rule 7**: no new composite under any text. The worker clips every glyph and
+  trail out of the `data-hero-quiet` boxes (headline, bio, location, links, and
+  the name until its letters have gone), padded 12px. Its own fill is
+  `--color-bg`, which can only cover the site field and glows, never brighten
+  what is under text. The prototype's faint glyphs behind the bio are therefore
+  **not** carried over: a 14% muted glyph (the prototype's level) over the
+  hero glow's brightest composite, rgb(23, 50, 47), gives rgb(42, 66, 64), on
+  which `--color-muted` is 4.2:1, below AA.
+- **Rule 12**: the count is **eleven**, four of them chrome. `warp/LazyWarp` is
+  the boundary (`ssr: false`, the `LazyAsciiField` pattern); `WarpField` is the
+  shim. A server component cannot hold a canvas and a worker; it takes no
+  children.
+- **Scroll-driven rules**: four `animation-timeline` declarations site-wide —
+  the reveal, the glow, `.hero-letter`, `.hero-lift`. `PageGlow.test.tsx`
+  asserts the number.
+
+**Observed (rule 18), Chromium 153 under Playwright, 390×844 and 1440×900:**
+
+- The worker draws: `.hero-warp[data-ready]` set, glyphs visible outside the
+  text boxes in screenshots at progress 0, 0.2, 0.4, 0.6 and past the scene,
+  where the site field takes back over.
+- Text boxes stay empty: with hero text made transparent, the brightest pixel
+  inside every `data-hero-quiet` box is 13–14/255 (the background) at progress
+  0, 0.15, 0.3, 0.42, 0.5 and 0.6, at both widths, against 128–168/255 in a
+  control strip below. **This check was first seen failing**: before the worker
+  learned the stage's sticky offset, the same boxes held glyph pixels up to
+  171/255 at every progress after 0.
+- Main thread while scrolling through the scene: 60 fps, worst frame 17ms,
+  zero long tasks.
+- No sideways scroll: `scrollWidth` equals the viewport at every point. Also
+  first seen failing (652–788px on a phone) while only `html` carried
+  `overflow-x: clip`; `body` needs it too.

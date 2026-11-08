@@ -1160,6 +1160,138 @@ body {
 }
 
 /*
+ * Hero scene and warp (charter A13).
+ *
+ * At rest, and wherever either guard below fails, the hero is the ordinary
+ * hero: the scene is as tall as its content, the stage is in flow, the
+ * letters are plain inline blocks and nothing is hidden. Only inside
+ * `no-preference` and `@supports (animation-timeline: view())` is the scene
+ * stretched to 280svh and the stage made sticky, so the reader scrolls
+ * through it.
+ *
+ * Progress through the scene is its `contain` view-timeline range: 0% when the
+ * scene's top meets the viewport's, 100% when its bottom meets the viewport's
+ * bottom. Every range below is a fraction of that, and `warp.math.ts` holds
+ * the same fractions (LETTERS, LIFT, CALM), so the worker's field and these
+ * transforms agree on where the reader is.
+ *
+ * Transform and opacity only (rule 5). The letters end at opacity 0, which is
+ * declared only inside both guards (rule 3's corollary); scrolling back up
+ * plays everything in reverse.
+ *
+ * Contrast (rule 7): the warp adds nothing under any hero text. The worker
+ * clips every glyph and trail out of the `data-hero-quiet` boxes, padded 12px,
+ * so each text box keeps the composite it has today. The field's own fill is
+ * `--color-bg` at the warp's fade, which can only cover the site field and
+ * glows beneath, never brighten what is under the text.
+ */
+.hero-stage {
+  --hero-name-size: clamp(3rem, 15.5vw, 5.5rem);
+}
+
+.hero-letter {
+  display: inline-block;
+}
+
+/* Decoration: fixed behind the hero stage's content, shown once it draws. */
+.hero-warp {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  contain: strict;
+  opacity: 0;
+}
+
+.hero-warp[data-ready] {
+  opacity: 1;
+}
+
+.hero-warp__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-warp {
+    transition: opacity 900ms ease-out;
+  }
+
+  @supports (animation-timeline: view()) {
+    /*
+     * Letters fly past the viewport's edge; clip, never scroll sideways. On
+     * both: the root's value goes to the viewport, which treats clip as hidden
+     * and would still scroll programmatically and report the overflow, while
+     * the body's then applies to the body box itself, which clips for real.
+     * Neither is a scroll container, so the sticky stage is unaffected.
+     */
+    html,
+    body {
+      overflow-x: clip;
+    }
+
+    .hero-scene {
+      height: 280svh;
+      view-timeline: --hero block;
+    }
+
+    /*
+     * Sticks where it already sits at rest (the page's top padding, py-24 /
+     * sm:py-32), so engaging it moves nothing and the name never meets the
+     * viewport's top edge. `WarpField` reads this value back.
+     */
+    .hero-stage {
+      position: sticky;
+      top: 6rem;
+    }
+
+    @media (min-width: 40rem) {
+      .hero-stage {
+        top: 8rem;
+      }
+    }
+
+    .hero-letter {
+      animation: hero-letter-out ease-in both;
+      animation-timeline: --hero;
+      animation-range: contain calc(10% + var(--delay)) contain
+        calc(38% + var(--delay));
+      will-change: transform, opacity;
+    }
+
+    /* Linear, so it matches the worker's straight-line LIFT mapping. */
+    .hero-lift {
+      animation: hero-lift linear both;
+      animation-timeline: --hero;
+      animation-range: contain 25% contain 55%;
+    }
+
+    /*
+     * Gone by the midpoint of its flight, so a letter has faded before it is
+     * large enough to cross the text below at any real opacity.
+     */
+    @keyframes hero-letter-out {
+      50% {
+        opacity: 0;
+      }
+      to {
+        transform: translate(calc(var(--dx) * 60vmax), calc(var(--dy) * 60vmax))
+          rotate(var(--rot)) scale(3);
+        opacity: 0;
+      }
+    }
+
+    /* Two lines of the name at 0.92 leading, 90% of it: LIFT_EM. */
+    @keyframes hero-lift {
+      to {
+        transform: translateY(calc(var(--hero-name-size) * -1.656));
+      }
+    }
+  }
+}
+
+/*
  * View transitions on this site, after D1's partial revert.
  *
  * The shared-element morph this section used to configure is GONE. The project
