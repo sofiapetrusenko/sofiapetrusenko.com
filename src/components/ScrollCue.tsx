@@ -70,7 +70,9 @@ export function ScrollCue() {
 
   return (
     <div
-      className="scroll-cue fixed inset-x-0 bottom-0 z-10 flex justify-center"
+      // Not on phones: the hero already runs past the fold there, so the page
+      // visibly continues, and the fade would sit over the hero's own links.
+      className="scroll-cue fixed inset-x-0 bottom-0 z-10 flex justify-center max-sm:hidden"
       data-visible={overflows && atTop ? "true" : "false"}
     >
       <div

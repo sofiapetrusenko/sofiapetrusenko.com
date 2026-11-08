@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-24 sm:px-8 sm:py-32">
+    <div className="mx-auto max-w-3xl px-7 py-24 sm:px-8 sm:py-32">
       {/*
         Between-section gap is far larger than any gap inside a section, so the
         grouping survives a squint test. The hero is deliberately not wrapped in

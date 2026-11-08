@@ -23,13 +23,13 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://sofiapetrusenko.dev"),
   title: {
     default: profile.name,
-    template: `%s — ${profile.name}`,
+    template: `%s · ${profile.name}`,
   },
   description: profile.headline,
   openGraph: {
-    title: "Sofia Petrusenko — AI & Longevity",
+    title: "Sofia Petrusenko · AI & Longevity",
     description:
-      "Scientist studying ageing. Engineer building LLM systems: real-time data pipelines, cross-source reconciliation and probabilistic modelling.",
+      "Scientist studying ageing. Engineer building LLM systems: multi-model orchestration, cost-aware routing and observability at the inference layer.",
     url: "https://sofiapetrusenko.dev",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
