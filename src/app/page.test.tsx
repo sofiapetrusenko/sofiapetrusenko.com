@@ -15,7 +15,12 @@ describe("Home", () => {
     const headings = screen.getAllByRole("heading", { level: 1 });
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveTextContent(profile.name);
-    expect(screen.getByText(profile.headline)).toBeInTheDocument();
+    // One span per sentence, so match on the paragraph's whole text.
+    expect(
+      screen.getByText(
+        (_, el) => el?.tagName === "P" && el.textContent === profile.headline,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText(profile.summary)).toBeInTheDocument();
   });
 
