@@ -97,14 +97,13 @@ export function Experience() {
       <Rail>
         {roles.map((role) => (
           <li
-            key={`${role.org}-${role.period}`}
+            key={`${role.title}-${role.period}`}
             className="relative pl-6 sm:pl-8"
           >
             {/*
-              No ring on the undisclosed entry. The redaction bar is that
-              item's signature effect, and "present" in the meta row plus the
-              "building" caption already carry currency — so the ring would add
-              a second rhythm to the same list item and buy nothing.
+              No ring on an undisclosed entry. The redaction bar is that
+              item's signature effect, so a ring would add a second rhythm to
+              the same list item and buy nothing.
             */}
             <Node
               kind={role.kind}
@@ -114,11 +113,12 @@ export function Experience() {
             <h3 className="mt-2 text-lg font-medium tracking-tight">
               {role.title}
             </h3>
-            {role.undisclosed ? (
-              <UndisclosedOrg org={role.org} />
-            ) : (
-              <p className="text-muted mt-1 text-sm">{role.org}</p>
-            )}
+            {role.org !== null &&
+              (role.undisclosed ? (
+                <UndisclosedOrg org={role.org} />
+              ) : (
+                <p className="text-muted mt-1 text-sm">{role.org}</p>
+              ))}
             {/* A short contract entry is a dated line and carries no prose. */}
             {role.summary && (
               <p className="text-muted mt-3 max-w-[68ch] text-sm leading-relaxed">

@@ -57,7 +57,12 @@ export type Project = {
 };
 
 export type Role = {
-  org: string;
+  /**
+   * `null` when the employer is not named on the site at all: the timeline
+   * renders no org line. Still required, so leaving it out is a compile error
+   * and an unnamed org is always a deliberate choice.
+   */
+  org: string | null;
   title: string;
   location: string;
   /** country alone, so the geography scans down the timeline */

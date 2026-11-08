@@ -3,6 +3,20 @@ import type { Role } from "./types";
 /** Most recent first. Values taken from the CV. */
 export const roles = [
   {
+    /* Employer not named on the site yet: `org: null` renders no org line at
+       all, unlike the entry below, which shows a redaction bar. */
+    org: null,
+    title: "Junior Partnership Manager (Anthropic, Claude) & AI/LLM Developer",
+    /* US-registered company, remote role worked from Portugal. The timeline
+       shows `country` only, so it carries the employer's side. */
+    location: "Remote, from Cascais, Portugal",
+    country: "USA",
+    kind: "engineering",
+    period: "11/2026 – present",
+    summary:
+      "Partner programme management and LLM infrastructure engineering: API integrations, model routing, usage and cost tracking.",
+  },
+  {
     /* The org name is withheld, so the timeline renders a redaction bar in
        place of it. `undisclosed` is the only flag here that drives rendering;
        everything else is the same shape as any other entry. */
@@ -11,7 +25,7 @@ export const roles = [
     location: "Cascais, Portugal (remote)",
     country: "Portugal",
     kind: "engineering",
-    period: "2026 – present",
+    period: "2026",
     summary:
       "Real-time data intelligence: ingestion pipelines, cross-source reconciliation and statistical modelling, built end-to-end. In production.",
     undisclosed: true,
@@ -79,7 +93,7 @@ export const roles = [
 ] satisfies readonly Role[];
 
 /**
- * The ongoing role, derived from the period rather than a separate flag so the
+ * An ongoing role, derived from the period rather than a separate flag so the
  * two can never drift apart.
  */
 export function isCurrentRole(role: Role): boolean {
