@@ -8,10 +8,11 @@ import { useEffect, useRef, type ReactNode } from "react";
  * `globals.css`); this file does one thing, which is to tell the stylesheet
  * where the pointer is.
  *
- * One of the site's three chrome-level client boundaries — ScrollCue and the
- * character field (`field/LazyAsciiField`) are the others, and `ScrollCue.tsx`
- * carries the full count charter 12 requires: ten `use client` components,
- * these three plus seven case-study widgets under
+ * One of the site's four chrome-level client boundaries — ScrollCue, the
+ * character field (`field/LazyAsciiField`) and the hero warp (`warp/LazyWarp`)
+ * are the others, and `ScrollCue.tsx` carries the full count charter 12
+ * requires: eleven `use client` components, these four plus seven case-study
+ * widgets under
  * `/work/[slug]`. A server
  * component cannot do this: the pointer position exists only in the browser,
  * only after the page is interactive, and changes many times a second, so there

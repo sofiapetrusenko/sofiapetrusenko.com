@@ -120,7 +120,7 @@ describe("Reveal", () => {
   // wrong count survived — nothing asserted the positive, so three comments
   // could say "the site's two client components" while nine files carried the
   // directive. These two tests assert the count itself.
-  it("keeps the site to ten client components, three of them chrome", () => {
+  it("keeps the site to eleven client components, four of them chrome", () => {
     const clients = componentsWithUseClient();
 
     expect(clients).toEqual([
@@ -134,19 +134,21 @@ describe("Reveal", () => {
       "ScrollCue.tsx",
       "SweepExplorer.tsx",
       "field/LazyAsciiField.tsx",
+      "warp/LazyWarp.tsx",
     ]);
-    expect(clients).toHaveLength(10);
+    expect(clients).toHaveLength(11);
   });
 
   it("renders the other seven only from /work/[slug]", () => {
-    // What makes "three" a defensible thing to say next to ScrollCue,
-    // CardSpotlight and the field's LazyAsciiField: the other seven are the content
+    // What makes "four" a defensible thing to say next to ScrollCue,
+    // CardSpotlight, the field's LazyAsciiField and the hero's LazyWarp: the other seven are the content
     // of a case study, not part of the site's chrome. That is only true while
     // no other route imports one.
     const chrome = [
       "ScrollCue.tsx",
       "CardSpotlight.tsx",
       "field/LazyAsciiField.tsx",
+      "warp/LazyWarp.tsx",
     ];
     const widgets = componentsWithUseClient().filter(
       (f) => !chrome.includes(f),

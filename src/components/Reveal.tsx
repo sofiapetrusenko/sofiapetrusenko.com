@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
  * Scroll reveal wrapper. A server component: the reveal is a CSS scroll-driven
  * animation on `[data-reveal]` (see `globals.css`), so there is no browser API
  * to call and nothing here needs a client boundary. This file used to be a
- * client component; the three chrome-level boundaries are ScrollCue,
- * CardSpotlight and the character field (`field/LazyAsciiField`). Site-wide the
- * count charter 12 makes normative is **ten** `use client` components — those
- * three plus the seven interactive case-study
+ * client component; the four chrome-level boundaries are ScrollCue,
+ * CardSpotlight, the character field (`field/LazyAsciiField`) and the hero warp
+ * (`warp/LazyWarp`). Site-wide the count charter 12 makes normative is
+ * **eleven** `use client` components — those four plus the seven interactive
+ * case-study
  * widgets rendered only by `/work/[slug]`. `ScrollCue.tsx` names them; the last
  * two tests in `Reveal.test.tsx` assert both numbers, because "two client
  * components" was written here at baseline, was wrong by seven, and survived
